@@ -5,21 +5,7 @@ import os
 import numpy as np
 from gputools import OCLArray, OCLProgram, get_device
 
-
-def absPath(myPath):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
-    import sys, os
-
-    try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = sys._MEIPASS
-        logger.debug("found MEIPASS: %s "%os.path.join(base_path, os.path.basename(myPath)))
-
-        return os.path.join(base_path, os.path.basename(myPath))
-    except Exception:
-        base_path = os.path.abspath(os.path.dirname(__file__))
-        return os.path.join(base_path, myPath)
-
+from abspath import abspath
 
 # def _convolve_axis2_gpu(data_g, h_g, axis= 0, res_g=None, dev = None):
 #     if dev is None:
@@ -62,7 +48,7 @@ def _convolve_sep2_numpy(data,hx,hy):
     return _convolve_sep2_gpu(data_g,hx_g,hy_g).get()
 
 def _convolve_sep2_gpu(data_g, hx_g, hy_g, res_g = None, dev = None):
-    prog = OCLProgram(absPath("kernels/convolve_sep.cl"))
+    prog = OCLProgram(abspath("kernels/convolve_sep.cl"))
 
     Ny,Nx = hy_g.shape[0],hx_g.shape[0]
 
@@ -104,7 +90,7 @@ def _convolve_sep3_numpy(data,hx,hy,hz):
     return _convolve_sep3_gpu(data_g,hx_g,hy_g,hz_g).get()
 
 def _convolve_sep3_gpu(data_g, hx_g, hy_g, hz_g, res_g = None, dev = None):
-    prog = OCLProgram(absPath("kernels/convolve_sep.cl"))
+    prog = OCLProgram(abspath("kernels/convolve_sep.cl"))
 
     Nz, Ny,Nx = hz_g.shape[0],hy_g.shape[0],hx_g.shape[0]
 

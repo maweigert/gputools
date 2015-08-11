@@ -4,31 +4,16 @@ logger = logging.getLogger(__name__)
 import os
 import numpy as np
 
-from gputools import OCLDevice, OCLProgram, OCLArray, OCLImage, get_device
+from gputools import  OCLProgram, OCLArray, OCLImage, get_device
 
 import sys
 
-def absPath(myPath):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
-    import sys, os
-
-    try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = sys._MEIPASS
-        logger.debug("found MEIPASS: %s "%os.path.join(base_path, os.path.basename(myPath)))
-
-        return os.path.join(base_path, os.path.basename(myPath))
-    except Exception:
-        base_path = os.path.abspath(os.path.dirname(__file__))
-        return os.path.join(base_path, myPath)
+from abspath import abspath
 
 
 
-# __all__ = ['fftconvolve','convolve2','convolve3','convolve_sep2','convolve_sep3']
 
-
-
-def convolve(data,h, dev = None):
+def convolve(data,h):
     """convolves 1-3d data with kernel h on the GPU Device dev
     boundary conditions are clamping to edge.
     h is converted to float32
@@ -46,11 +31,11 @@ def convolve(data,h, dev = None):
         _data = data
 
     if _data.ndim == 1:
-        return _convolve1(_data,h,dev)
+        return _convolve1(_data,h)
     if _data.ndim == 2:
-        return _convolve2(_data,h,dev)
+        return _convolve2(_data,h)
     if _data.ndim == 3:
-        return _convolve3(_data,h,dev)
+        return _convolve3(_data,h)
             
         
     
@@ -62,11 +47,6 @@ def _convolve1(data,h, dev = None):
     if dev == None the default one is used
     """
 
-    if dev is None:
-        dev = get_device()
-
-    if dev is None:
-        raise ValueError("no OpenCLDevice found...")
 
     dtype = data.dtype.type
 
@@ -76,7 +56,7 @@ def _convolve1(data,h, dev = None):
     if not dtype in dtypes_options.keys():
         raise TypeError("data type %s not supported yet, please convert to:"%dtype,dtypes_options.keys())
 
-    prog = OCLProgram(absPath("kernels/convolve.cl"),
+    prog = OCLProgram(abspath("kernels/convolve1.cl"),
                       build_options = dtypes_options[dtype])
 
     
@@ -92,19 +72,11 @@ def _convolve1(data,h, dev = None):
 
     return res.get()
 
-def _convolve2(data,h, dev = None):
+def _convolve2(data,h):
     """convolves 2d data with kernel h on the GPU Device dev
     boundary conditions are clamping to edge.
     h is converted to float32
-
-    if dev == None the default one is used
     """
-
-    if dev is None:
-        dev = get_device()
-
-    if dev is None:
-        raise ValueError("no OpenCLDevice found...")
 
     dtype = data.dtype.type
 
@@ -114,7 +86,7 @@ def _convolve2(data,h, dev = None):
     if not dtype in dtypes_options.keys():
         raise TypeError("data type %s not supported yet, please convert to:"%dtype,dtypes_options.keys())
 
-    prog = OCLProgram(absPath("kernels/convolve.cl"),
+    prog = OCLProgram(abspath("kernels/convolve2.cl"),
                       build_options = dtypes_options[dtype])
 
     hbuf = OCLArray.from_array(h.astype(np.float32))
@@ -152,7 +124,7 @@ def _convolve3(data,h, dev = None):
     if not dtype in dtypes_options.keys():
         raise TypeError("data type %s not supported yet, please convert to:"%dtype,dtypes_options.keys())
 
-    prog = OCLProgram(absPath("kernels/convolve.cl"),
+    prog = OCLProgram(abspath("kernels/convolve3.cl"),
                       build_options = dtypes_options[dtype])
 
     
@@ -177,7 +149,7 @@ def test_convolve():
     data  = np.ones((100,120,140))
     h = np.ones((10,11,12))
 
-    out = convolve(data,h)
+    # out = convolve(data,h)
     out = convolve(data[0,...],h[0,...])
     out = convolve(data[0,0,...],h[0,0,...])
     

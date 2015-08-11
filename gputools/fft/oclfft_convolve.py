@@ -12,11 +12,19 @@ _complex_multiply_kernel = OCLElementwiseKernel(
     "mult")
 
 
-def fft_convolve(data, h, res_g = None, plan = None, inplace = False, kernel_is_fft = False):
+def fft_convolve(data, h, res_g = None,
+                 plan = None, inplace = False,
+                 kernel_is_fft = False,
+                 kernel_is_fftshifted = False):
+    
     """ convolves data with kernel h via FFTs
 
     data should be either a numpy array or a OCLArray (GPU)
 
+
+    if data/h are OCLArrays, their type should be complex64
+    and h should already be fftshifted
+    
     returns either a numpy array or fills a GPU array res_arr when given 
     
     """
@@ -24,18 +32,21 @@ def fft_convolve(data, h, res_g = None, plan = None, inplace = False, kernel_is_
     
     if isinstance(data,np.ndarray):
         return _fft_convolve_numpy(data, h,
-                                plan = plan,
-                                kernel_is_fft = kernel_is_fft)
+                                   plan = plan,
+                                   kernel_is_fft = kernel_is_fft,
+                                   kernel_is_fftshifted = kernel_is_fftshifted)
     elif isinstance(data,OCLArray):
         return _fft_convolve_gpu(data,h, res_g = res_g,
-                                        plan = plan, inplace = inplace,
-                                        kernel_is_fft = kernel_is_fft)
+                                 plan = plan, inplace = inplace,
+                                 kernel_is_fft = kernel_is_fft)
     else:
         raise TypeError("array argument (1) has bad type: %s"%type(arr_obj))
 
 
 
-def _fft_convolve_numpy(data, h, plan = None, kernel_is_fft = False):
+def _fft_convolve_numpy(data, h, plan = None,
+                        kernel_is_fft = False,
+                        kernel_is_fftshifted = False):
     """ convolving via opencl fft for numpy arrays
 
     data and h must have the same size
@@ -48,18 +59,24 @@ def _fft_convolve_numpy(data, h, plan = None, kernel_is_fft = False):
 
     
     data_g = OCLArray.from_array(data.astype(np.complex64))
+
+    if not kernel_is_fftshifted:
+        h = np.fft.fftshift(h)
+
+    
     h_g = OCLArray.from_array(h.astype(np.complex64))
     res_g = OCLArray.empty_like(data_g)
     
     _fft_convolve_gpu(data_g,h_g,res_g = res_g,
                       plan = plan,
-                      kernel_is_fft = kernel_is_fft )
+                      kernel_is_fft = kernel_is_fft)
 
     return abs(res_g.get())
 
 
 def _fft_convolve_gpu(data_g, h_g, res_g = None,
-                             plan = None, inplace = False, kernel_is_fft = False):
+                      plan = None, inplace = False,
+                      kernel_is_fft = False):
     """ fft convolve for gpu buffer
     """
 
