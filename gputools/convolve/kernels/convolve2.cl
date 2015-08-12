@@ -28,3 +28,5 @@ __kernel void convolve2d(__read_only image2d_t input,__global float* h,__global 
   }
   output[i0+j0*Nx] = res;
 }
+
+

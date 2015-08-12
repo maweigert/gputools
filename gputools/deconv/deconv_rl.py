@@ -6,11 +6,22 @@ logger = logging.getLogger(__name__)
 import os
 import numpy as np
 from gputools import OCLArray, OCLProgram, get_device
-from gputools import fft_convolve, fft, fft_plan
+from gputools import convolve, fft_convolve, fft, fft_plan
 from gputools import OCLElementwiseKernel
 
 from abspath import abspath
 
+
+
+_multiply_inplace = OCLElementwiseKernel(
+        "float *a, float * b",
+        "a[i] = a[i] * b[i]",
+    "mult_inplace")
+
+_divide_inplace = OCLElementwiseKernel(
+        "float *a, float * b",
+        "b[i] = a[i]*b[i]/(b[i]*b[i]+0.001f)",
+    "divide_inplace")
 
 
 _complex_multiply = OCLElementwiseKernel(
@@ -34,42 +45,8 @@ _complex_divide_inplace = OCLElementwiseKernel(
     "divide_inplace")
 
 
-def multiply(aBuf,bBuf,resBuf, dev, prog):
-    prog.run_kernel("multiply_complex_inplace",(aBuf.size,),None,
-                   aBuf.data,bBuf.data,resBuf.data)
-
-def multiply_inplace(aBuf,bBuf,dev, prog):
-    prog.run_kernel("multiply_complex_inplace",(aBuf.size,),None,
-                   aBuf.data,bBuf.data)
-
-def divide_inplace(aBuf,bBuf,dev, prog):
-    prog.run_kernel("divide_complex_inplace",(aBuf.size,),None,
-                   aBuf.data,bBuf.data)
-
-def convolve(buf, h_f_buf, resBuf,dev, prog, plan):
-
-    plan.execute(buf.data,resBuf.data)
-
-    prog.run_kernel("multiply_complex_inplace",(buf.size,),None,
-                   resBuf.data,h_f_buf.data)
-
-    plan.execute(resBuf.data,inverse=True)
-
-def convolve_inplace(buf, h_f_buf,  dev, prog, plan = None):
-
-    if plan is None:
-        plan = Plan(data.shape, queue = dev.queue)
-
-    plan.execute(buf.data)
-
-    prog.run_kernel("multiply_complex_inplace",(buf.size,),None,
-                   buf.data,h_f_buf.data)
-
-    plan.execute(buf.data,inverse=True)
-
-
-
-def _deconv_rl_np(data, h, Niter = 10, h_is_fftshifted = False):
+def _deconv_rl_np(data, h, Niter = 10, 
+                h_is_fftshifted = False):
     """ deconvolves data with given psf (kernel) h
 
     data and h have to be same shape
@@ -77,7 +54,6 @@ def _deconv_rl_np(data, h, Niter = 10, h_is_fftshifted = False):
     
     via lucy richardson deconvolution
     """
-
 
     if data.shape != h.shape:
         raise ValueError("data and h have to be same shape")
@@ -122,14 +98,10 @@ def _deconv_rl_np(data, h, Niter = 10, h_is_fftshifted = False):
 
     return np.abs(u_g.get())
 
-def _deconv_rl_gpu(data_g, h_g, Niter = 10):
-    """ deconvolves data with given psf (kernel) h
+def _deconv_rl_gpu_fft(data_g, h_g, Niter = 10):
+    """ 
+    using fft_convolve
 
-    data and h have to be same shape
-
-    h has to be fft_shifted
-    
-    via lucy richardson deconvolution
     """
 
 
@@ -169,24 +141,52 @@ def _deconv_rl_gpu(data_g, h_g, Niter = 10):
 
     return u_g
 
+def _deconv_rl_gpu_conv(data_g, h_g, Niter = 10):
+    """ 
+    using convolve
+
+    """
+        
+    #set up some gpu buffers
+    u_g = OCLArray.empty(data_g.shape,np.float32)
+
+    u_g.copy_buffer(data_g)
+    
+    tmp_g = OCLArray.empty(data_g.shape,np.float32)
+    tmp2_g = OCLArray.empty(data_g.shape,np.float32)
+
+    #fix this
+    hflip_g = OCLArray.from_array((h_g.get()[::-1,::-1]).copy())
+
+    for i in range(Niter):
+        convolve(u_g, h_g,
+                 res_g = tmp_g)
+        
+        _divide_inplace(data_g,tmp_g)
+        convolve(tmp_g, hflip_g,
+                 res_g = tmp2_g)
+        _multiply_inplace(u_g,tmp2_g)
+
+    return u_g
+
+
 if __name__ == '__main__':
 
     from scipy.misc import lena
     
     d = lena()
 
-    x = np.linspace(-1,1,512+1)[:-1]
-    Y,X = np.meshgrid(x,x,indexing="ij")
-    
-    h = np.exp(-2000*(Y**2+X**2))
-    h *= 1./np.sum(h)
-    
-    y = fft_convolve(d,h)
+    h = np.ones((11,)*2)/121.
+    hpad = np.pad(h,((251,250),(251,250)),mode="constant")
+
+    y = convolve(d,h)
 
     y += np.random.normal(0,1,d.shape)
 
-    res = _deconv_rl_np(y,h,20)
+    # res = _deconv_rl_np(y,h,20)
 
-    res_g = _deconv_rl_gpu(OCLArray.from_array(y.astype(np.complex64)),
-                           OCLArray.from_array(np.fft.fftshift(h).astype(np.complex64)),20)
+    # res_g = _deconv_rl_gpu_fft(OCLArray.from_array(y.astype(np.complex64)),
+    #                        OCLArray.from_array(np.fft.fftshift(h).astype(np.complex64)),20)
     
+    res2_g = _deconv_rl_gpu_conv(OCLArray.from_array(y.astype(np.float32)),
+                             OCLArray.from_array(h.astype(np.float32)),20)
