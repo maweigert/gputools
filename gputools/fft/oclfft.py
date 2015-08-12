@@ -30,7 +30,7 @@ def fft_plan(shape):
 def fft(arr_obj,res_g = None, inplace = False, inverse = False, plan = None):
     """ fourier trafo of 1-3D arrays
 
-    arr_obj should be either a numpy array or a OCLArray (GPU)
+    arr_obj should be either a numpy array or a complex64 OCLArray 
 
     returns either a numpy array or the  GPU array res_arr when given 
     """
@@ -58,12 +58,20 @@ def _ocl_fft_numpy(arr,inverse = False, plan = None):
     return ocl_arr.get()
 
 def _ocl_fft_gpu_inplace(ocl_arr,inverse = False, plan = None):
+
+    if ocl_arr.dtype.type != np.complex64: 
+        raise TypeError("arraygpu buffer argument has bad type: %s but should be complex64"%ocl_arr.dtype)
+
     if plan is None:
         plan = Plan(ocl_arr.shape, queue = get_device().queue)
 
     plan.execute(ocl_arr.data,ocl_arr.data, inverse = inverse)
 
 def _ocl_fft_gpu(ocl_arr,res_arr,inverse = False, plan = None):
+
+    if ocl_arr.dtype.type != np.complex64: 
+        raise TypeError("arraygpu buffer argument has bad type: %s but should be complex64"%ocl_arr.dtype)
+
     if plan is None:
         plan = Plan(ocl_arr.shape, queue = get_device().queue)
 
