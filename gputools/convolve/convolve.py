@@ -5,6 +5,7 @@ import os
 import numpy as np
 
 from gputools import  OCLProgram, OCLArray, OCLImage, get_device
+from gputools.core.ocltypes import assert_bufs_type
 
 import sys
 
@@ -58,9 +59,7 @@ def _convolve_buf(data_g, h_g , res_g = None):
     """
     buffer variant
     """
-
-    if not data_g.dtype.type == np.float32 and h_g.dtype.type == np.float32:
-        raise NotImplementedError("data types %s %s not supported yet:"%(data_g.dtype.type,h_g.dtype.type))
+    assert_bufs_type(np.float32,data_g,h_g)
 
     prog = OCLProgram(abspath("kernels/convolve.cl"))
 
@@ -77,7 +76,7 @@ def _convolve_buf(data_g, h_g , res_g = None):
     return res_g
 
 
-def _convolve3(data,h, dev = None):
+def _convolve3_old(data,h, dev = None):
     """convolves 3d data with kernel h on the GPU Device dev
     boundary conditions are clamping to edge.
     h is converted to float32

@@ -5,6 +5,8 @@ import os
 import numpy as np
 from gputools import OCLArray, OCLProgram, get_device
 
+from gputools.core.ocltypes import assert_bufs_type
+
 from abspath import abspath
 
 # def _convolve_axis2_gpu(data_g, h_g, axis= 0, res_g=None, dev = None):
@@ -48,6 +50,10 @@ def _convolve_sep2_numpy(data,hx,hy):
     return _convolve_sep2_gpu(data_g,hx_g,hy_g).get()
 
 def _convolve_sep2_gpu(data_g, hx_g, hy_g, res_g = None, dev = None):
+
+    
+    assert_bufs_type(np.float32,data_g,hx_g,hy_g)
+
     prog = OCLProgram(abspath("kernels/convolve_sep.cl"))
 
     Ny,Nx = hy_g.shape[0],hx_g.shape[0]
@@ -90,6 +96,9 @@ def _convolve_sep3_numpy(data,hx,hy,hz):
     return _convolve_sep3_gpu(data_g,hx_g,hy_g,hz_g).get()
 
 def _convolve_sep3_gpu(data_g, hx_g, hy_g, hz_g, res_g = None, dev = None):
+
+    assert_bufs_type(np.float32,data_g,hx_g,hy_g)
+
     prog = OCLProgram(abspath("kernels/convolve_sep.cl"))
 
     Nz, Ny,Nx = hz_g.shape[0],hy_g.shape[0],hx_g.shape[0]
@@ -102,8 +111,7 @@ def _convolve_sep3_gpu(data_g, hx_g, hy_g, hz_g, res_g = None, dev = None):
     
     prog.run_kernel("conv_sep3_x",data_g.shape[::-1],None,data_g.data,hx_g.data,res_g.data,np.int32(Nx))
     prog.run_kernel("conv_sep3_y",data_g.shape[::-1],None,res_g.data,hy_g.data,tmp_g.data,np.int32(Ny))
-    # prog.run_kernel("conv_sep3_z",data_g.shape[::-1],None,tmp_g.data,hy_g.data,res_g.data,np.int32(Nz))
-    prog.run_kernel("conv_sep3_y",data_g.shape[::-1],None,res_g.data,hy_g.data,tmp_g.data,np.int32(Ny))
+    prog.run_kernel("conv_sep3_z",data_g.shape[::-1],None,tmp_g.data,hy_g.data,res_g.data,np.int32(Nz))
 
     return res_g
 
@@ -121,7 +129,7 @@ def test_2d():
 
     data_g = OCLArray.from_array(data)
     hx_g = OCLArray.from_array(hx.astype(np.float32))
-    hy_g = OCLArray.from_array(hy.astype(np.float32))
+    hy_g = OCLArray.from_array(hy.astype(np.float64))
 
     out_g = convolve_sep2(data_g,hx_g,hy_g)
         
@@ -161,6 +169,6 @@ def test_3d():
 
 if __name__ == '__main__':
 
-    out1, out2 = test_3d()
-    # out1, out2 = test_2d()
+    # out1, out2 = test_3d()
+    out1, out2 = test_2d()
 

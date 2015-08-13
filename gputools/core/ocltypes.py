@@ -12,6 +12,11 @@ from gputools import get_device
 
 import pyopencl.clmath as cl_math
 
+def assert_bufs_type(mytype,*bufs):
+    if not all([b.dtype.type == mytype for b in bufs]):
+        raise TypeError("all data type of buffer(s) should be %s! but are %s"%
+                        (mytype,str([b.dtype.type for b in bufs])))
+
 
 def _wrap_OCLArray(cls):
     @classmethod

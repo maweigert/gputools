@@ -3,6 +3,7 @@ import numpy as np
 from pyfft.cl import Plan
 
 from gputools import OCLArray, get_device
+from gputools.core.ocltypes import assert_bufs_type
 
 
 def fft_plan(shape):
@@ -59,8 +60,7 @@ def _ocl_fft_numpy(arr,inverse = False, plan = None):
 
 def _ocl_fft_gpu_inplace(ocl_arr,inverse = False, plan = None):
 
-    if ocl_arr.dtype.type != np.complex64: 
-        raise TypeError("arraygpu buffer argument has bad type: %s but should be complex64"%ocl_arr.dtype)
+    assert_bufs_type(np.complex64,ocl_arr)
 
     if plan is None:
         plan = Plan(ocl_arr.shape, queue = get_device().queue)
@@ -69,8 +69,7 @@ def _ocl_fft_gpu_inplace(ocl_arr,inverse = False, plan = None):
 
 def _ocl_fft_gpu(ocl_arr,res_arr,inverse = False, plan = None):
 
-    if ocl_arr.dtype.type != np.complex64: 
-        raise TypeError("arraygpu buffer argument has bad type: %s but should be complex64"%ocl_arr.dtype)
+    assert_bufs_type(np.complex64,ocl_arr)
 
     if plan is None:
         plan = Plan(ocl_arr.shape, queue = get_device().queue)

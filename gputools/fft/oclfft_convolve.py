@@ -4,6 +4,7 @@ import numpy as np
 from gputools import OCLArray, get_device
 from gputools.fft.oclfft import fft, fft_plan
 from gputools.core.oclalgos import OCLElementwiseKernel
+from gputools.core.ocltypes import assert_bufs_type
 
 
 _complex_multiply_kernel = OCLElementwiseKernel(
@@ -82,8 +83,7 @@ def _fft_convolve_gpu(data_g, h_g, res_g = None,
 
     dev = get_device()
 
-    if not(data_g.dtype.type == h_g.dtype.type == np.complex64):
-        raise ValueError("data and kernel buffer types must be complex64! (but are %s and %s) "%(str(data_g.dtype),str(h_g.dtype)))
+    assert_bufs_type(np.complex64,data_g,h_g)
 
     if data_g.shape != h_g.shape:
         raise ValueError("data and kernel must have same size! %s vs %s "%(str(data_g.shape),str(h_g.shape)))
