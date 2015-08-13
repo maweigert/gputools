@@ -102,7 +102,8 @@ def _convolve_sep3_gpu(data_g, hx_g, hy_g, hz_g, res_g = None, dev = None):
     
     prog.run_kernel("conv_sep3_x",data_g.shape[::-1],None,data_g.data,hx_g.data,res_g.data,np.int32(Nx))
     prog.run_kernel("conv_sep3_y",data_g.shape[::-1],None,res_g.data,hy_g.data,tmp_g.data,np.int32(Ny))
-    prog.run_kernel("conv_sep3_z",data_g.shape[::-1],None,tmp_g.data,hy_g.data,res_g.data,np.int32(Nz))
+    # prog.run_kernel("conv_sep3_z",data_g.shape[::-1],None,tmp_g.data,hy_g.data,res_g.data,np.int32(Nz))
+    prog.run_kernel("conv_sep3_y",data_g.shape[::-1],None,res_g.data,hy_g.data,tmp_g.data,np.int32(Ny))
 
     return res_g
 

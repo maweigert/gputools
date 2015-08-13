@@ -67,7 +67,7 @@ def deconv_gpu(d,h):
 if __name__ == "__main__":
 
     ns = 2*arange(2,11)+1
-    #t1 = [deconv_scikit(64,n,2) for n in ns]
+    t1 = [deconv_scikit(64,n,2) for n in ns]
     t2 = [deconv_gpu(256,n,10) for n in ns]
 
 
