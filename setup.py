@@ -9,7 +9,7 @@ setup(name='gputools',
     author_email='mweigert@mpi-cbg.de',
     license='MIT',
     packages=['gputools'],
-    install_requires=["pyopencl"],
+    install_requires=["pyopencl, pyfft"],
     package_data={},
     entry_points = {}
 )
