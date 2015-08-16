@@ -12,6 +12,9 @@ from gputools import get_device
 
 import pyopencl.clmath as cl_math
 
+
+
+
 def assert_bufs_type(mytype,*bufs):
     if not all([b.dtype.type == mytype for b in bufs]):
         raise TypeError("all data type of buffer(s) should be %s! but are %s"%
@@ -45,6 +48,11 @@ def _wrap_OCLArray(cls):
         queue = get_device().queue
         return pyopencl.enqueue_copy(queue, self.data, buf.data,
                                       **kwargs)
+
+    def write_array(self,data, **kwargs):
+        queue = get_device().queue
+        return pyopencl.enqueue_write_buffer(queue, self.data, data,
+                                      **kwargs)
     
     def copy_image(self,img, **kwargs):
         queue = get_device().queue
@@ -66,6 +74,7 @@ def _wrap_OCLArray(cls):
 
     cls.copy_buffer = copy_buffer
     cls.copy_image = copy_image
+    cls.write_array = write_array
 
     for f in ["sum","max","min","dot","vdot"]:
         setattr(cls,f,wrap_module_func(cl_array,f))
@@ -105,7 +114,7 @@ def _wrap_OCLImage(cls):
         if not len(shape) in [1,2,3]:
             raise ValueError("dimension of shape wrong, should be 1...3 but is %s"%len(shape))
         mem_flags = pyopencl.mem_flags.READ_WRITE
-        channel_type = pyopencl.DTYPE_TO_CHANNEL_TYPE[dtype]
+        channel_type = pyopencl.DTYPE_TO_CHANNEL_TYPE[np.dtype(dtype)]
 
 
         _dict_channel_order = {1:pyopencl.channel_order.R,
@@ -163,16 +172,42 @@ def _wrap_OCLImage(cls):
                                      dest_origin = (0,0),
                                      region = img.shape,
                                       **kwargs)
-    
+
+    def write_array(self, data):
+        queue = get_device().queue        
+
+        # 1d images dont have a shape but only a width
+        if hasattr(self,"shape"):
+            imshape = self.shape
+        else:
+            imshape = (self.width,)
+
+        ndim = len(imshape)
+        dshape = data.shape
+        # if clImg.format.channel_order in [cl.channel_order.RGBA,
+        #                                   cl.channel_order.BGRA]:
+        #     dshape = dshape[:-1]
+
+
+        if dshape != imshape[::-1]:
+            raise ValueError("write_array: wrong shape!",data.shape[::-1],imshape)
+        else:
+            pyopencl.enqueue_write_image(queue,self,[0]*ndim,imshape,data)
+
     def get(self, **kwargs):
         queue = get_device().queue
-        shape = self.shape[::-1]
-        if self.format.channel_count>1:
-            shape += (self.format.channel_count,)
-        out = np.empty(shape,dtype=self.dtype)
-        pyopencl.enqueue_read_image(queue,self,[0]*len(self.shape),self.shape,out)
+        if hasattr(self,"shape"):
+            imshape = self.shape
+        else:
+            imshape = (self.width,)
 
-        return out.reshape(shape)
+        dshape = imshape[::-1]
+        if self.format.channel_count>1:
+            dshape += (self.format.channel_count,)
+        out = np.empty(dshape,dtype=self.dtype)
+        pyopencl.enqueue_read_image(queue,self,[0]*len(dshape),imshape,out)
+
+        return out.reshape(dshape)
     
     cls.from_array = from_array
     cls.empty = empty
@@ -180,6 +215,8 @@ def _wrap_OCLImage(cls):
 
     cls.copy_buffer = copy_buffer
     cls.copy_image = copy_image
+    cls.write_array = write_array
+
     cls.get = get
 
     cls.__name__ = "OCLImage"
