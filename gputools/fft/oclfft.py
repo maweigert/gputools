@@ -2,8 +2,12 @@ import numpy as np
 
 from pyfft.cl import Plan
 
+import logging 
+logger = logging.getLogger(__name__)
+
 from gputools import OCLArray, get_device
 from gputools.core.ocltypes import assert_bufs_type
+
 
 
 def fft_plan(shape):
@@ -54,10 +58,15 @@ def _ocl_fft_numpy(arr,inverse = False, plan = None):
     if plan is None:
         plan = Plan(arr.shape, queue = get_device().queue)
 
-    ocl_arr = OCLArray.from_array(arr)
-    plan.execute(ocl_arr.data,ocl_arr.data, inverse = inverse)
-    return ocl_arr.get()
+    if arr.dtype != np.complex64:
+       logger.info("converting %s to complex64, might slow things down..."%arr.dtype)
 
+    ocl_arr = OCLArray.from_array(arr.astype(np.complex64,copy=False))
+    
+    _ocl_fft_gpu_inplace(ocl_arr, inverse = inverse, plan  = plan)
+    
+    return ocl_arr.get()
+    
 def _ocl_fft_gpu_inplace(ocl_arr,inverse = False, plan = None):
 
     assert_bufs_type(np.complex64,ocl_arr)
