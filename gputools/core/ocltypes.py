@@ -188,7 +188,6 @@ def _wrap_OCLImage(cls):
         #                                   cl.channel_order.BGRA]:
         #     dshape = dshape[:-1]
 
-
         if dshape != imshape[::-1]:
             raise ValueError("write_array: wrong shape!",data.shape[::-1],imshape)
         else:
