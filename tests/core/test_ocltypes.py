@@ -24,8 +24,6 @@ def buffer_create_write(data):
     assert np.allclose(data,buf.get())
 
 
-
-
 def test_all():
     ndims = [1,2,3]
     Ns = [10,100,200]
