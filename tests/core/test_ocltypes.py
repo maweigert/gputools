@@ -11,6 +11,7 @@ def image_from_array(data):
 def image_create_write(data):
     im = OCLImage.empty(data.shape,data.dtype)
     im.write_array(data)
+    
     assert np.allclose(data,im.get())
 
 def buffer_from_array(data):
