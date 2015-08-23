@@ -56,7 +56,7 @@ def affine(data, mat = np.identity(4), interp = "linear"):
     return res_g.get()
 
 
-def translate(data,x = 0,y = 0,z = 0, interp = "linear"):
+def translate(data,x = 0, y = 0,z = 0, interp = "linear"):
     return affine(data,_mat4_translate(x,y,z),interp)
 
 
@@ -65,7 +65,6 @@ def rotate(data,center = (0,0,0), axis = (1.,0,0), angle = 0., interp = "linear"
     m = np.dot(_mat4_translate(cx,cy,cz),
                np.dot(_mat4_rotation(angle,*axis),
                       _mat4_translate(-cx,-cy,-cz)))
-    print m
     return affine(data,m,interp)
 
 

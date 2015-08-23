@@ -16,6 +16,6 @@ from gputools.core.oclalgos import OCLReductionKernel, OCLElementwiseKernel
 from gputools.denoise.bilateral3 import bilateral3 
 
 
-from gputools.utils.scale import scale
-from gputools.utils.transformations import affine, rotate, translate
+from gputools.transforms.scale import scale
+from gputools.transforms.transformations import affine, rotate, translate
 

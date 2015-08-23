@@ -77,7 +77,7 @@ __kernel void conv_sep3_x(__global float * input,
   const int h_end = ((i+Nh/2)>=Nx)?Nh-(i+Nh/2-Nx+1):Nh;
 
   for (int ht = h_start; ht< h_end; ++ht)
-	  res += h[ht]*input[start+ht+j*Ny+k*Nx*Ny];
+	  res += h[ht]*input[start+ht+j*Nx+k*Nx*Ny];
 
 	
   output[i+j*Nx+k*Nx*Ny] = res;
@@ -106,7 +106,7 @@ __kernel void conv_sep3_y(__global float * input,
   const int h_end = ((j+Nh/2)>=Ny)?Nh-(j+Nh/2-Ny+1):Nh;
 
   for (int ht = h_start; ht< h_end; ++ht)
-	res += h[ht]*input[i+(start+ht)*Ny+k*Nx*Ny];
+	res += h[ht]*input[i+(start+ht)*Nx+k*Nx*Ny];
 
 	
   output[i+j*Nx+k*Nx*Ny] = res;
@@ -135,7 +135,7 @@ __kernel void conv_sep3_z(__global float * input,
   const int h_end = ((k+Nh/2)>=Nz)?Nh-(k+Nh/2-Nz+1):Nh;
 
   for (int ht = h_start; ht< h_end; ++ht)
-	res += h[ht]*input[i+j*Ny+(start+ht)*Nx*Ny];
+	res += h[ht]*input[i+j*Nx+(start+ht)*Nx*Ny];
 
 	
   output[i+j*Nx+k*Nx*Ny] = res;
