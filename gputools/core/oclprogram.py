@@ -6,6 +6,9 @@ import pyopencl
 
 from gputools import get_device
 
+class CL_BUILD_PROGRAM_FAILURE:
+    pass
+
 
 class OCLProgram(pyopencl.Program):
     """ a wrapper class representing a CPU/GPU Program"""
