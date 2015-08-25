@@ -72,7 +72,13 @@ def _fft_convolve_numpy(data, h, plan = None,
                       plan = plan,
                       kernel_is_fft = kernel_is_fft)
 
-    return abs(res_g.get())
+    res =  abs(res_g.get())
+
+    del data_g
+    del h_g
+    del res_g
+    
+    return res
 
 
 def _fft_convolve_gpu(data_g, h_g, res_g = None,
@@ -98,7 +104,6 @@ def _fft_convolve_gpu(data_g, h_g, res_g = None,
         if res_g is None:
             res_g = OCLArray.empty(data_g.shape,data_g.dtype)
             
-        res_g = res_g
         res_g.copy_buffer(data_g)
         
     if not kernel_is_fft:
@@ -113,6 +118,7 @@ def _fft_convolve_gpu(data_g, h_g, res_g = None,
 
 
     #multiply in fourier domain
+    print res_g.dtype, res_g.nbytes
     _complex_multiply_kernel(res_g,kern_g)
 
     fft(res_g,inplace = True, inverse = True, plan = plan)

@@ -13,9 +13,10 @@ from gputools.convolve.convolve import convolve
 
 from gputools.core.oclalgos import OCLReductionKernel, OCLElementwiseKernel
 
-from gputools.denoise.bilateral3 import bilateral3 
+from gputools import denoise
 
 
 from gputools.transforms.scale import scale
 from gputools.transforms.transformations import affine, rotate, translate
+
 
