@@ -13,8 +13,6 @@ from gputools import get_device
 import pyopencl.clmath as cl_math
 
 
-
-
 def assert_bufs_type(mytype,*bufs):
     if not all([b.dtype.type == mytype for b in bufs]):
         raise TypeError("all data type of buffer(s) should be %s! but are %s"%
@@ -22,6 +20,9 @@ def assert_bufs_type(mytype,*bufs):
 
 
 def _wrap_OCLArray(cls):
+    """
+    WRAPPER
+    """
     @classmethod
     def from_array(cls,arr,*args, **kwargs):
         queue = get_device().queue
@@ -82,7 +83,8 @@ def _wrap_OCLArray(cls):
     for f in dir(cl_math):
         if callable(getattr(cl_math,f)):
             setattr(cls,f,wrap_module_func(cl_math,f))
-        
+
+    
     # cls.sum = sum
     cls.__name__ = "OCLArray"
     return cls

@@ -11,7 +11,13 @@ class CL_BUILD_PROGRAM_FAILURE:
 
 
 class OCLProgram(pyopencl.Program):
-    """ a wrapper class representing a CPU/GPU Program"""
+    """ a wrapper class representing a CPU/GPU Program
+
+    example:
+
+         prog = OCLProgram("mykernels.cl",build_options=["-D FLAG"])
+    
+    """
 
     def __init__(self,file_name = None,src_str = None, build_options =[], dev = None):
         if file_name is not None:

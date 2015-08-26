@@ -20,13 +20,14 @@ def fft_convolve(data, h, res_g = None,
     
     """ convolves data with kernel h via FFTs
 
-    data should be either a numpy array or a OCLArray (GPU)
-
-
-    if data/h are OCLArrays, their type should be complex64
-    and h should already be fftshifted
     
-    returns either a numpy array or fills a GPU array res_arr when given 
+    data should be either a numpy array or a OCLArray (see doc for fft)
+    both data and h should be same shape
+
+    if data/h are OCLArrays, then:
+        - type should be complex64
+        - shape should be equal and power of two
+        - h is assumed to be already fftshifted
     
     """
 

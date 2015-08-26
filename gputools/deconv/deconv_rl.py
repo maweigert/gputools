@@ -45,7 +45,31 @@ _complex_divide_inplace = OCLElementwiseKernel(
     "divide_inplace")
 
 
-def _deconv_rl_np(data, h, Niter = 10, 
+def deconv_rl(data, h, Niter = 10):
+    """ richardson lucy deconvolution of data with psf h
+    using spatial convolutions (h should be small then)
+    """
+    
+    if isinstance(data,np.ndarray):
+        return _deconv_rl_np(data,h, Niter)
+    
+    elif isinstance(data,OCLArray):
+        return _deconv_rl_gpu_conv(data,h, Niter)
+
+    else:
+        raise TypeError("array argument (1) has bad type: %s"%type(arr_obj))
+
+
+
+def _deconv_rl_np(data, h, Niter = 10, ):
+    """
+    """
+    d_g = OCLArray.from_array(data.astype(np.float32, copy = False))
+    h_g = OCLArray.from_array(h.astype(np.float32, copy = False))
+    res_g = _deconv_rl_gpu_conv(d_g,h_g,Niter)
+    return res_g.get()
+    
+def _deconv_rl_np_fft(data, h, Niter = 10, 
                 h_is_fftshifted = False):
     """ deconvolves data with given psf (kernel) h
 
@@ -131,8 +155,10 @@ def _deconv_rl_gpu_fft(data_g, h_g, Niter = 10):
                      res_g = tmp_g,
                      kernel_is_fft = True)
 
+
         _complex_divide_inplace(data_g,tmp_g)
 
+        
         fft_convolve(tmp_g,hflip_g,
                      inplace = True,
                      kernel_is_fft = True)
@@ -161,8 +187,12 @@ def _deconv_rl_gpu_conv(data_g, h_g, Niter = 10):
     for i in range(Niter):
         convolve(u_g, h_g,
                  res_g = tmp_g)
-        
+
+
         _divide_inplace(data_g,tmp_g)
+
+        # return data_g, tmp_g
+        
         convolve(tmp_g, hflip_g,
                  res_g = tmp2_g)
         _multiply_inplace(u_g,tmp2_g)
@@ -174,19 +204,20 @@ if __name__ == '__main__':
 
     from scipy.misc import lena
     
-    d = lena()
-
+    d = np.pad(lena(),((50,)*2,)*2,mode="constant")
+    
     h = np.ones((11,)*2)/121.
-    hpad = np.pad(h,((251,250),(251,250)),mode="constant")
+    # hpad = np.pad(h,((251,250),(251,250)),mode="constant")
 
     y = convolve(d,h)
 
-    y += np.random.normal(0,1,d.shape)
+    y += 0.02*np.max(d)*np.random.uniform(0,1,d.shape)
 
-    # res = _deconv_rl_np(y,h,20)
+    print "start"
 
-    # res_g = _deconv_rl_gpu_fft(OCLArray.from_array(y.astype(np.complex64)),
-    #                        OCLArray.from_array(np.fft.fftshift(h).astype(np.complex64)),20)
     
-    res2_g = _deconv_rl_gpu_conv(OCLArray.from_array(y.astype(np.float32)),
-                             OCLArray.from_array(h.astype(np.float32)),20)
+    # u = deconv_rl(y,h, 1)
+
+
+    out = [r.get() for r in _deconv_rl_gpu_conv(OCLArray.from_array(y.astype(np.float32)),OCLArray.from_array(h.astype(np.float32)),1)]
+    

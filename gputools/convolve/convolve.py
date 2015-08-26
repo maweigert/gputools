@@ -49,8 +49,8 @@ def _convolve_np(data, h):
     """
 
     
-    data_g = OCLArray.from_array(data.astype(np.float32))
-    h_g = OCLArray.from_array(h.astype(np.float32))
+    data_g = OCLArray.from_array(data.astype(np.float32, copy = False))
+    h_g = OCLArray.from_array(h.astype(np.float32, copy = False))
     
     return _convolve_buf(data_g, h_g).get()  
 

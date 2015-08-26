@@ -11,38 +11,36 @@ from gputools.core.ocltypes import assert_bufs_type
 
 
 def fft_plan(shape):
+    """returns an opencl/pyfft plan of shape dshape"""
     return Plan(shape, queue = get_device().queue)
 
-
-# def fft(arr, inplace = False, inverse = False, plan = None):
-#     if isinstance(arr,np.ndarray):
-#         return _ocl_fft_np(arr,inverse = inverse, plan = plan)
-#     else:
-#         raise TypeError("array argument (1) has bad type: %s"%type(arr))
-
-# def fft_g(arr_g,res_g = None, inplace = False, inverse = False, plan = None):
-#     if isinstance(arr_g,OCLArray):
-#         if inplace:
-#             _ocl_fft_buffer_inplace(arr_g,inverse = inverse, plan = plan)
-#         else:
-#             return _ocl_fft_buffer(arr_g,res_g,inverse = inverse, plan = plan)
-
-#     else:
-#         raise TypeError("array argument (1) has bad type: %s"%type(arr_g))
 
     
 
 def fft(arr_obj,res_g = None, inplace = False, inverse = False, plan = None):
-    """ fourier trafo of 1-3D arrays
+    """ (inverse) fourier trafo of 1-3D arrays
 
-    arr_obj should be either a numpy array or a complex64 OCLArray 
+    creates a new plan or uses the given plan
+    
+    the transformed arr_obj should be either a
 
-    returns either a numpy array or the  GPU array res_arr when given 
+    - numpy array:
+
+        returns the fft as numpy array (inplace is ignored)
+    
+    - OCLArray of type complex64:
+
+        writes transform into res_g if given, to arr_obj if inplace
+        or returns a new OCLArray with the transform otherwise
+    
     """
     
     if isinstance(arr_obj,np.ndarray):
         return _ocl_fft_numpy(arr_obj,inverse = inverse, plan = plan)
     elif isinstance(arr_obj,OCLArray):
+        if not arr_obj.dtype.type is np.complex64:
+            raise TypeError("OCLArray arr_obj has to be of complex64 type")
+        
         if inplace:
             _ocl_fft_gpu_inplace(arr_obj,inverse = inverse, plan = plan)
         else:
@@ -76,13 +74,16 @@ def _ocl_fft_gpu_inplace(ocl_arr,inverse = False, plan = None):
 
     plan.execute(ocl_arr.data,ocl_arr.data, inverse = inverse)
 
-def _ocl_fft_gpu(ocl_arr,res_arr,inverse = False, plan = None):
+def _ocl_fft_gpu(ocl_arr,res_arr = None,inverse = False, plan = None):
 
     assert_bufs_type(np.complex64,ocl_arr)
 
     if plan is None:
         plan = Plan(ocl_arr.shape, queue = get_device().queue)
 
+    if res_arr is None:
+        res_arr = OCLArray.empty(ocl_arr.shape,np.complex64)
+        
     plan.execute(ocl_arr.data,res_arr.data, inverse = inverse)
 
     return res_arr
