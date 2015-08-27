@@ -15,8 +15,14 @@ __kernel void convolve1d_buf(__global float * input,
   const int hx_end = ((i+Nhx/2)>=Nx)?Nhx-(i+Nhx/2-Nx+1):Nhx;
 
   
-  for (int htx = hx_start; htx< hx_end; ++htx)
-      res += h[htx]*input[startx+htx];
+  for (int htx = hx_start; htx< hx_end; ++htx){
+	//FIXME:
+	int htx2 = hx_end+hx_start-htx-1;
+
+	res += h[htx2]*input[startx];
+
+	// res += h[htx]*input[startx+htx];
+  }
 
   output[i] = res;
 }
@@ -45,8 +51,16 @@ __kernel void convolve2d_buf(__global float * input,
   const int hy_end = ((j+Nhy/2)>=Ny)?Nhy-(j+Nhy/2-Ny+1):Nhy;
 
   for (int htx = hx_start; htx< hx_end; ++htx)
-    for (int hty = hy_start; hty< hy_end; ++hty)
-      res += h[htx+Nhx*hty]*input[startx+htx+(starty+hty)*Nx];
+    for (int hty = hy_start; hty< hy_end; ++hty){
+
+	  //FIXME:
+	  int htx2 = hx_end+hx_start-htx-1;
+	  int hty2 = hy_end+hy_start-hty-1;
+
+	  res += h[htx2+Nhx*hty2]*input[startx+htx+(starty+hty)*Nx];
+	  
+      // res += h[htx+Nhx*hty]*input[startx+htx+(starty+hty)*Nx];
+    }
 
 	
   output[i+j*Nx] = res;
@@ -84,9 +98,18 @@ __kernel void convolve3d_buf(__global float * input,
 
   for (int htx = hx_start; htx< hx_end; ++htx)
     for (int hty = hy_start; hty< hy_end; ++hty)
-    	for (int htz = hz_start; htz< hz_end; ++htz)	    
-  	res += h[htx+Nhx*hty+Nhx*Nhy*htz]*
-	       input[startx+htx+(starty+hty)*Nx+(startz+htz)*Ny*Nx];
+	  for (int htz = hz_start; htz< hz_end; ++htz) {
+		//FIMXE:
+		int htx2 = hx_end+hx_start-htx-1;
+		int hty2 = hy_end+hy_start-hty-1;
+		int htz2 = hz_end+hz_start-htz-1;
+
+		res += h[htx2+Nhx*hty2+Nhx*Nhy*htz2]*
+		  input[startx+htx+(starty+hty)*Nx+(startz+htz)*Ny*Nx];
+		// res += h[htx+Nhx*hty+Nhx*Nhy*htz]*
+		//   input[startx+htx+(starty+hty)*Nx+(startz+htz)*Ny*Nx];
+
+	  }
 
 	
   output[i+j*Nx+k*Nx*Ny] = res;
