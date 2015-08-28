@@ -48,7 +48,7 @@ if __name__ == "__main__":
     ndim = 3
 
     t1 = [fft_np((n,)*ndim,2) for n in ns]
-    print "finished t1"
+    print("finished t1")
 
     t2 = [fft_gpu((n,)*ndim,6) for n in ns]
 

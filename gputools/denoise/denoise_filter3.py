@@ -41,8 +41,8 @@ def bilateral3(data, fSize, sigmaX, dev = None):
     dtypes_kernels = {np.float32:"run3_float",
                         np.uint16:"run3_short"}
 
-    if not dtype in dtypes_kernels.keys():
-        print "data type %s not supported yet, please convert to:"%dtype,dtypes_kernels.keys()
+    if not dtype in list(dtypes_kernels.keys()):
+        print(("data type %s not supported yet, please convert to:"%dtype,list(dtypes_kernels.keys())))
         return
 
     proc = OCLProcessor(dev,utils.absPath("kernels/bilateral.cl"))
@@ -76,8 +76,8 @@ def nlm3(data, fSize, bSize, sigma, dev = None):
     dtypes_kernels = {np.float32:"nlm3_float",
                         np.uint16:"nlm3_short"}
 
-    if not dtype in dtypes_kernels.keys():
-        print "data type %s not supported yet, please convert to:"%dtype,dtypes_kernels.keys()
+    if not dtype in list(dtypes_kernels.keys()):
+        print(("data type %s not supported yet, please convert to:"%dtype,list(dtypes_kernels.keys())))
         return
 
     proc = OCLProcessor(dev,utils.absPath("kernels/nlmeans3d.cl"))
@@ -87,7 +87,7 @@ def nlm3(data, fSize, bSize, sigma, dev = None):
     dev.writeImage(img,data)
 
 
-    print img.shape
+    print((img.shape))
     proc.runKernel(dtypes_kernels[dtype],img.shape,None,img,buf,
                      np.int32(img.width),np.int32(img.height),
                      np.int32(fSize), np.int32(bSize),np.float32(sigma))
@@ -178,7 +178,7 @@ def nlm3_fast(data,FS,BS,sigma,dev = None, proc = None):
     dtype = data.dtype.type
 
     if not dtype in [np.float32,np.uint16]:
-        print "data type %s not supported yet, please convert to:"%[np.float32,np.uint16]
+        print(("data type %s not supported yet, please convert to:"%[np.float32,np.uint16]))
         return
 
     if dtype == np.float32:
@@ -273,8 +273,8 @@ def test_nlm3_fast():
     t = time()
     out = nlm3_fast(dev,y,2,3,200)
 
-    print "time:", time()-t
-    print "PSNR: ",utils.calcPSNR(data,out)
+    print(("time:", time()-t))
+    print(("PSNR: ",utils.calcPSNR(data,out)))
     # sigs = np.linspace(3,70,30)
 
     # bests = []
@@ -297,7 +297,7 @@ def nlm3_thresh(dev, data, FS,BS, sigma, thresh= 0, mean = False):
     dtype = data.dtype.type
 
     if not dtype in [np.float32,np.uint16]:
-        print "data type %s not supported yet, please convert to:"%[np.float32,np.uint16]
+        print(("data type %s not supported yet, please convert to:"%[np.float32,np.uint16]))
         return
 
     if dtype == np.float32:
@@ -338,8 +338,8 @@ def test_nlm3_thresh():
     t = time()
     out = nlm3_thresh(dev,y,2,3,30,60)
 
-    print time()-t
-    print calcPSNR(data,out)
+    print((time()-t))
+    print((calcPSNR(data,out)))
     # sigs = np.linspace(3,70,30)
 
     # bests = []
@@ -404,8 +404,8 @@ def tv3_gpu(data,weight,Niter=50, Ncut = 1, dev = None):
         Nz,Ny,Nx = data.shape
         # a heuristic guess: Npad = Niter means perfect
         Npad = 1+Niter/2
-        for i0,(i,j,k) in enumerate(product(range(Ncut),repeat=3)):
-            print "calculating box  %i/%i"%(i0+1,Ncut**3)
+        for i0,(i,j,k) in enumerate(product(list(range(Ncut)),repeat=3)):
+            print(("calculating box  %i/%i"%(i0+1,Ncut**3)))
             sx = slice(i*Nx/Ncut,(i+1)*Nx/Ncut)
             sy = slice(j*Ny/Ncut,(j+1)*Ny/Ncut)
             sz = slice(k*Nz/Ncut,(k+1)*Nz/Ncut)
@@ -433,8 +433,8 @@ def test_tv3_gpu():
     t = time()
     out = tv3_gpu(dev,y,.4*np.amax(data))
 
-    print "time:", time()-t
-    print "PSNR: ",utils.calcPSNR(data,out)
+    print(("time:", time()-t))
+    print(("PSNR: ",utils.calcPSNR(data,out)))
     return data,y,out
 
 def bm4d(data,sigma):
@@ -461,7 +461,7 @@ def test_bm4d():
     y = y.astype(np.float32)
 
     out = bm4d(y,20)
-    print calcPSNR(data,out)
+    print((calcPSNR(data,out)))
     sigs = np.linspace(3,70,30)
 
     return data,out
@@ -522,10 +522,10 @@ def test_all():
                "wiener3":lambda x:wiener3(x,3.)
                }
 
-    for name, filter in filters.iteritems():
+    for name, filter in list(filters.items()):
         t = time()
-        filter(d);
-        print "running time = %2.f ms \t name = %s \t size = %s "%(1000.*(time()-t),name,d.shape)
+        list(filter(d));
+        print(("running time = %2.f ms \t name = %s \t size = %s "%(1000.*(time()-t),name,d.shape)))
 
 
 

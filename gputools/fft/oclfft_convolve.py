@@ -119,7 +119,7 @@ def _fft_convolve_gpu(data_g, h_g, res_g = None,
 
 
     #multiply in fourier domain
-    print res_g.dtype, res_g.nbytes
+    print((res_g.dtype, res_g.nbytes))
     _complex_multiply_kernel(res_g,kern_g)
 
     fft(res_g,inplace = True, inverse = True, plan = plan)
@@ -153,4 +153,4 @@ if __name__ == '__main__':
     out = fft_convolve(d,h, inplace = False)
 
     
-    print np.sum(abs(out_g.get())),N**2/9
+    print((np.sum(abs(out_g.get())),N**2/9))

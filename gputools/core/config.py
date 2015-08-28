@@ -13,7 +13,7 @@ cl_datatype_dict = {pyopencl.channel_type.FLOAT:np.float32,
                     pyopencl.channel_type.SIGNED_INT16:np.int16,
                     pyopencl.channel_type.SIGNED_INT32:np.int32}
 
-cl_datatype_dict.update({dtype:cltype for cltype,dtype in cl_datatype_dict.iteritems()})
+cl_datatype_dict.update({dtype:cltype for cltype,dtype in list(cl_datatype_dict.items())})
 
 
 

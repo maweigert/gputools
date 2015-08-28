@@ -7,7 +7,7 @@ from gputools import OCLArray, OCLProgram, get_device
 
 from gputools.core.ocltypes import assert_bufs_type
 
-from abspath import abspath
+from .abspath import abspath
 
 # def _convolve_axis2_gpu(data_g, h_g, axis= 0, res_g=None, dev = None):
 #     if dev is None:
@@ -149,7 +149,7 @@ def test_3d():
     t = time()
     for _ in range(Niter):
         out = convolve_sep3(data,hx,hy, hz)
-    print "time: %.3f ms"%(1000.*(time()-t)/Niter)
+    print(("time: %.3f ms"%(1000.*(time()-t)/Niter)))
 
     data_g = OCLArray.from_array(data)
     hx_g = OCLArray.from_array(hx.astype(np.float32))
@@ -161,7 +161,7 @@ def test_3d():
         out_g = convolve_sep3(data_g,hx_g,hy_g, hz_g)
 
     out_g.get();
-    print "time: %.3f ms"%(1000.*(time()-t)/Niter)
+    print(("time: %.3f ms"%(1000.*(time()-t)/Niter)))
 
         
     return  out, out_g.get()

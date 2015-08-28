@@ -12,7 +12,7 @@ import numpy as np
 
 from gputools import OCLArray,OCLImage, OCLProgram, get_device
 
-from abspath import abspath
+from .abspath import abspath
 
 
 def nlm3(data,sigma, size_filter = 2, size_search = 3):

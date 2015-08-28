@@ -4,7 +4,7 @@ logger = logging.getLogger(__name__)
 import numpy as np
 from PyOCL import OCLDevice, OCLProcessor, cl
 
-from convolve import convolve2
+from .convolve import convolve2
 
 def absPath(myPath):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -37,8 +37,8 @@ def _correlate2(data,h, dev = None):
     dtypes_kernels = {np.float32:"correlate2d_float",
                       np.uint16:"correlate2d_short"}
 
-    if not dtype in dtypes_kernels.keys():
-        raise TypeError("data type %s not supported yet, please convert to:"%dtype,dtypes_kernels.keys())
+    if not dtype in list(dtypes_kernels.keys()):
+        raise TypeError("data type %s not supported yet, please convert to:"%dtype,list(dtypes_kernels.keys()))
 
 
     proc = OCLProcessor(dev,absPath("kernels/correlate_kernels.cl"))
@@ -79,8 +79,8 @@ def correlate2(data,h, dev = None):
     dtypes_kernels = {np.float32:"mean_var_2d_float",
                       np.uint16:"mean_var_2d_short"}
 
-    if not dtype in dtypes_kernels.keys():
-        raise TypeError("data type %s not supported yet, please convert to:"%dtype,dtypes_kernels.keys())
+    if not dtype in list(dtypes_kernels.keys()):
+        raise TypeError("data type %s not supported yet, please convert to:"%dtype,list(dtypes_kernels.keys()))
 
 
     proc = OCLProcessor(dev,absPath("kernels/correlate_kernels.cl"))
@@ -103,7 +103,7 @@ def correlate2(data,h, dev = None):
 
     res = convolve2(dev,data-dataMean,h - hMean)
 
-    print hMean, hVar
+    print((hMean, hVar))
     # # res = convolve2(dev,data-dataMean,h)
 
     # return res

@@ -11,6 +11,7 @@ import pyopencl
 from gputools import get_device
 
 import pyopencl.clmath as cl_math
+import collections
 
 
 def assert_bufs_type(mytype,*bufs):
@@ -81,7 +82,7 @@ def _wrap_OCLArray(cls):
         setattr(cls,f,wrap_module_func(cl_array,f))
 
     for f in dir(cl_math):
-        if callable(getattr(cl_math,f)):
+        if isinstance(getattr(cl_math,f), collections.Callable):
             setattr(cls,f,wrap_module_func(cl_math,f))
 
     
@@ -249,7 +250,7 @@ def test_types():
 
     for x in [b0,b1,b2,im0,im1,im2]:
         if hasattr(x,"sum"):
-            print "sum: %s" %x.sum()
+            print(("sum: %s" %x.sum()))
         assert np.allclose(d,x.get())
 
         

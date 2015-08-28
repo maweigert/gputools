@@ -58,18 +58,18 @@ class OCLDevice:
 
     def print_info(self):
         platforms = pyopencl.get_platforms()
-        print "\n-------- available devices -----------"
+        print("\n-------- available devices -----------")
         for p in platforms:
-            print "platform: \t",p.name
+            print(("platform: \t",p.name))
             printNames = [["CPU",pyopencl.device_type.CPU],
                           ["GPU",pyopencl.device_type.GPU]]
             for name, identifier in printNames:
-                print "device type: \t" , name
+                print(("device type: \t" , name))
                 try:
                     for d in p.get_devices(identifier):
-                        print "\t ", d.name
+                        print(("\t ", d.name))
                 except:
-                    print "nothing found: ", name
+                    print(("nothing found: ", name))
 
         infoKeys = ['NAME','GLOBAL_MEM_SIZE',
                     'GLOBAL_MEM_SIZE','MAX_MEM_ALLOC_SIZE',
@@ -78,10 +78,10 @@ class OCLDevice:
                     'IMAGE3D_MAX_HEIGHT','IMAGE3D_MAX_DEPTH',
                     'MAX_WORK_GROUP_SIZE','MAX_WORK_ITEM_SIZES']
 
-        print "\n-------- currently used device -------"
+        print("\n-------- currently used device -------")
 
         for k in infoKeys:
-            print "%s: \t  %s"% (k, self.get_info(k))
+            print(("%s: \t  %s"% (k, self.get_info(k))))
 
 
 

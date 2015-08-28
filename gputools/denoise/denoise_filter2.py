@@ -23,8 +23,8 @@ def bilateral(data, fSize, sigma, sigma_x = 10., dev= None):
     dtypes_kernels = {np.float32:"run2d_float",
                         np.uint16:"run2d_short"}
 
-    if not dtype in dtypes_kernels.keys():
-        print "data type %s not supported yet, casting to float:"%dtype,dtypes_kernels.keys()
+    if not dtype in list(dtypes_kernels.keys()):
+        print(("data type %s not supported yet, casting to float:"%dtype,list(dtypes_kernels.keys())))
         return
 
 
@@ -121,8 +121,8 @@ def nlm(data, fSize, bSize, sigma, dev = None, proc = None):
     dtypes_kernels = {np.float32:"run2d_float",
                         np.uint16:"run2d_short"}
 
-    if not dtype in dtypes_kernels.keys():
-        print "data type %s not supported yet, please convert to:"%dtype,dtypes_kernels.keys()
+    if not dtype in list(dtypes_kernels.keys()):
+        print(("data type %s not supported yet, please convert to:"%dtype,list(dtypes_kernels.keys())))
         return
 
 
@@ -208,7 +208,7 @@ def test_nlm():
     sigs = np.linspace(2,70,10)
 
     outs  = [calcPSNR(data,nlm(y,2,3,s)) for s in sigs]
-    print "nlm: sig_max = %s" %sigs[np.argmax(outs)]
+    print(("nlm: sig_max = %s" %sigs[np.argmax(outs)]))
 
     return outs
 
@@ -231,10 +231,10 @@ def test_nlm_fast():
         y = data + np.random.normal(0,s0,data.shape)
         y = y.astype(np.float32)
         ind=np.argmax([calcPSNR(data,nlm_fast(y,2,3,s)) for s in sigs])
-        print ind
+        print(ind)
         bests.append([s0,sigs[ind]])
 
-    print "nlm fast: sig_max = %s" %sigs[np.argmax(outs)]
+    print(("nlm fast: sig_max = %s" %sigs[np.argmax(outs)]))
     return bests
 
 
@@ -445,7 +445,7 @@ def test_filter():
 
     data = np.random.uniform(0,1,[2**8,2**8]).astype(np.float32)
 
-    print "running on image shape : {} \n\n".format(data.shape)
+    print(("running on image shape : {} \n\n".format(data.shape)))
 
     fs = {
         "bilateral":lambda:bilateral(data,3,10,10),
@@ -461,9 +461,9 @@ def test_filter():
           }
 
     t = time.time()
-    for f in fs.keys():
+    for f in list(fs.keys()):
         fs[f]()
-        print "%s \t: \t %.2f s"%(f,time.time()-t)
+        print(("%s \t: \t %.2f s"%(f,time.time()-t)))
         t = time.time()
 
 

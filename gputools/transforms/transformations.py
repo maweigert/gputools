@@ -11,10 +11,10 @@ import numpy as np
 from gputools import OCLArray, OCLImage, OCLProgram, get_device
 from gputools import OCLElementwiseKernel
 
-from abspath import abspath
+from .abspath import abspath
 
 
-from quaternion import Quaternion 
+from .quaternion import Quaternion 
 
 
 
@@ -39,8 +39,8 @@ def affine(data, mat = np.identity(4), interp = "linear"):
 
     bop = {"linear":"","nearest":"-D USENEAREST"}
 
-    if not interp in bop.keys():
-        raise KeyError("interp = '%s' not defined ,valid: %s"%(interp,bop.keys()))
+    if not interp in list(bop.keys()):
+        raise KeyError("interp = '%s' not defined ,valid: %s"%(interp,list(bop.keys())))
     
     d_im = OCLImage.from_array(data)
     res_g = OCLArray.empty(data.shape,np.float32)

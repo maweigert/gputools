@@ -27,10 +27,10 @@ if __name__ == '__main__':
     
     t = time()
     res1 = convolve2d(d,h,mode="same")
-    print time()-t
+    print((time()-t))
 
     t = time()    
     res2 = gputools.fft_convolve(d,h)
-    print time()-t
+    print((time()-t))
     
     
