@@ -21,6 +21,8 @@ python -m gputools
 
 Docs are still to be done ;)
 
+Most of the methods work on both numpy arrays or GPU memory objects (gputools.OCLArrays/OCLImage). The latter saving the memory transfer (which e.g. for simple convolutions accounts for the main run time)
+
 ####Convolutions
 
 ```python
