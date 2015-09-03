@@ -9,7 +9,16 @@ setup(name='gputools',
     author_email='mweigert@mpi-cbg.de',
     license='MIT',
     packages=find_packages(),
-    install_requires=["numpy","pyopencl","pyfft"],
-    package_data={},
+
+      install_requires=["numpy","pyopencl","pyfft"],
+
+    package_data={"gputools":
+                  ['convolve/kernels/*l',
+                   'denoise/kernels/*',
+                   'deconv/kernels/*',
+                   'transforms/kernels/*',
+                  ],
+    },
+
     entry_points = {}
 )

@@ -62,10 +62,4 @@ def nlm2(data,sigma, size_filter = 2, size_search = 3):
 
 
 if __name__ == '__main__':
-    from scipy.misc import lena
-    
-    d = lena()
-
-    d = np.random.poisson(d,d.shape)
-
-    res = nlm2(d.astype(np.float32),100.,2,3)
+    pass
