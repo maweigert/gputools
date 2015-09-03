@@ -6,6 +6,10 @@ import pyopencl
 
 from gputools import get_device
 
+__all__ = ["OCLProgram"]
+
+
+
 class CL_BUILD_PROGRAM_FAILURE:
     pass
 

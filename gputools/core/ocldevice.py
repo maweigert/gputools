@@ -15,6 +15,9 @@ logger = logging.getLogger(__name__)
 
 import pyopencl
 
+__all__ = ["OCLDevice"]
+
+
 class OCLDevice:
     """ a wrapper class representing a CPU/GPU device"""
 

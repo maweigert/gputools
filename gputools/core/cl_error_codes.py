@@ -2,6 +2,8 @@
 """
 import pyopencl as cl
                        
+__all__ = []
+
                    
 _CL_ERROR_DICT_BY_NAME={
     "CL_SUCCESS":0

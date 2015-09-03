@@ -60,7 +60,7 @@ def nlm3(data,sigma, size_filter = 2, size_search = 3):
                                     np.int32(img.shape[0]),
                                     np.int32(img.shape[1]),
                                     np.int32(img.shape[2]),
-                                    np.int32(dx),np.int32(dy),
+                                    np.int32(dx),np.int32(dy),np.int32(dz),
                                     np.float32(sigma))
 
     acc  = accBuf.get()
