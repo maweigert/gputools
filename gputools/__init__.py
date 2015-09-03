@@ -18,8 +18,8 @@ from gputools import denoise
 from gputools import deconv
 
 
-from gputools.transforms.scale import scale
-from gputools.transforms.transformations import affine, rotate, translate
+from gputools.transforms import scale
+from gputools.transforms import affine, rotate, translate
 
 from gputools.utils.utils import pad_to_shape
 from gputools.utils.utils import pad_to_power2
