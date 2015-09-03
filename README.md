@@ -34,9 +34,6 @@ res = gputools.convolve(d,h)
 ```
 
 ```python
-
-import gputools
-
 d = ones((128,128,128))
 h = ones(17)
 res = gputools.convolve_sep3(d,h)
