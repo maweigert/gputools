@@ -10,6 +10,14 @@ setup(name='gputools',
     license='MIT',
     packages=find_packages(),
     install_requires=["numpy","pyopencl","pyfft"],
-    package_data={},
+
+      package_data={"gputools":
+                    ['convolve/kernels/*l',
+                     'denoise/kernels/*',
+                     'deconv/kernels/*',
+                     'transforms/kernels/*',
+                    ],
+                  }
+
     entry_points = {}
 )
