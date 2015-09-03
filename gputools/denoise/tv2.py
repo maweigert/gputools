@@ -11,7 +11,7 @@ import numpy as np
 
 from gputools import OCLArray,OCLImage, OCLProgram, get_device
 
-from abspath import abspath
+from _abspath import abspath
 
 def _tv2(data,weight,Niter=50):
     """

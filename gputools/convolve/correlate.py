@@ -6,20 +6,7 @@ from PyOCL import OCLDevice, OCLProcessor, cl
 
 from convolve import convolve2
 
-def absPath(myPath):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
-    import sys, os
-
-    try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = sys._MEIPASS
-        logger.debug("found MEIPASS: %s "%os.path.join(base_path, os.path.basename(myPath)))
-
-        return os.path.join(base_path, os.path.basename(myPath))
-    except Exception:
-        base_path = os.path.abspath(os.path.dirname(__file__))
-        return os.path.join(base_path, myPath)
-
+from _abspath import abspath
 
 def _correlate2(data,h, dev = None):
     """computes normalized cross correlation of 2d <data> with template <h> on the GPU Device <dev>

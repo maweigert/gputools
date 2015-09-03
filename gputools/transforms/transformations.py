@@ -11,7 +11,7 @@ import numpy as np
 from gputools import OCLArray, OCLImage, OCLProgram, get_device
 from gputools import OCLElementwiseKernel
 
-from abspath import abspath
+from _abspath import abspath
 
 
 from quaternion import Quaternion 

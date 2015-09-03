@@ -9,7 +9,7 @@ from gputools.core.ocltypes import assert_bufs_type
 
 import sys
 
-from abspath import abspath
+from _abspath import abspath
 
 
 
