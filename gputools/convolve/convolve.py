@@ -37,9 +37,8 @@ def convolve(data,h , res_g = None):
         return _convolve_np(data,h)
     
     else:
-        raise TypeError("unknown types ()"%(type(data),type(h)))
+        raise TypeError("unknown types (%s, %s)"%(type(data),type(h)))
 
-    return 
     
 
     
