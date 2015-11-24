@@ -11,7 +11,7 @@ import numpy as np
 
 from gputools import OCLArray,OCLImage, OCLProgram, get_device
 
-from abspath import abspath
+from _abspath import abspath
 
 
 def bilateral3(data, size_filter, sigma_p, sigma_x = 10.):

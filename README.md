@@ -34,14 +34,14 @@ import gputools
 
 d = ones((128,200))
 h = ones((17,17))
-res = gputools.convolve(d,h)
+res = gputools.convolve.convolve(d,h)
 
 ```
 
 ```python
 d = ones((128,128,128))
 h = ones(17)
-res = gputools.convolve_sep3(d,h)
+res = gputools.convolve.convolve_sep3(d,h)
 
 ```
 

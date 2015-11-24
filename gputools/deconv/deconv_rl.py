@@ -9,7 +9,7 @@ from gputools import OCLArray, OCLProgram, get_device
 from gputools import convolve, fft_convolve, fft, fft_plan
 from gputools import OCLElementwiseKernel
 
-from abspath import abspath
+from _abspath import abspath
 
 
 

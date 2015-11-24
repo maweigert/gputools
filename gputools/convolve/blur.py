@@ -1,83 +1,60 @@
 import numpy as np
-from imgtools.ocl_fft import ocl_fft, ocl_ifft, ocl_convolve
+from gputools import OCLArray
+from convolve import convolve
+from convolve_sep import convolve_sep2, convolve_sep3
 
-def blur_psf(size ,radius=2, mode="gaussian"):
-    """ creates a psf kernel with given radius and size
-    mode = "gaussian", "disk"
 
-    returns
-       psf
+def blur(data, width = 4., res_g  = None):
+    """ blurs data with a gaussian kernel of given width (i.e. sigma = width/2)
 
-       with shape(psf) = size
+    width is either a scalar or a list of widths (of length data.ndim)
     """
 
-    # make it assymmetric so that dc component is right
-    xs = [N/2.*np.linspace(-1,1,N+1)[:-1] for N in size]
-    if len(size) ==1:
-        Xs = xs
-    else:
-        Xs = np.meshgrid(*xs,indexing="ij")
+    
+    if not len(data.shape) in [1,2,3]:
+        raise ValueError("dim = %s not supported"%(len(data.shape)))
 
-
-    if mode=="gaussian":
-        psf = np.exp(-1.*np.sum(x**2 for x in Xs)/.5/radius**2)
-    elif mode =="disk":
-        psf = 1.*(np.sum(x**2 for x in Xs)<radius**2)
-    else:
-        raise NotImplementedError("mode '%s' not defined"%mode)
-
-    psf *= 1./np.sum(psf)
-
-    return psf
-
-def blur(data,radius=2.,mode="gaussian",return_psf = False, gpu = False):
-    """ blurs data with a kernel of size radius
-    mode = "gaussian", "disk"
-
-    if return_psf
-
-    returns
-       blurimage, psf
-
-    else
-       blurImage
-
-    """
-
-    psf = blur_psf(data.shape,radius,mode)
-
-    if gpu:
-        data_blurred = np.abs(ocl_convolve(data,np.fft.fftshift(psf)))
-
-    else:
-        psf_f = np.fft.rfftn(np.fft.fftshift(psf))
-        data_f = np.fft.rfftn(data)
-        data_blurred = np.real(np.fft.irfftn(data_f*psf_f))
+    if np.isscalar(width):
+        width = [width]*data.ndim
         
-    if return_psf:
-        return data_blurred, psf
+    if isinstance(data,OCLArray):
+        return _blur_buf(data, width,res_g)
+    elif isinstance(data,np.ndarray):
+        return _blur_np(data,width)
+    
+    else:
+        raise TypeError("unknown type (%s)"%(type(data)))
+
+    return 
+
+
+def _blur_buf(d_g,width = (4.,4.), res_g = None ):
+
+    Ns = [3*s+1 for s in width]
+    sigmas = [.5*s for s in width]
+    
+    hs = [np.exp(-.5/s**2*np.linspace(-N/2,N/2,N)**2) for s,N in zip(sigmas,Ns)]
+    
+    h_gs = [OCLArray.from_array(h.astype(np.float32)) for h in hs][::-1]
+
+    if len(d_g.shape) == 1:
+        return convolve(d_g,*h_gs, res_g = res_g)
+    elif len(d_g.shape) == 2:
+        return convolve_sep2(d_g,*h_gs, res_g = res_g)
+    elif len(d_g.shape) == 3:
+        return convolve_sep3(d_g,*h_gs, res_g = res_g)
 
     else:
-        return data_blurred
+        pass
 
+    
+def _blur_np(data,width):
 
-
-def test_blur():
-
-    d = np.ones((100,100))
-    y = blur(d,2,"gaussian")
-    y = blur(d,5,"disk")
-
-    y, psf = blur(d,2,"gaussian", return_psf= True)
-    y, psf = blur(d,2,"disk", return_psf = True)
-
+    d_g = OCLArray.from_array(data.astype(np.float32,copy=False))
+    
+    return _blur_buf(d_g,width).get()
 
 
 
 if __name__ == "__main__":
-
-    from imgtools import test_images
-
-    data = test_images.mpi_logo3()
-
-    a,b = blur(data,3,mode="disk", return_psf = True)
+    pass

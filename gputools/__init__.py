@@ -13,15 +13,15 @@ from gputools.fft.oclfft_convolve import fft_convolve
 from gputools.fft.oclfft import fft, fft_plan
 
 from gputools.convolve.convolve_sep import convolve_sep2, convolve_sep3
-
 from gputools.convolve.convolve import convolve
+from gputools.convolve.blur import blur
 
 
 from gputools.core.oclalgos import OCLReductionKernel, OCLElementwiseKernel
 
 from gputools import denoise
-
-from gputools import deconv
+from gputools import convolve
+from gputools import transforms
 
 
 from gputools.transforms import scale

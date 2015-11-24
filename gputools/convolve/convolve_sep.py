@@ -7,7 +7,7 @@ from gputools import OCLArray, OCLProgram, get_device
 
 from gputools.core.ocltypes import assert_bufs_type
 
-from abspath import abspath
+from _abspath import abspath
 
 # def _convolve_axis2_gpu(data_g, h_g, axis= 0, res_g=None, dev = None):
 #     if dev is None:

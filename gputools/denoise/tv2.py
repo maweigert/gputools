@@ -11,7 +11,7 @@ import numpy as np
 
 from gputools import OCLArray,OCLImage, OCLProgram, get_device
 
-from abspath import abspath
+from _abspath import abspath
 
 def _tv2(data,weight,Niter=50):
     """
@@ -94,23 +94,23 @@ def tv2(data,weight,Niter=50):
                                   channel_order = cl.channel_order.RGBA)
                                   for i in range(2)]
 
-        outImg = dev.createImage(data.shape[::-1],
-                                 dtype = np.float32,
-                                 mem_flags = cl.mem_flags.READ_WRITE)
+    outImg = dev.createImage(data.shape[::-1],
+                             dtype = np.float32,
+                             mem_flags = cl.mem_flags.READ_WRITE)
 
 
-        dev.writeImage(inImg,data.astype(np.float32));
-        dev.writeImage(pImgs[0],np.zeros((4,)+data.shape,dtype=np.float32));
-        dev.writeImage(pImgs[1],np.zeros((4,)+data.shape,dtype=np.float32));
+    dev.writeImage(inImg,data.astype(np.float32));
+    dev.writeImage(pImgs[0],np.zeros((4,)+data.shape,dtype=np.float32));
+    dev.writeImage(pImgs[1],np.zeros((4,)+data.shape,dtype=np.float32));
 
 
-        for i in range(Niter):
-            proc.runKernel("div_step",inImg.shape,None,
+    for i in range(Niter):
+        proc.runKernel("div_step",inImg.shape,None,
                            inImg,pImgs[i%2],outImg)
-            proc.runKernel("grad_step",inImg.shape,None,
+        proc.runKernel("grad_step",inImg.shape,None,
                            outImg,pImgs[i%2],pImgs[1-i%2],
                            np.float32(weight))
-        return dev.readImage(outImg,dtype=np.float32)
+    return dev.readImage(outImg,dtype=np.float32)
 
 
 
