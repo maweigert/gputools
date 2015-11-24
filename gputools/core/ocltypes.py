@@ -202,11 +202,13 @@ def _wrap_OCLImage(cls):
         else:
             imshape = (self.width,)
 
+
         dshape = imshape[::-1]
+        ndim = len(imshape)
         if self.format.channel_count>1:
             dshape += (self.format.channel_count,)
         out = np.empty(dshape,dtype=self.dtype)
-        pyopencl.enqueue_read_image(queue,self,[0]*len(dshape),imshape,out)
+        pyopencl.enqueue_read_image(queue,self,[0]*ndim,imshape,out)
 
         return out.reshape(dshape)
     

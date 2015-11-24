@@ -38,6 +38,7 @@ class OCLProgram(pyopencl.Program):
         self.build(options = build_options)
 
     def run_kernel(self, name, global_size, local_size,*args,**kwargs):
+
         getattr(self,name)(self.dev.queue,global_size, local_size,*args,**kwargs)
 
 
