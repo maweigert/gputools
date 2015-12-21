@@ -22,7 +22,11 @@ class _ocl_globals():
 
 def init_device(**kwargs):
     """same arguments as OCLDevice"""
-    _ocl_globals.device = OCLDevice(**kwargs)
+    new_device = OCLDevice(**kwargs)
+
+    #just change globals if new_device is different from old
+    if _ocl_globals.device.device != new_device.device:
+        _ocl_globals.device = new_device
     
 def get_device():
     return _ocl_globals.device

@@ -1,3 +1,9 @@
+import logging
+logging.basicConfig(format='%(levelname)s:%(name)s | %(message)s')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+
 from gputools.core.config import init_device, get_device
 
 from gputools.core.ocltypes import OCLArray, OCLImage
