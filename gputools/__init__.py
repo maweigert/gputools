@@ -14,6 +14,7 @@ from gputools.convolve.blur import blur
 from gputools.core.oclalgos import OCLReductionKernel, OCLElementwiseKernel
 
 from gputools import denoise
+from gputools import deconv
 from gputools import convolve
 from gputools import transforms
 
