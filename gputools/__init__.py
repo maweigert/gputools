@@ -19,11 +19,14 @@ from gputools.convolve.blur import blur
 
 from gputools.core.oclalgos import OCLReductionKernel, OCLElementwiseKernel
 
+from gputools.noise import perlin2, perlin3
+
 from gputools import denoise
 from gputools import deconv
 from gputools import convolve
 from gputools import transforms
 
+from gputools import noise
 
 from gputools.transforms import scale
 from gputools.transforms import affine, rotate, translate
