@@ -379,6 +379,8 @@ cloud3d(__global float*	output,
 
 kernel void
 perlin2d(__global float*	output,
+	    float				dx,
+		float				dy,
 		float				wx,		// 1/width
 		float				wy		// 1/height
 				)
@@ -387,14 +389,13 @@ perlin2d(__global float*	output,
 	int j = get_global_id(1);
 
 	int	Nx = get_global_size(0);
-	int	Ny = get_global_size(0);
-	
-	float	fx = (float)i/Nx * wx;	
-	float	fy = (float)j/Ny * wy;	
+
+	float	fx = (float)i*dx/wx;
+	float	fy = (float)j*dy/wy;
 
 	float	value;
 
-	
+
 	value =  Noise_2d(fx, fy); 
 
 	output[i+j*Nx] = value;
@@ -402,11 +403,14 @@ perlin2d(__global float*	output,
 
 kernel void
 perlin3d(__global float*	output,
-		 int N0z,   // to make it possible to stack volumes
 		 int offz,
+		float				dx,
+		float				dy,
+		float				dz,
 		float				wx,		// 1/width
 		float				wy,		// 1/height
 		float				wz
+
 				)
 {
 	int	i = get_global_id(0);
@@ -414,11 +418,11 @@ perlin3d(__global float*	output,
 	int k = get_global_id(2);
 
 	int	Nx = get_global_size(0);
-	int	Ny = get_global_size(0);
+	int	Ny = get_global_size(1);
 	
-	float	fx = (float)i/Nx * wx;	
-	float	fy = (float)j/Ny * wy;	
-	float	fz = (float)(offz+k)/N0z * wz;	
+	float	fx = (float)i*dx /wx;
+	float	fy = (float)j*dy /wy;
+	float	fz = (float)(offz+k)*dz/wz;
 
 	float	value;
 
