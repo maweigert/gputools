@@ -33,13 +33,16 @@ class OCLProgram(pyopencl.Program):
 
         if dev is None:
             dev = get_device()
-        self.dev = dev
-        super(OCLProgram,self).__init__(self.dev.context,src_str)
+        self._dev = dev
+        self._kernel_dict = {}
+        super(OCLProgram,self).__init__(self._dev.context,src_str)
         self.build(options = build_options)
 
     def run_kernel(self, name, global_size, local_size,*args,**kwargs):
+        if not name in self._kernel_dict:
+            self._kernel_dict[name] = getattr(self,name)
 
-        getattr(self,name)(self.dev.queue,global_size, local_size,*args,**kwargs)
+        self._kernel_dict[name](self._dev.queue,global_size, local_size,*args,**kwargs)
 
 
 
@@ -59,7 +62,7 @@ if __name__ == '__main__':
 
     prog = OCLProgram(src_str = s)
 
-    d = np.random.rand(1000).astype(np.float32) 
+    d = np.ones(1000).astype(np.float32) 
     b = OCLArray.from_array(d)
 
     prog.run_kernel("add",b.shape,None,b.data,np.float32(2.))
