@@ -28,6 +28,7 @@ def fft_convolve(data, h, res_g = None,
         - type should be complex64
         - shape should be equal and power of two
         - h is assumed to be already fftshifted
+         (otherwise set kernel_is_fftshifted  to true)
     
     """
 

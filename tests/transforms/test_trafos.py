@@ -15,7 +15,7 @@ def test_scale():
 
 def test_rotate():
     d = np.zeros((100,100,100),np.float32)
-    rotate(d,(10,10,10),(1,1,1),angle = .4, interp = "linear")
+    rotate(d, (10,10,10), (1,1,1), angle = .4, mode="linear")
 
 def test_translate():
     d = np.zeros((100,100,100),np.float32)

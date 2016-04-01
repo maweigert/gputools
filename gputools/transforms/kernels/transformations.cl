@@ -22,11 +22,11 @@ __kernel void affine(__read_only image3d_t input,
   uint Ny = get_global_size(1);
   uint Nz = get_global_size(2);
 
-  int x = (int)(mat[0]*i+mat[1]*j+mat[2]*k+mat[3]);
-  int y = (int)(mat[4]*i+mat[5]*j+mat[6]*k+mat[7]);
-  int z = (int)(mat[8]*i+mat[9]*j+mat[10]*k+mat[11]);
+  float x = (mat[0]*i+mat[1]*j+mat[2]*k+mat[3]);
+  float y = (mat[4]*i+mat[5]*j+mat[6]*k+mat[7]);
+  float z = (mat[8]*i+mat[9]*j+mat[10]*k+mat[11]);
 
-  float pix = read_imagef(input,sampler,(int4)(x,y,z,0)).x;
+  float pix = read_imagef(input,sampler,(float4)(x,y,z,0)).x;
 
   output[i+Nx*j+Nx*Ny*k] = pix;
  

@@ -5,9 +5,9 @@ from pyopencl import elementwise, reduction, scan, algorithm
 
 class OCLElementwiseKernel(elementwise.ElementwiseKernel):
     """ e.g.
-    k = OCLElementWiseKernel(
-    "cfloat_t *a_g, cfloat_t b",
-    "a_g[i] = cfloat_add(b,a_g[i])",
+    k = OCLElementwiseKernel(
+    "cfloat_t *a, cfloat_t b",
+    "a[i] = cfloat_add(b,a[i])",
     "name")
 
     """

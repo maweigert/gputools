@@ -32,22 +32,22 @@ def _mat4_translate(x=0,y=0,z=0):
 
 
 
-def affine(data, mat = np.identity(4), interp = "linear"):
+def affine(data, mat = np.identity(4), mode ="linear"):
     """affine transform data with matrix mat
 
     """ 
 
     bop = {"linear":"","nearest":"-D USENEAREST"}
 
-    if not interp in bop.keys():
-        raise KeyError("interp = '%s' not defined ,valid: %s"%(interp,bop.keys()))
+    if not mode in bop.keys():
+        raise KeyError("mode = '%s' not defined ,valid: %s"%(mode, bop.keys()))
     
     d_im = OCLImage.from_array(data)
     res_g = OCLArray.empty(data.shape,np.float32)
     mat_g = OCLArray.from_array(np.linalg.inv(mat).astype(np.float32,copy=False))
 
     prog = OCLProgram(abspath("kernels/transformations.cl")
-                      , build_options=[bop[interp]])
+                      , build_options=[bop[mode]])
 
     prog.run_kernel("affine",
                     data.shape[::-1],None,
@@ -56,16 +56,16 @@ def affine(data, mat = np.identity(4), interp = "linear"):
     return res_g.get()
 
 
-def translate(data,x = 0, y = 0,z = 0, interp = "linear"):
-    return affine(data,_mat4_translate(x,y,z),interp)
+def translate(data,x = 0, y = 0,z = 0, mode = "linear"):
+    return affine(data,_mat4_translate(x,y,z),mode)
 
 
-def rotate(data,center = (0,0,0), axis = (1.,0,0), angle = 0., interp = "linear"):
+def rotate(data, center = (0,0,0), axis = (1.,0,0), angle = 0., mode ="linear"):
     cz, cy , cx  = center
     m = np.dot(_mat4_translate(cx,cy,cz),
                np.dot(_mat4_rotation(angle,*axis),
                       _mat4_translate(-cx,-cy,-cz)))
-    return affine(data,m,interp)
+    return affine(data, m, mode)
 
 
 
