@@ -10,6 +10,9 @@ basic usage:
 
 '''
 
+from __future__ import print_function
+
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -55,24 +58,28 @@ class OCLDevice:
 
         self.queue = pyopencl.CommandQueue(self.context,properties = pyopencl.command_queue_properties.PROFILING_ENABLE)
 
+        self.imageformats = pyopencl.get_supported_image_formats(self.context,
+                    pyopencl.mem_flags.READ_WRITE,
+                    pyopencl.mem_object_type.IMAGE3D)
+
+
         if printInfo:
             self.printInfo()
 
-
-    def print_info(self):
+    def get_all_info(self):
         platforms = pyopencl.get_platforms()
-        print "\n-------- available devices -----------"
+        s = "\n-------- available devices -----------\n"
         for p in platforms:
-            print "platform: \t",p.name
+            s += "platform: \t%s\n"%p.name
             printNames = [["CPU",pyopencl.device_type.CPU],
                           ["GPU",pyopencl.device_type.GPU]]
             for name, identifier in printNames:
-                print "device type: \t" , name
+                s += "device type: \t%s\n" %name
                 try:
                     for d in p.get_devices(identifier):
-                        print "\t ", d.name
+                        s += "\t%s \n"%d.name
                 except:
-                    print "nothing found: ", name
+                    s += "nothing found: \t%s\n"%name
 
         infoKeys = ['NAME','GLOBAL_MEM_SIZE',
                     'GLOBAL_MEM_SIZE','MAX_MEM_ALLOC_SIZE',
@@ -81,17 +88,21 @@ class OCLDevice:
                     'IMAGE3D_MAX_HEIGHT','IMAGE3D_MAX_DEPTH',
                     'MAX_WORK_GROUP_SIZE','MAX_WORK_ITEM_SIZES']
 
-        print "\n-------- currently used device -------"
+        s += "\n-------- currently used device -------\n"
 
         for k in infoKeys:
-            print "%s: \t  %s"% (k, self.get_info(k))
+            s+= "%s: \t  %s\n"% (k, self.get_info(k))
+        return s
 
+    def print_info(self):
+        print(self.get_all_info())
 
 
     def get_info(self, info_str = "MAX_MEM_ALLOC_SIZE"):
         return self.device.get_info(getattr(pyopencl.device_info,info_str))
 
-
+    def __repr__(self):
+        return self.get_all_info()
 
 if __name__ == '__main__':
     OCLDevice().print_info()

@@ -10,9 +10,12 @@ from gputools.core.ocltypes import assert_bufs_type
 
 
 
-def fft_plan(shape):
-    """returns an opencl/pyfft plan of shape dshape"""
-    return Plan(shape, queue = get_device().queue)
+def fft_plan(shape, **kwargs):
+    """returns an opencl/pyfft plan of shape dshape
+
+    kwargs are the same as pyfft.cl.Plan
+    """
+    return Plan(shape, queue = get_device().queue, **kwargs)
 
 
     

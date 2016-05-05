@@ -21,7 +21,9 @@ class _ocl_globals():
     device = OCLDevice()
 
 def init_device(**kwargs):
-    """same arguments as OCLDevice"""
+    """same arguments as OCLDevice
+    e.g. useDevice = 1
+    """
     new_device = OCLDevice(**kwargs)
 
     #just change globals if new_device is different from old
