@@ -478,7 +478,7 @@ class OCLReductionKernel2:
                                  allocator=repr_vec.allocator) if out is None else out for out in outs]
             else:
                 results = [empty(use_queue,
-                                 (), self.dtype_out,
+                                 (group_count,), self.dtype_out,
                                  allocator=repr_vec.allocator) for out in outs]
 
             print seq_count, sz

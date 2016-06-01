@@ -26,14 +26,19 @@ def pad_to_power2(data, mode="constant"):
 
 
 def get_cache_dir():
-    from tempfile import gettempdir
-    import getpass
-    import os
-    import sys
-
-    return os.path.join(gettempdir(),
-                    "pyopencl-compiler-cache-v2-uid%s-py%s" % (
-                        getpass.getuser(), ".".join(str(i) for i in sys.version_info)))
+    import sys, os
+    import appdirs
+    return os.path.join(appdirs.user_cache_dir("pyopencl", "pyopencl"),
+                "pyopencl-compiler-cache-v2-py%s" % (
+                    ".".join(str(i) for i in sys.version_info),))
+    # from tempfile import gettempdir
+    # import getpass
+    # import os
+    # import sys
+    #
+    # return os.path.join(gettempdir(),
+    #                 "pyopencl-compiler-cache-v2-uid%s-py%s" % (
+    #                     getpass.getuser(), ".".join(str(i) for i in sys.version_info)))
 
 def remove_cache_dir():
     import shutil
