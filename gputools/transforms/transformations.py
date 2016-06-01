@@ -19,7 +19,7 @@ from quaternion import Quaternion
 
 
 def _mat4_rotation(w=0,x=1,y=0,z=0):
-    n = np.array([x,y,z])
+    n = np.array([x,y,z]).astype(np.float32)
     n *= 1./np.sqrt(1.*np.sum(n**2))
     q = Quaternion(np.cos(.5*w),*(np.sin(.5*w)*n))
     return q.toRotation4()
@@ -37,7 +37,7 @@ def affine(data, mat = np.identity(4), mode ="linear"):
 
     """ 
 
-    bop = {"linear":"","nearest":"-D USENEAREST"}
+    bop = {"linear":[],"nearest":["-D","USENEAREST"]}
 
     if not mode in bop.keys():
         raise KeyError("mode = '%s' not defined ,valid: %s"%(mode, bop.keys()))
@@ -47,7 +47,7 @@ def affine(data, mat = np.identity(4), mode ="linear"):
     mat_g = OCLArray.from_array(np.linalg.inv(mat).astype(np.float32,copy=False))
 
     prog = OCLProgram(abspath("kernels/transformations.cl")
-                      , build_options=[bop[mode]])
+                      , build_options=bop[mode])
 
     prog.run_kernel("affine",
                     data.shape[::-1],None,

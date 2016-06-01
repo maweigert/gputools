@@ -13,11 +13,12 @@ setup(name='gputools',
     install_requires=["numpy","pyopencl","pyfft"],
 
     package_data={"gputools":
-                  ['core/kernels/*',
-                   'convolve/kernels/*l',
-                   'denoise/kernels/*',
-                   'deconv/kernels/*',
-                   'transforms/kernels/*',
+                  ['core/kernels/*.cl',
+                   'convolve/kernels/*.cl',
+                   'denoise/kernels/*.cl',
+                   'deconv/kernels/*.cl',
+                   'noise/kernels/*.cl',
+                   'transforms/kernels/*.cl',
                   ],
     },
 
