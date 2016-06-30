@@ -4,7 +4,7 @@ python:
 
 before_install:
   - sudo apt-get update -qq;
-  - sudo apt-get install -qq fglrx opencl-headers;
+  - sudo apt-get install -qq opencl-headers;
   - bash .travis/amd_sdk.sh;
   - tar -xjf AMD-SDK.tar.bz2;
   - AMDAPPSDKROOT=${HOME}/AMDAPPSDK;
@@ -16,7 +16,8 @@ before_install:
   - export CMAKE_LIBRARY_PATH=${AMDAPPSDKROOT}/lib/x86_64;
   - chmod +x ${AMDAPPSDKROOT}/bin/x86_64/clinfo;
   - ${AMDAPPSDKROOT}/bin/x86_64/clinfo;
-
+  - echo "HUHU"
+  - ls /usr/lib/libOpen
 
 install:
   - pip install .
