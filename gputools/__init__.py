@@ -31,5 +31,5 @@ from gputools import noise
 from gputools.transforms import scale
 from gputools.transforms import affine, rotate, translate
 
-from gputools.utils.utils import pad_to_shape
-from gputools.utils.utils import pad_to_power2
+from gputools.utils.utils import pad_to_shape, pad_to_power2
+from gputools.utils.utils import remove_cache_dir

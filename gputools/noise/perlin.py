@@ -103,12 +103,12 @@ if __name__ == '__main__':
     units = (.1,.1,.5)
     d2 = perlin3((N,N+50,N+100),units,(2.,)*3)
 
-    import pylab
-    pylab.subplot(2,1,1)
-    pylab.imshow(d2[N/2,...])
-    pylab.subplot(2,1,2)
-    pylab.imshow(d2[...,N/2])
-
-    pylab.show()
-    pylab.draw()
-
+    # import pylab
+    # pylab.subplot(2,1,1)
+    # pylab.imshow(d2[N/2,...])
+    # pylab.subplot(2,1,2)
+    # pylab.imshow(d2[...,N/2])
+    #
+    # pylab.show()
+    # pylab.draw()
+    #
