@@ -9,10 +9,8 @@ before_install:
   - sudo update-alternatives --remove-all gcc 
   - sudo update-alternatives --remove-all g++
   - sudo apt-get install -qq g++-4.8 gcc-4.8
-  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 20
-  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 20
-  - sudo update-alternatives --config gcc
-  - sudo update-alternatives --config g++
+  - alias gcc=gcc-4.8
+  - alias g++=g++-4.8
   - gcc -v
   - sudo apt-get install -qq opencl-headers;
   - bash .travis/amd_sdk.sh;
