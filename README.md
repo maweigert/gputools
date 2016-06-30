@@ -1,6 +1,6 @@
 # gputools
 
-OpenCL acclerated volume processing in Python 
+OpenCL accelerated volume processing in Python
 
 ### Requirements 
 
