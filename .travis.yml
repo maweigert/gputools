@@ -6,8 +6,6 @@ before_install:
   - gcc -v
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo apt-get update -qq
-  - sudo update-alternatives --remove-all gcc 
-  - sudo update-alternatives --remove-all g++
   - sudo apt-get install -qq g++-4.8 gcc-4.8
   - alias gcc=gcc-4.8
   - alias g++=g++-4.8
