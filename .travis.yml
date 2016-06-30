@@ -1,11 +1,24 @@
 language: python
 python:
-  - "2.7"
+    - "2.7"
 
 before_install:
-  - sudo apt-get install nvidia-libopencl1 nvidia-opencl-icd
+    - sudo apt-get update -qq
+    - sudo apt-get install -qq nvidia-libopencl1 nvidia-opencl-icd
  opencl-headers
+    - bash .travis/amd_sdk.sh;
+    - tar -xjf AMD-SDK.tar.bz2;
+    - AMDAPPSDKROOT=${HOME}/AMDAPPSDK;
+    - export OPENCL_VENDOR_PATH=${AMDAPPSDKROOT}/etc/OpenCL/vendors;
+    - mkdir -p ${OPENCL_VENDOR_PATH};
+    - sh AMD-APP-SDK*.sh --tar -xf -C ${AMDAPPSDKROOT};
+    - echo libamdocl64.so > ${OPENCL_VENDOR_PATH}/amdocl64.icd;
+    - export LD_LIBRARY_PATH=${AMDAPPSDKROOT}/lib/x86_64:${LD_LIBRARY_PATH};
+    - export CMAKE_LIBRARY_PATH=${AMDAPPSDKROOT}/lib/x86_64;
+    - chmod +x ${AMDAPPSDKROOT}/bin/x86_64/clinfo;
+    - ${AMDAPPSDKROOT}/bin/x86_64/clinfo;
+
 
 install:
-  - pip install .
+    - pip install .
 
