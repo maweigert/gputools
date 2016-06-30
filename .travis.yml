@@ -3,7 +3,8 @@ python:
   - "2.7"
 
 before_install:
-  - sudo apt-get install opencl-headers
+  - sudo apt-get install nvidia-libopencl1 nvidia-opencl-icd
+ opencl-headers
 
 install:
   - pip install .
