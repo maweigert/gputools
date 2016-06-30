@@ -1,8 +1,11 @@
 language: python
 python:
   - "2.7"
-
+compiler:
+  - clang
+  
 before_install:
+  - gcc -v
   - sudo apt-get update -qq;
   - sudo apt-get install -qq opencl-headers;
   - bash .travis/amd_sdk.sh;
