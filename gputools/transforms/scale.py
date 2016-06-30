@@ -24,7 +24,7 @@ def scale(data, scale = (1.,1.,1.), interp = "linear"):
     interp = "linear" | "nearest"
     """ 
 
-    bop = {"linear":"","nearest":"-D USENEAREST"}
+    bop = {"linear":[],"nearest":["-D","USENEAREST"]}
 
     if not interp in bop.keys():
         raise KeyError("interp = '%s' not defined ,valid: %s"%(interp,bop.keys()))
@@ -43,7 +43,8 @@ def scale(data, scale = (1.,1.,1.), interp = "linear"):
     res_g = OCLArray.empty(nshape,np.float32)
 
 
-    prog = OCLProgram(abspath("kernels/scale.cl"), build_options=[bop[interp]])
+    prog = OCLProgram(abspath("kernels/scale.cl"), build_options=bop[interp])
+
 
     prog.run_kernel("scale",
                     res_g.shape[::-1],None,

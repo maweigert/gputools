@@ -4,7 +4,7 @@ A collection of some denoising algorithms for 3d
 MW, 2014
 """
 
-from PyOCL import *
+# from PyOCL import *
 
 import os
 import subprocess

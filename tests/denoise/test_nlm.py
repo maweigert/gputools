@@ -5,9 +5,9 @@ import numpy as np
 
 
 def test_2d(fac = .3):
-    from scipy.misc import lena
+    from scipy.misc import ascent
 
-    d = lena().astype(np.float32)
+    d = ascent().astype(np.float32)
 
     d = d[:,:-10]
     sig = .2*np.amax(d)
@@ -16,7 +16,7 @@ def test_2d(fac = .3):
 
     out = nlm2(y.astype(np.float32),fac*sig,3,5)
 
-    return out
+    return y, out
 
 def test_3d(fac = .3):
     
@@ -29,11 +29,11 @@ def test_3d(fac = .3):
     y = d+sig*np.random.uniform(0,1.,d.shape)
 
     out = nlm3(y.astype(np.float32),fac*sig,3,5)
-    return out
+    return y, out
 
     
 if __name__ == '__main__':
 
 
-    out2 = test_2d()
-    out3 = test_3d(10)
+    y2, out2 = test_2d()
+    #y3, out3 = test_3d(10)

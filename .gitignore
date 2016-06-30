@@ -1,2 +1,4 @@
 *pyc
 gputools.egg-info/
+dist/
+build/

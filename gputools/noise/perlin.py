@@ -26,7 +26,7 @@ def perlin2(size, units, repeat = (10.,)*2):
     wx, wy = repeat
     dx, dy = units
 
-    prog = OCLProgram(abspath("perlin.cl"))
+    prog = OCLProgram(abspath("kernels/perlin.cl"))
 
     d = OCLArray.empty(size[::-1],np.float32)
     prog.run_kernel("perlin2d",d.shape[::-1],None,
@@ -44,7 +44,7 @@ def _perlin3_single(size,units = (1.,)*3,repeat = (10.,)*3,offz = 0,Nz0 = None):
     dx, dy, dz = units
     wx, wy, wz = repeat
 
-    prog = OCLProgram(abspath("perlin.cl"))
+    prog = OCLProgram(abspath("kernels/perlin.cl"))
 
     d = OCLArray.empty(size[::-1],np.float32)
     prog.run_kernel("perlin3d",d.shape[::-1],None,
@@ -103,12 +103,12 @@ if __name__ == '__main__':
     units = (.1,.1,.5)
     d2 = perlin3((N,N+50,N+100),units,(2.,)*3)
 
-    import pylab
-    pylab.subplot(2,1,1)
-    pylab.imshow(d2[N/2,...])
-    pylab.subplot(2,1,2)
-    pylab.imshow(d2[...,N/2])
-
-    pylab.show()
-    pylab.draw()
-
+    # import pylab
+    # pylab.subplot(2,1,1)
+    # pylab.imshow(d2[N/2,...])
+    # pylab.subplot(2,1,2)
+    # pylab.imshow(d2[...,N/2])
+    #
+    # pylab.show()
+    # pylab.draw()
+    #
