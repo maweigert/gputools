@@ -9,7 +9,10 @@ before_install:
   - sudo apt-get install -qq g++-4.8 gcc-4.8
   - alias gcc=gcc-4.8
   - alias g++=g++-4.8
+  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
+  - sudo update-alternatives --install /usr/bin/gcc g++ /usr/bin/gcc-4.8 90
   - gcc -v
+
   - sudo apt-get install -qq opencl-headers;
   - bash .travis/amd_sdk.sh;
   - tar -xjf AMD-SDK.tar.bz2;
