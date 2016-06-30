@@ -18,6 +18,7 @@ before_install:
   - ${AMDAPPSDKROOT}/bin/x86_64/clinfo;
   - echo "HUHU"
   - ls ${AMDAPPSDKROOT}/lib/x86_64/*
+  - echo ${LD_LIBRARY_PATH}
 
 install:
   - pip install .
