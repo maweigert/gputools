@@ -11,31 +11,6 @@ from __future__ import division
 from __future__ import absolute_import
 from six.moves import zip
 
-__copyright__ = "Copyright (C) 2010 Andreas Kloeckner"
-
-__license__ = """
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
-Based on code/ideas by Mark Harris <mharris@nvidia.com>.
-None of the original source code remains.
-"""
-
 import pyopencl as cl
 from pyopencl.tools import (
     context_dependent_memoize,
@@ -94,6 +69,9 @@ KERNEL = r"""//CL//
         unsigned int lid = get_local_id(0);
         unsigned int i = get_group_id(0)*GROUP_SIZE*seq_count + lid;
 
+        //printf("seq: %d\tlid = %d\ti=%d\n",seq_count,lid,i);
+
+
         for (unsigned s = 0; s < seq_count; ++s)
         {
           if (i >= n)
@@ -141,85 +119,12 @@ KERNEL = r"""//CL//
 
             % endfor
 
+            //printf("result: %.4f\n",out_0[get_group_id(0)] );
 
-    }
+            }
     }
 """
 
-KERNEL2 = r"""//CL//
-    #define GROUP_SIZE ${group_size}
-    % for i,m in map_exprs:
-    #define READ_AND_MAP_${i}(i) (${m})
-    % endfor
-    #define REDUCE(a, b) (${reduce_expr})
-    % if double_support:
-        #if __OPENCL_C_VERSION__ < 120
-        #pragma OPENCL EXTENSION cl_khr_fp64: enable
-        #endif
-        #define PYOPENCL_DEFINE_CDOUBLE
-    % endif
-    #include <pyopencl-complex.h>
-    ${preamble}
-    typedef ${out_type} out_type;
-    __kernel void ${name}(
-      __global out_type *out__base,
-      __global out_type *out__base2,
-      long out__offset, ${arguments},
-      unsigned int seq_count, unsigned int n)
-    {
-        __global out_type *out = (__global out_type *) (
-            (__global char *) out__base + out__offset);
-        __global out_type *out2 = (__global out_type *) (
-            (__global char *) out__base2 + out__offset);
-
-        ${arg_prep}
-        __local out_type ldata[GROUP_SIZE];
-        __local out_type ldata2[GROUP_SIZE];
-
-        unsigned int lid = get_local_id(0);
-        unsigned int i = get_group_id(0)*GROUP_SIZE*seq_count + lid;
-        out_type acc = ${neutral};
-        out_type acc2 = ${neutral};
-
-        for (unsigned s = 0; s < seq_count; ++s)
-        {
-          if (i >= n)
-            break;
-          acc = REDUCE(acc, READ_AND_MAP(i));
-          acc2 = REDUCE(acc2, READ_AND_MAP2(i));
-
-          i += GROUP_SIZE;
-        }
-        ldata[lid] = acc;
-        ldata2[lid] = acc2;
-
-        <%
-          cur_size = group_size
-        %>
-        % while cur_size > 1:
-            barrier(CLK_LOCAL_MEM_FENCE);
-            <%
-            new_size = cur_size // 2
-            assert new_size * 2 == cur_size
-            %>
-            if (lid < ${new_size})
-            {
-                ldata[lid] = REDUCE(
-                  ldata[lid],
-                  ldata[lid + ${new_size}]);
-                ldata2[lid] = REDUCE(
-                  ldata2[lid],
-                  ldata2[lid + ${new_size}]);
-
-            }
-            <% cur_size = new_size %>
-        % endwhile
-        if (lid == 0) {
-            out[get_group_id(0)] = ldata[0];
-           out2[get_group_id(0)] = ldata2[0];
-}
-    }
-    """
 
 
 def _get_reduction_source(
@@ -296,15 +201,18 @@ def get_reduction_kernel(stage,
                          ctx, dtype_out,
                          neutral, reduce_expr, arguments=None,
                          name="reduce_kernel", preamble="",
-                         map_exprs = [None],
+                         map_exprs = None,
                          device=None, options=[], max_group_size=None):
+
+    if map_exprs is None:
+        raise ValueError("map_exprs has to be given!")
 
     for i, m in enumerate(map_exprs):
         if m is None:
             if stage==2:
-                map_expr[i] = "pyopencl_reduction_inp[i]"
+                map_exprs[i] = "pyopencl_reduction_inp_%i[i]"%i
             else:
-                map_expr[i] = "in[i]"
+                map_exprs[i] = "in[i]"
 
 
     from pyopencl.tools import (
@@ -319,7 +227,7 @@ def get_reduction_kernel(stage,
     if stage==2 and arguments is not None:
         arguments = parse_arg_list(arguments)
         arguments = (
-            [VectorArg(dtype_out, "pyopencl_reduction_inp")]
+            [VectorArg(dtype_out, "pyopencl_reduction_inp_%i"%i) for i in xrange(len(map_exprs))]
             +arguments)
 
 
@@ -339,6 +247,7 @@ def get_reduction_kernel(stage,
         +get_arg_list_scalar_arg_dtypes(inf.arg_types)
         +[np.uint32]*2)
 
+
     return inf
 
 
@@ -347,21 +256,18 @@ def get_reduction_kernel(stage,
 
 # {{{ main reduction kernel
 
-class OCLReductionKernel2:
+class OCLMultiReductionKernel:
     """
-    simultanins reduction of a weighted sum of two buffers
+    simultanous reduction of a weighted sum of severalbuffers
 
     example:
 
-        k = OCLReductionKernel2(np.float32,
+        k = OCLMultiReduction(np.float32,
                 neutral="0",reduce_expr="a+b",
-                map_expr1 ="x[i]",
-                map_expr2 ="x[i]*y[i]",
+                map_exprs = ["x[i]", "x[i]*y[i]"],
                 arguments="__global float *x,__global float *y")
 
         k(a,b, out1 = out1, out2 = out2)
-
-
 
     """
 
@@ -404,7 +310,7 @@ class OCLReductionKernel2:
                                 dtype_out,
                                 neutral, reduce_expr, arguments=arguments,
                                 name=name+"_stage2", options=options,
-                                map_exprs=map_exprs,
+                                map_exprs = [None]*self.n_exprs,
                                 preamble=preamble,
                                 max_group_size=max_group_size)
 
@@ -429,6 +335,8 @@ class OCLReductionKernel2:
         return_event = kwargs.pop("return_event", False)
 
         outs = kwargs.pop("outs", [None]*self.n_exprs)
+
+
 
         if kwargs:
             raise TypeError("invalid keyword argument to reduction kernel")
@@ -478,10 +386,10 @@ class OCLReductionKernel2:
                                  allocator=repr_vec.allocator) if out is None else out for out in outs]
             else:
                 results = [empty(use_queue,
-                                 (), self.dtype_out,
+                                 (group_count,), self.dtype_out,
                                  allocator=repr_vec.allocator) for out in outs]
 
-            print seq_count, sz
+
 
             last_evt = stage_inf.kernel(
                 use_queue,
@@ -492,6 +400,8 @@ class OCLReductionKernel2:
                 **dict(wait_for=wait_for))
             wait_for = [last_evt]
 
+            #print "ooooo  ", group_count, len(args)
+
             if group_count==1:
                 if return_event:
                     return results, last_evt
@@ -499,87 +409,51 @@ class OCLReductionKernel2:
                     return results
             else:
                 stage_inf = self.stage_2_inf
-                #args = tuple(results)+stage1_args
-                args = (results[0],)+stage1_args
+                args = tuple(results)+stage1_args
+                #args = (results[0],)+stage1_args
 
 
 if __name__=='__main__':
-    from gputools import OCLArray
+    from gputools import OCLArray, OCLReductionKernel
 
-
-    def time_multi(N, nargs, niter =100):
-        map_exprs=["%s*x%s[i]"%(i,i) for i in xrange(nargs)]
-        arguments = ",".join("__global float *x%s"%i for i in xrange(nargs))
-
-        k = OCLReductionKernel2(np.float32,
-                            neutral="0", reduce_expr="a+b",
-                            map_exprs=map_exprs,
-                            arguments=arguments)
-
-        ins = [OCLArray.from_array(np.ones(N,np.float32)) for _ in xrange(len(map_exprs))]
-        outs = [OCLArray.empty(1,np.float32) for _ in xrange(len(map_exprs))]
-
-        from time import time
-        t = time()
-        for _ in xrange(niter):
-            k(*ins, outs = outs)
-        get_device().queue.finish()
-        t = (time()-t)/niter
-        print "multi reduction: result =", [float(out.get()) for out in outs]
-        print "multi reduction:\t\t%.2f ms"%(1000*t)
-        return t
-
-
-
-    def time_simple(N, nargs, niter =100):
-        from gputools import OCLReductionKernel
-
-        map_exprs=["%s*x[i]"%i for i in xrange(nargs)]
-
-
-        ks = [OCLReductionKernel(np.float32,
-                            neutral="0", reduce_expr="a+b",
-                            map_expr="%s*x[i]"%i,
-                            arguments="__global float *x") for i in xrange(len(map_exprs))]
-
-        ins = [OCLArray.from_array(np.ones(N,np.float32)) for _ in xrange(len(map_exprs))]
-        outs = [OCLArray.empty(1,np.float32) for _ in xrange(len(map_exprs))]
-
-        from time import time
-        t = time()
-        for _ in xrange(niter):
-            for k,inn,out in zip(ks,ins,outs):
-                k(inn, out = out)
-        get_device().queue.finish()
-        t = (time()-t)/niter
-        print "simple reduction: result =", [float(out.get()) for out in outs]
-        print "simple reduction:\t\t%.2f ms"%(1000*t)
-        return t
-
-
-
-    from gputools import OCLReductionKernel
     k1 = OCLReductionKernel(np.float32,
-                            neutral="0", reduce_expr="a+b",
-                            map_expr="x[i]",
-                            arguments="__global float *x")
+                             neutral="0", reduce_expr="a+b",
+                             map_expr="x[i]",
+                             arguments="__global float *x")
+
+    k2 = OCLMultiReductionKernel(np.float32,
+                                 neutral="0", reduce_expr="a+b",
+                                 map_exprs=["y[i]*x[i]","x[i]"],
+                                 arguments="__global float *x, __global float *y")
+
+    N = 512
+    a = OCLArray.from_array(np.ones((N,N),np.float32))
+    b = OCLArray.from_array(2.*np.ones((N,N),np.float32))
 
 
-    k2 = OCLReductionKernel2(np.float32,
-                            neutral="0", reduce_expr="a+b",
-                            map_exprs=["x[i]"],
-                            arguments="__global float *x")
-
-    a = OCLArray.from_array(np.ones((256,256),np.float32))
+    o1 = OCLArray.empty((),np.float32)
+    o2 = OCLArray.empty((),np.float32)
 
 
-    # print k1(a)
-    print k2(a)
+    from time import time
+    t = time()
+    for _ in range(400):
+        k1(a)
+        k1(b)
+
+    k1(a).get()
+    k1(b).get()
+    print time()-t
 
 
-    #
-    # time_simple(512,5)
-    # time_multi(512,5)
-    #
-    # ts1 = 1000*np.array([time_simple(512,n) for n in ns])
-    # ts2 = 1000*np.array([time_multi(512,n) for n in ns])
+    t = time()
+    #print k2(a,b, outs = [o1,o2])
+    for _ in range(400):
+        k2(a[0],b[0], outs = [o1,o2])
+
+    o1.get()
+    print time()-t
+
+
+    # open("kern_new_1.txt","w").write(("%s"%k2.stage_1_inf).replace("\\n","\n"))
+    # open("kern_new_2.txt","w").write(("%s"%k2.stage_2_inf).replace("\\n","\n"))

@@ -18,6 +18,8 @@ from gputools.convolve.blur import blur
 
 
 from gputools.core.oclalgos import OCLReductionKernel, OCLElementwiseKernel
+from gputools.core.oclmultireduction import OCLMultiReductionKernel
+
 
 from gputools.noise import perlin2, perlin3
 
