@@ -23,7 +23,10 @@ def convolve_spatial2(im, hs, plane = None, return_plan = False):
     i.e. hs[0,0] is at (0,0) and hs[-1,-1] at (Ny-1,Nx-1)
     """
     if not np.all([_is_power2(n) for n in im.shape]):
-        raise NotImplementedError("im.shape == %s has to be power of 2 as of now")%(str(im.shape))
+        raise NotImplementedError("im.shape == %s has to be power of 2 as of now"%(str(im.shape)))
+
+    if not np.all([n%(g-1)==0 for n,g in zip(im.shape,hs.shape[:2])]):
+        raise NotImplementedError("Gx Gy  = %s shape mismatch"%(str(hs.shape)))
 
     Ny, Nx = im.shape
     Gy, Gx = hs.shape[:2]
@@ -105,7 +108,11 @@ def convolve_spatial3(im, hs, plan = None, return_plan = False):
     """
 
     if not np.all([_is_power2(n) for n in im.shape]):
-        raise NotImplementedError("im.shape == %s has to be power of 2 as of now")%(str(im.shape))
+        raise NotImplementedError("im.shape == %s has to be power of 2 as of now"%(str(im.shape)))
+
+
+    if not np.all([n%(g-1)==0 for n,g in zip(im.shape[:2],hs.shape[:2])]):
+        raise NotImplementedError("Gx Gy  = %s shape mismatch"%(str(hs.shape)))
 
     Nz, Ny, Nx = im.shape
     Gy, Gx = hs.shape[:2]
