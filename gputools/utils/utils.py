@@ -1,6 +1,9 @@
 import numpy as np
 
-def pad_to_shape(d , dshape, mode = "constant"):
+def pad_to_shape(d, dshape, mode = "constant"):
+    """
+    pad array d to shape dshape
+    """
     if d.shape == dshape:
         return d
 
@@ -12,17 +15,27 @@ def pad_to_shape(d , dshape, mode = "constant"):
     return np.pad(res,[(n/2,n-n/2) if n>0 else (0,0) for n in diff],mode=mode)
 
 
+
 def _is_power2(n):
     return _next_power_of_2(n) == n
 
 def _next_power_of_2(n):
     return int(2**np.ceil(np.log2(n)))
 
-def pad_to_power2(data, mode="constant"):
-    if np.all([_is_power2(n) for n in data.shape]):
+def pad_to_power2(data, axis = None, mode="constant"):
+    """
+    pad data to a shape of power 2
+    if axis == None all axis are padded
+    """
+    if axis is None:
+        axis = range(data.ndim)
+
+    if np.all([_is_power2(n) for i, n in enumerate(data.shape) if i in axis]):
         return data
     else:
-        return pad_to_shape(data,[_next_power_of_2(n) for n in data.shape],mode)
+        return pad_to_shape(data,[(_next_power_of_2(n) if i in axis else n) for i,n in enumerate(data.shape)], mode)
+
+
 
 
 def get_cache_dir():
