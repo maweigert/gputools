@@ -82,7 +82,7 @@ def test_conv2():
     Gx = 16+1
     hs = psf_grid_motion(Gx,Gx,100)
     out = convolve_spatial2(im, hs)
-    return out
+    return out, hs
 
 def test_conv3():
     from imgtools import test_images
@@ -90,10 +90,10 @@ def test_conv3():
     Gx = 16+1
     hs = psf_grid_linear3(Gx,Gx,50)
     out = convolve_spatial3(im, hs)
-    return out
+    return out, hs
 
 
 if __name__ == '__main__':
 
-    out2 = test_conv2()
-    out3 = test_conv3()
+    out2, hs2 = test_conv2()
+    out3, hs3 = test_conv3()

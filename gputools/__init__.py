@@ -15,6 +15,8 @@ from gputools.core.oclprogram import OCLProgram
 
 from gputools.fft.oclfft_convolve import fft_convolve
 from gputools.fft.oclfft import fft, fft_plan
+from gputools.fft.fftshift import fftshift
+
 
 from gputools.convolve.convolve_sep import convolve_sep2, convolve_sep3
 from gputools.convolve.convolve import convolve

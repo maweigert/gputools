@@ -101,7 +101,7 @@ def convolve_spatial3(im, hs, plan = None, return_plan = False):
     spatial varying convolution of an 3d image with a 2d grid of psfs
 
     shape(im_ = (Nz,Ny,Nx)
-    shape(hs) = (Gy,Gx, Hz,Hy,Hx)
+    shape(hs) = (Gy,Gx, Hz, Hy, Hx)
 
     the psfs are assumed to be defined equally spaced
     i.e. hs[0,0] is at (0,0) and hs[-1,-1] at (Ny-1,Nx-1)
