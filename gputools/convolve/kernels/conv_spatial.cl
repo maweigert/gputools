@@ -6,6 +6,15 @@
 #define ADDRESS_MODE CLK_ADDRESS_CLAMP
 #endif
 
+void kernel mult_inplace(__global cfloat_t *dest, const __global cfloat_t *src){
+
+    uint i = get_global_id(0);
+    dest[i] = cfloat_mul(dest[i],src[i]);
+}
+
+
+
+
 void kernel fill_patch2(read_only image2d_t src,
 							 const int offset_x, const int offset_y,
 							 __global cfloat_t *dest, const int offset_dest){

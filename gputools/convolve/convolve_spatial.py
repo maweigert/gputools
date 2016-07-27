@@ -143,6 +143,7 @@ def convolve_spatial2(im, hs,
     Npatch_x, Npatch_y = _next_power_of_2(3*Nblock_x), _next_power_of_2(3*Nblock_y)
     #Npatch_x, Npatch_y = _next_power_of_2(2*Nblock_x), _next_power_of_2(2*Nblock_y)
 
+    print Nblock_x, Npatch_x
 
     hs = np.fft.fftshift(pad_to_shape(hs,(Gy,Gx,Npatch_y,Npatch_x)),axes=(2,3))
 
@@ -153,7 +154,7 @@ def convolve_spatial2(im, hs,
     if plan is None:
         plan = fft_plan((Npatch_y,Npatch_x))
 
-    print Nblock_x, Npatch_x
+
     patches_g = OCLArray.empty((Gy,Gx,Npatch_y,Npatch_x),np.complex64)
 
     h_g = OCLArray.from_array(hs.astype(np.complex64))
@@ -177,7 +178,9 @@ def convolve_spatial2(im, hs,
     # convolution
     fft(patches_g,inplace=True, batch = Gx*Gy, plan = plan)
     fft(h_g,inplace=True, batch = Gx*Gy, plan = plan)
-    patches_g = patches_g *h_g
+    prog.run_kernel("mult_inplace",(np.prod(Npatchs)*np.prod(Gs),),None,
+                    patches_g.data, h_g.data)
+
     fft(patches_g,inplace=True, inverse = True, batch = Gx*Gy, plan = plan)
 
     #return patches_g.get()
@@ -249,10 +252,10 @@ def convolve_spatial3(im, hs,
     # the size of the overlapping patches with safety padding
     Npatchs = tuple([_next_power_of_2(pad_factor*nb) for nb in Nblocks])
 
-
+    print hs.shape
     hs = np.fft.fftshift(pad_to_shape(hs,Gs+Npatchs),axes=(3,4,5))
 
-    print hs.shape
+
 
     prog = OCLProgram(abspath("kernels/conv_spatial.cl"),
                       build_options=["-D","ADDRESSMODE=%s"%mode_str[mode]])
@@ -294,7 +297,9 @@ def convolve_spatial3(im, hs,
     # convolution
     fft(patches_g,inplace=True, batch = np.prod(Gs), plan = plan)
     fft(h_g,inplace=True, batch = np.prod(Gs), plan = plan)
-    patches_g = patches_g *h_g
+    prog.run_kernel("mult_inplace",(np.prod(Npatchs)*np.prod(Gs),),None,
+                    patches_g.data, h_g.data)
+
     fft(patches_g,
         inplace=True,
         inverse = True,
