@@ -45,15 +45,6 @@ def create_psf3(sig = (.3,.3,.3), N = 10, xy_angle = 0.):
     return h
 
 
-def psf_grid_const3(Gx,Gy,N=21, sig = (0.01,0.01,0.01)):
-    return np.stack([np.stack([create_psf3(N = N,
-                                        sig = sig)
-                             for _y in np.linspace(-1,1,Gy)])  for _x in np.linspace(-1,1,Gx)])
-
-def psf_grid_linear3(Gx,Gy,N=16):
-        return np.stack([np.stack([create_psf3(N = N,
-                                        sig = (0.1+.4*_x**2,0.001+.2*_x**2,0.001+.2*_x**2))
-                             for _x in np.linspace(-1,1,Gx)])  for _y in np.linspace(-1,1,Gy)])
 
 
 def make_grid2(hs):
@@ -67,12 +58,27 @@ def make_grid2(hs):
     return im
 
 
+def psf_grid_const3(Gx,Gy,Gz, N=21, sig = (0.01,0.01,0.01)):
+    return np.stack([np.stack([np.stack([create_psf3(N = N,
+                                sig = sig)
+                for _ in xrange(Gx)])
+                for _ in xrange(Gy)])
+                for _ in xrange(Gz)])
+
+def psf_grid_linear3(Gx,Gy,Gz, N=16):
+        return np.stack([np.stack([np.stack([create_psf3(N = N,
+                    sig = (0.1+.4*x**2,0.001+.2*x**2,0.001+.2*x**2))
+                for x in np.linspace(-1,1,Gx)])
+                for y in np.linspace(-1,1,Gy)])
+                for z in np.linspace(-1,1,Gz)])
 
 
 def psf_grid_const3(Gx,Gy,Gz, N=21, sig = (0.01,0.01,0.01)):
     return np.stack([np.stack([np.stack([create_psf3(N = N,
                                         sig = sig)
-                             for _ in xrange(Gx)]) for _ in xrange(Gy)]) for _ in xrange(Gz)])
+                for _ in xrange(Gx)])
+                for _ in xrange(Gy)])
+                for _ in xrange(Gz)])
 
 
 
@@ -127,14 +133,14 @@ def test_conv3():
     im = 1.*test_images.droso64().astype(np.float32)
     Gx = 8
     Gy = 4
-    hs = psf_grid_linear3(Gx,Gy,10)
-
+    Gz = 2
+    hs = psf_grid_linear3(Gx,Gy,Gz,10)
     out = convolve_spatial3(im, hs)
     return im,out, hs
 
 def test_conv3_psfs():
     from imgtools import test_images
-    im = np.zeros((128,)*3)
+    im = np.zeros((128,64,32))
     im[::16,::16,::16] = 1.
     Gx = 16
     Gy = 16

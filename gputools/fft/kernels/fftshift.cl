@@ -39,6 +39,30 @@ __kernel void fftshift_1_f(__global float* src,
 
 }
 
+__kernel void fftshift_1_c(__global cfloat_t* src,
+                           __global cfloat_t* dest,
+                           const int N,
+                           const int stride
+                           ){
+
+    int i = get_global_id(0);
+    int j = get_global_id(1);
+    int k = get_global_id(2);
+
+
+    int index1 = i+j*stride + k*stride*N;
+    int index2 = i+(j+N/2)*stride + k*stride*N;
+
+    cfloat_t val1 = src[index1];
+    cfloat_t val2 = src[index2];
+
+
+    //swap halves
+    dest[index1] = val2;
+    dest[index2] = val1;
+
+
+}
 
 /*
 __kernel void fftshift_1_f(__global float* src,

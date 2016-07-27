@@ -27,6 +27,7 @@ def test_all():
         for n_ax in xrange(1,min(ndim,3)+1):
             for axes in combinations(range(ndim),n_ax):
                 check_single(d, axes)
+                check_single(d.astype(np.complex64), axes)
 
 
 if __name__ == '__main__':

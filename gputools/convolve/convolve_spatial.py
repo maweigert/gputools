@@ -124,6 +124,9 @@ def convolve_spatial2(im, hs,
     "wrap" - periodic boundary condition
     """
 
+    if im.ndim !=2 or hs.ndim !=4:
+        raise ValueError("wrong dimensions of input!")
+
     if not np.all([n%g==0 for n,g in zip(im.shape,hs.shape[:2])]):
         raise NotImplementedError("shape of image has to be divisible by Gx Gy  = %s shape mismatch"%(str(hs.shape[:2])))
 
@@ -178,7 +181,7 @@ def convolve_spatial2(im, hs,
     # convolution
     fft(patches_g,inplace=True, batch = Gx*Gy, plan = plan)
     fft(h_g,inplace=True, batch = Gx*Gy, plan = plan)
-    prog.run_kernel("mult_inplace",(np.prod(Npatchs)*np.prod(Gs),),None,
+    prog.run_kernel("mult_inplace",(Npatch_x*Npatch_y*Gx*Gy,),None,
                     patches_g.data, h_g.data)
 
     fft(patches_g,inplace=True, inverse = True, batch = Gx*Gy, plan = plan)
@@ -233,6 +236,8 @@ def convolve_spatial3(im, hs,
 
 
     """
+    if im.ndim !=3 or hs.ndim !=6:
+        raise ValueError("wrong dimensions of input!")
 
     if not np.all([n%g==0 for n,g in zip(im.shape,hs.shape[:3])]):
         raise NotImplementedError("shape of image has to be divisible by Gx Gy  = %s !"%(str(hs.shape[:3])))
