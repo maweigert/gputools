@@ -1,16 +1,18 @@
 #include <pyopencl-complex.h>
 
 // 2d function
+
 void kernel fill_patch2(read_only image2d_t src,
 							 const int offset_x, const int offset_y,
 							 __global cfloat_t *dest, const int offset_dest){
+
 
   const sampler_t sampler = CLK_ADDRESS_CLAMP|  CLK_FILTER_NEAREST;
 
   uint i = get_global_id(0);
   uint j = get_global_id(1);
   uint Nx = get_global_size(0);
-  uint Ny = get_global_size(1);
+
 
   float val = read_imagef(src,
   						   sampler,
@@ -78,12 +80,19 @@ void kernel interpolate2( __global cfloat_t * src,
 						 const int Gx,const int Gy,
 						 const int Npatch_x,const int Npatch_y){
 
+  // src are the padded patches
+  // dest is the actual img to fill
+  // the kernels runs over the blocksize
+  // x0,y0 are the first dims of the patch buffer to interpolate x0 --> x0+1
+
   const sampler_t sampler = CLK_ADDRESS_CLAMP|  CLK_FILTER_NEAREST;
 
   int i = get_global_id(0);
   int j = get_global_id(1);
   int Nx = get_global_size(0);
   int Ny = get_global_size(1);
+
+  // relative coords within patch
   float _x = 1.f*i/(Nx-1.f);
   float _y = 1.f*j/(Ny-1.f);	  
 
@@ -96,13 +105,13 @@ void kernel interpolate2( __global cfloat_t * src,
   // the index in the patches
 
   
-  int index11 = (i+Npatch_x/2)+Npatch_x*(j+Npatch_x/2)+Npatch_x*Npatch_y*x0+Npatch_x*Npatch_y*Gx*y0;
+  int index11 = (i+Npatch_x/2)+Npatch_x*(j+Npatch_y/2)+Npatch_x*Npatch_y*x0+Npatch_x*Npatch_y*Gx*y0;
   
-  int index12 = (i+Npatch_x/2-Nx)+Npatch_x*(j+Npatch_x/2)+Npatch_x*Npatch_y*(x0+1)+Npatch_x*Npatch_y*Gx*y0;
+  int index12 = (i+Npatch_x/2-Nx)+Npatch_x*(j+Npatch_y/2)+Npatch_x*Npatch_y*(x0+1)+Npatch_x*Npatch_y*Gx*y0;
 
-  int index21 = (i+Npatch_x/2)+Npatch_x*(j+Npatch_x/2-Ny)+Npatch_x*Npatch_y*x0+Npatch_x*Npatch_y*Gx*(y0+1);
+  int index21 = (i+Npatch_x/2)+Npatch_x*(j+Npatch_y/2-Ny)+Npatch_x*Npatch_y*x0+Npatch_x*Npatch_y*Gx*(y0+1);
 
-  int index22 = (i+Npatch_x/2-Nx)+Npatch_x*(j+Npatch_x/2-Ny)+Npatch_x*Npatch_y*(x0+1)+Npatch_x*Npatch_y*Gx*(y0+1);
+  int index22 = (i+Npatch_x/2-Nx)+Npatch_x*(j+Npatch_y/2-Ny)+Npatch_x*Npatch_y*(x0+1)+Npatch_x*Npatch_y*Gx*(y0+1);
   
   
 
@@ -112,7 +121,11 @@ void kernel interpolate2( __global cfloat_t * src,
   float a22 = _x*_y*cfloat_real(src[index22]);
   
   dest[index_im] = a11+a12+a21+a22;
-  // dest[index_im] = cfloat_real(src[index21]);
+  //dest[index_im] = a11;
+
+  //dest[index_im] = cfloat_real(src[index11]);
+
+  //dest[index_im] = i;
 
 }
 
@@ -147,16 +160,16 @@ void kernel interpolate3( __global cfloat_t * src,
   int stride = Nz*Npatch_x*Npatch_y;
   
   // the index in the patches
-  int index11 = (i+Npatch_x/2)+Npatch_x*(j+Npatch_x/2)+Npatch_x*Npatch_y*k
+  int index11 = (i+Npatch_x/2)+Npatch_x*(j+Npatch_y/2)+Npatch_x*Npatch_y*k
 	+stride*x0+stride*Gx*y0;
   
-  int index12 = (i+Npatch_x/2-Nx)+Npatch_x*(j+Npatch_x/2)+Npatch_x*Npatch_y*k
+  int index12 = (i+Npatch_x/2-Nx)+Npatch_x*(j+Npatch_y/2)+Npatch_x*Npatch_y*k
 	+stride*(x0+1)+stride*Gx*y0;
   
-  int index21 = (i+Npatch_x/2)+Npatch_x*(j+Npatch_x/2-Ny)+Npatch_x*Npatch_y*k
+  int index21 = (i+Npatch_x/2)+Npatch_x*(j+Npatch_y/2-Ny)+Npatch_x*Npatch_y*k
 	+stride*x0+stride*Gx*(y0+1);
 
-  int index22 = (i+Npatch_x/2-Nx)+Npatch_x*(j+Npatch_x/2-Ny)+Npatch_x*Npatch_y*k
+  int index22 = (i+Npatch_x/2-Nx)+Npatch_x*(j+Npatch_y/2-Ny)+Npatch_x*Npatch_y*k
 	+stride*(x0+1)+stride*Gx*(y0+1);
   
   

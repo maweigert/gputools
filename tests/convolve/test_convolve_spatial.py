@@ -79,21 +79,35 @@ def make_grid3(hs):
 def test_conv2():
     from imgtools import test_images
     im = test_images.lena().astype(np.float32)
-    Gx = 16+1
-    hs = psf_grid_motion(Gx,Gx,100)
+    Gx = 4+1
+    Gy = 8+1
+    hs = psf_grid_motion(Gx,Gy,100)
     out = convolve_spatial2(im, hs)
-    return out, hs
+    return im, out, hs
 
 def test_conv3():
     from imgtools import test_images
-    im = test_images.droso128().astype(np.float32)
-    Gx = 16+1
-    hs = psf_grid_linear3(Gx,Gx,50)
-    out = convolve_spatial3(im, hs)
-    return out, hs
+    im = 1.*test_images.droso64().astype(np.float32)
+    Gx = 8+1
+    Gy = 4+1
+    hs = psf_grid_linear3(Gx,Gy,10)
+
+    out = convolve_spatial3(im, hs, n_split_volumes=1)
+    return im,out, hs
+
+def test_conv3_psfs():
+    from imgtools import test_images
+    im = np.zeros((128,)*3)
+    im[::10,::10,::10] = 1.
+    Gx = 8+1
+    Gy = 4+1
+    hs = psf_grid_linear3(Gx,Gy,10)
+
+    out = convolve_spatial3(im, hs, n_split_volumes=1)
+    return im,out, hs
 
 
 if __name__ == '__main__':
 
-    out2, hs2 = test_conv2()
-    out3, hs3 = test_conv3()
+    #im2, out2, hs2 = test_conv2()
+    im3, out3, hs3 = test_conv3_psfs()

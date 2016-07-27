@@ -80,24 +80,9 @@ def fftshift(arr_obj, axes = None, res_g = None, return_buffer = False):
         return res_g.get()
 
 
-
-
-def _fftshift(d_g,res_g, axes):
-    """
-    if axes == None, take all axes
-    """
-
-    in_g = d_g
-    for ax in axes:
-        _fftshift_single(in_g, res_g, ax)
-        in_g = res_g
-
-    return res_g
-
-
 def _fftshift_single(d_g, res_g, ax = 0):
     """
-    basic fftshift of a OCLArray
+    basic fftshift of an OCLArray
 
 
     shape(d_g) =  [N_0,N_1...., N, .... N_{k-1, N_k]
