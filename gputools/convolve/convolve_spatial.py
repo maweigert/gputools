@@ -104,7 +104,7 @@ from itertools import product
 
 def convolve_spatial2(im, hs,
                       mode = "constant",
-                      plane = None,
+                      plan = None,
                       return_plan = False):
     """
     spatial varying convolution of an 2d image with a 2d grid of psfs
@@ -150,7 +150,7 @@ def convolve_spatial2(im, hs,
     prog = OCLProgram(abspath("kernels/conv_spatial.cl"),
                       build_options=["-D","ADDRESSMODE=%s"%mode_str[mode]])
 
-    if plane is None:
+    if plan is None:
         plan = fft_plan((Npatch_y,Npatch_x))
 
     print Nblock_x, Npatch_x
@@ -207,7 +207,7 @@ def convolve_spatial2(im, hs,
 
 def convolve_spatial3(im, hs,
                       mode = "constant",
-                      plane = None,
+                      plan = None,
                       return_plan = False,
                       pad_factor = 2):
     """
@@ -257,7 +257,7 @@ def convolve_spatial3(im, hs,
     prog = OCLProgram(abspath("kernels/conv_spatial.cl"),
                       build_options=["-D","ADDRESSMODE=%s"%mode_str[mode]])
 
-    if plane is None:
+    if plan is None:
         plan = fft_plan(Npatchs)
 
     patches_g = OCLArray.empty(Gs+Npatchs,np.complex64)

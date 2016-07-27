@@ -148,8 +148,10 @@ def test_conv3_psfs():
 def speed_test3(imshape=(128,128,128), gshape=(4,4,4)):
     im = np.zeros(imshape)
     hs = np.ones(gshape+imshape)
+
+    out, plan = convolve_spatial3(im, hs, return_plan=True)
     t  = time()
-    out = convolve_spatial3(im, hs)
+    out = convolve_spatial3(im, hs, plan=plan)
     t = time()-t
     print "imshape: %s \tgshape: %s   \ttime = %.2gs"%(imshape, gshape, t)
     return t
