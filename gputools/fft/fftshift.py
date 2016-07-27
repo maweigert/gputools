@@ -60,8 +60,8 @@ def fftshift(arr_obj, axes = None, res_g = None, return_buffer = False):
     else:
         raise ValueError("unknown type (%s)"%(type(arr_obj)))
 
-    if not np.all([n%2==0 for n in arr_obj.shape]):
-        raise NotImplementedError("only works on arrays of even dimensions")
+    if not np.all([arr_obj.shape[a]%2==0 for a in axes]):
+        raise NotImplementedError("only works on axes of even dimensions")
 
     if res_g is None:
         res_g = OCLArray.empty_like(arr_obj)
