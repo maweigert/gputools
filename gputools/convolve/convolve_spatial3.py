@@ -53,7 +53,7 @@ def convolve_spatial3(im, psfs,
     sub_blocks = (n,m,l)
     then the operation is carried out in a tiled fashion reducing
     memory consumption to 8*Nx*Ny*(1/n+2/Gx)*(1/m+2/Gy)*(1/l+2/Gz)
-
+    (so there is no much use if n>Gx/2...)
     Example
     -------
 
@@ -146,15 +146,15 @@ def convolve_spatial3(im, psfs,
         if grid_dim:
             res = np.empty(im.shape, np.float32)
             plan = None
-            for (im_tile, im_s_src, im_s_dest), (hs_tile, hs_s_src, hs_s_dest)\
-                in zip(tile_iterator(im,blocksize=N_sub,
+            for i,((im_tile, im_s_src, im_s_dest), (hs_tile, hs_s_src, hs_s_dest))\
+                in enumerate(zip(tile_iterator(im,blocksize=N_sub,
                                      padsize=Npads,
                                      mode = mode),\
                     tile_iterator(psfs, blocksize=N_sub,
                                   padsize=Npads,
-                                  mode = mode)):
+                                  mode = mode))):
 
-                print "subdiv: ", im_s_src, grid_dim_sub
+                print "convolve_spatial3 ... %s\t/ %s"%(i+1,np.prod(sub_blocks))
                 res_tile, plan = _convolve_spatial3(im_tile.copy(),
                                               hs_tile.copy(),
                                               mode = mode,
@@ -168,7 +168,7 @@ def convolve_spatial3(im, psfs,
             return res
 
         else:
-            raise NotImplementedError()
+            raise NotImplementedError("sub_blocks only implemented for Flatmode")
 
 
 def _convolve_spatial3(im, hs,
@@ -306,8 +306,8 @@ if __name__ == '__main__':
 
     im = np.zeros((64,64,64))
     im[::10,::10,::10] = 1.
-    hs = np.ones((2,2,2,10,10,10))
+    hs = np.ones((4,4,4,10,10,10))
+    hs = np.ones_like(im)
 
-
-    out = convolve_spatial3(im,hs, mode = "constant", pad_factor = 2)
+    out = convolve_spatial3(im,hs, mode = "constant", grid_dim = (4,4,4),sub_blocks=(2,2,2))
 
