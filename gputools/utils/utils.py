@@ -11,8 +11,9 @@ def pad_to_shape(d, dshape, mode = "constant"):
     #first shrink
     slices  = [slice(-x/2,x/2) if x<0 else slice(None,None) for x in diff]
     res = d[slices]
-    #then padd
-    return np.pad(res,[(n/2,n-n/2) if n>0 else (0,0) for n in diff],mode=mode)
+    #then pad
+    # return np.pad(res,[(n/2,n-n/2) if n>0 else (0,0) for n in diff],mode=mode)
+    return np.pad(res,[(int(np.ceil(d/2.)),d-int(np.ceil(d/2.))) if d>0 else (0,0) for d in diff],mode=mode)
 
 
 

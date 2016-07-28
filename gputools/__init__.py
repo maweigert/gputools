@@ -8,6 +8,7 @@ from gputools.core.config import init_device, get_device
 
 from gputools.utils.utils import pad_to_shape, pad_to_power2
 from gputools.utils.utils import remove_cache_dir
+from gputools.utils.tile_iterator import tile_iterator
 
 
 from gputools.core.ocltypes import OCLArray, OCLImage
@@ -21,7 +22,7 @@ from gputools.fft.fftshift import fftshift
 from gputools.convolve.convolve_sep import convolve_sep2, convolve_sep3
 from gputools.convolve.convolve import convolve
 from gputools.convolve.blur import blur
-from gputools.convolve.convolve_spatial import convolve_spatial2, convolve_spatial3
+from gputools.convolve import convolve_spatial2, convolve_spatial3
 
 from gputools.core.oclalgos import OCLReductionKernel, OCLElementwiseKernel
 from gputools.core.oclmultireduction import OCLMultiReductionKernel
