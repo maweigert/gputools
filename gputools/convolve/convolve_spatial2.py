@@ -208,7 +208,7 @@ def _convolve_spatial2(im, hs,
 
 
     # the size of the overlapping patches with safety padding
-    Npatch_x, Npatch_y = _next_power_of_2(pad_factor*Nblock_x), _next_power_of_2(2*Nblock_y)
+    Npatch_x, Npatch_y = _next_power_of_2(pad_factor*Nblock_x), _next_power_of_2(pad_factor*Nblock_y)
 
 
     prog = OCLProgram(abspath("kernels/conv_spatial2.cl"),

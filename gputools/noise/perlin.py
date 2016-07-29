@@ -22,9 +22,30 @@ def abspath(myPath):
 
 
 
-def perlin2(size, units, repeat = (10.,)*2):
-    wx, wy = repeat
-    dx, dy = units
+def perlin2(size, units = None, repeat = (10.,)*2, scale = None):
+    """
+        2d perlin noise
+        either scale =(10.,10.) or units (5.,5.) have to be given....
+
+        scale is the characteristic length in pixels
+    Parameters
+    ----------
+    size:
+
+    units
+    repeat
+    scale
+
+    Returns
+    -------
+
+    """
+    if scale:
+        repeat = scale
+        units = (1.,)*2
+    else:
+        wx, wy = repeat
+        dx, dy = units
 
     prog = OCLProgram(abspath("kernels/perlin.cl"))
 
@@ -56,13 +77,21 @@ def _perlin3_single(size,units = (1.,)*3,repeat = (10.,)*3,offz = 0,Nz0 = None):
     return d.get()
 
 
-def perlin3(size,units = (1.,)*3,repeat = (10.,)*3,n_volumes=1):
+def perlin3(size,units = (1.,)*3,repeat = (10.,)*3,scale = None, n_volumes=1):
     """returns a 3d perlin noise array of given size (Nx,Ny,Nz)
     and units (dx,dy,dz) with given repeats (in units)
     by doing the noise calculations on the gpu
 
     The volume can be splitted into n_volumes pieces if gou memory is not enough
+
+    either scale or units have to be given
+
+
     """
+
+    if scale:
+        repeat = scale
+        units = (1.,)*3
 
     if n_volumes ==1:
         return _perlin3_single(size,units,repeat)
