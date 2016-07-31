@@ -6,7 +6,7 @@ import numpy as np
 
 from gputools import  OCLProgram, OCLArray, OCLImage, get_device
 from gputools.core.ocltypes import assert_bufs_type
-
+from gputools.utils.tile_iterator import tile_iterator
 import sys
 
 from _abspath import abspath
@@ -14,7 +14,7 @@ from _abspath import abspath
 
 
 
-def convolve(data,h , res_g = None):
+def convolve(data,h , res_g = None, sub_blocks = None):
     """
     convolves 1d-3d data with kernel h 
 
@@ -34,8 +34,22 @@ def convolve(data,h , res_g = None):
     if isinstance(data,OCLArray) and  isinstance(h,OCLArray):
         return _convolve_buf(data,h, res_g)
     elif isinstance(data,np.ndarray) and  isinstance(h,np.ndarray):
-        return _convolve_np(data,h)
-    
+        if sub_blocks == (1,)*len(data.shape) or sub_blocks is None:
+            return _convolve_np(data,h)
+        else:
+            # cut the image into tile and operate on every of them
+            N_sub = [int(np.ceil(1.*n/s)) for n,s  in zip(data.shape,sub_blocks)]
+            Npads = [int(s/2) for s in h.shape]
+            res = np.empty(data.shape, np.float32)
+            for data_tile, data_s_src, data_s_dest\
+                in tile_iterator(data,blocksize=N_sub,
+                                     padsize=Npads,
+                                     mode = "constant"):
+
+                res_tile = _convolve_np(data_tile.copy(),
+                                        h)
+                res[data_s_src] = res_tile[data_s_dest]
+            return res
     else:
         raise TypeError("unknown types (%s, %s)"%(type(data),type(h)))
 

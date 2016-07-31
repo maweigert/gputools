@@ -11,6 +11,8 @@ from gputools import fft_plan, OCLArray, OCLImage, \
     fft, get_device, OCLProgram, pad_to_shape, tile_iterator
 
 from gputools.utils.utils import _is_power2, _next_power_of_2
+from gputools.utils.tile_iterator import tile_iterator
+
 from _abspath import abspath
 
 
@@ -106,19 +108,19 @@ def convolve_spatial2(im, psfs,
 
 
     if grid_dim:
-        if hs.shape != im.shape:
+        if psfs.shape != im.shape:
             raise ValueError("if grid_dim is set, then im.shape = hs.shape !")
     else:
-        if not hs.ndim==2*ndim:
+        if not psfs.ndim==2*ndim:
             raise ValueError("wrong dimensions of psf grid! (Gy,Gx,Ny,Nx)")
 
     if grid_dim:
         Gs = grid_dim
     else:
-        Gs = hs.shape[:ndim]
+        Gs = psfs.shape[:ndim]
 
     if not np.all([n%g==0 for n,g in zip(im.shape,Gs)]):
-        raise NotImplementedError("shape of image has to be divisible by Gx Gy  = %s shape mismatch"%(str(hs.shape[:2])))
+        raise NotImplementedError("shape of image has to be divisible by Gx Gy  = %s shape mismatch"%(str(psfs.shape[:2])))
 
     if sub_blocks is None:
         return _convolve_spatial2(im,
@@ -299,8 +301,8 @@ if __name__ == '__main__':
     im = np.zeros((128,128))
     im[::10,::10] = 1.
     im = 0*im+1.
-    hs = np.ones((2,2,10,10))
+    psfs = np.ones((2, 2, 10, 10))
     #hs *= 1./np.sum(hs[0,0])
 
-    out = convolve_spatial2(im,hs, mode = "constant", pad_factor = 2)
+    out = convolve_spatial2(im, psfs, mode ="constant", pad_factor = 2)
 

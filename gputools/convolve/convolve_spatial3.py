@@ -114,7 +114,7 @@ def convolve_spatial3(im, psfs,
             raise ValueError("if grid_dim is set, then im.shape = hs.shape !")
     else:
         if not psfs.ndim==2*ndim:
-            raise ValueError("wrong dimensions of psf grid! (Gy,Gx,Ny,Nx)")
+            raise ValueError("wrong dimensions of psf grid! should be (Gz,Gy,Gx,Nz,Ny,Nx)")
 
     if grid_dim:
         Gs = grid_dim

@@ -6,38 +6,43 @@ import numpy as np
 from gputools import OCLArray, OCLProgram, get_device
 
 from gputools.core.ocltypes import assert_bufs_type
-
+from gputools.utils.tile_iterator import tile_iterator
 from _abspath import abspath
 
-# def _convolve_axis2_gpu(data_g, h_g, axis= 0, res_g=None, dev = None):
-#     if dev is None:
-#         dev = get_device()
 
-#     prog = OCLProgram(absPath("kernels/convolve_sep.cl"))
-
-#     N = hy_g.shape[0]
-
-#     tmp_g = OCLArray.empty_like(data_g)
-
-#     kernel_str = "conv_sep2_%s"%(["y","x"][axis],)
-    
-#     prog.run_kernel(kernel_str,data_g.shape[::-1],None,data_g.data,h_g.data,res_g.data,np.int32(N))
-
-    
-def convolve_sep2(data, hx, hy, res_g = None, plan = None):
+def convolve_sep2(data, hx, hy, res_g = None, sub_blocks=None):
     """convolves 2d data with kernel h = outer(hx,hy)
     boundary conditions are clamping to edge.
 
     data is either np array or a gpu buffer (OCLArray)
-    
+
     """
-        
+
     if isinstance(data,np.ndarray):
-        return _convolve_sep2_numpy(data, hx, hy)
+        if sub_blocks == (1,1) or sub_blocks is None:
+            return _convolve_sep2_numpy(data, hx, hy)
+        else:
+            # cut the image into tile and operate on every of them
+            N_sub = [int(np.ceil(1.*n/s)) for n,s  in zip(data.shape,sub_blocks)]
+            Npads = [int(len(_h)/2) for _h in [hy,hx]]
+            res = np.empty(data.shape, np.float32)
+            for data_tile, data_s_src, data_s_dest\
+                in tile_iterator(data,blocksize=N_sub,
+                                     padsize=Npads,
+                                     mode = "constant"):
+
+                res_tile = _convolve_sep2_numpy(data_tile.copy(),
+                                              hx,hy)
+                res[data_s_src] = res_tile[data_s_dest]
+            return res
     elif isinstance(data,OCLArray):
+        if not sub_blocks is None:
+            raise NotImplementedError()
         return _convolve_sep2_gpu(data,hx, hy, res_g = res_g)
     else:
         raise TypeError("array argument (1) has bad type: %s"%type(arr_obj))
+
+
 
 
 def _convolve_sep2_numpy(data,hx,hy):
@@ -45,11 +50,12 @@ def _convolve_sep2_numpy(data,hx,hy):
     hy_g = OCLArray.from_array(hy.astype(np.float32))
 
     data_g = OCLArray.from_array(data.astype(np.float32))
-                                 
+
 
     return _convolve_sep2_gpu(data_g,hx_g,hy_g).get()
 
-def _convolve_sep2_gpu(data_g, hx_g, hy_g, res_g = None, dev = None):
+
+def _convolve_sep2_gpu(data_g, hx_g, hy_g, res_g = None):
 
     
     assert_bufs_type(np.float32,data_g,hx_g,hy_g)
@@ -69,20 +75,39 @@ def _convolve_sep2_gpu(data_g, hx_g, hy_g, res_g = None, dev = None):
     return res_g
     
 
-def convolve_sep3(data, hx, hy, hz, res_g = None, plan = None):
+def convolve_sep3(data, hx, hy, hz, res_g = None, sub_blocks = (1,1,1)):
     """convolves 3d data with kernel h = outer(hx,hy, hz)
     boundary conditions are clamping to edge.
 
     data is either np array or a gpu buffer (OCLArray)
-    
+
     """
-        
+
     if isinstance(data,np.ndarray):
-        return _convolve_sep3_numpy(data, hx, hy, hz)
+        if sub_blocks == (1, 1, 1) or sub_blocks is None:
+            return _convolve_sep3_numpy(data, hx, hy, hz)
+        else:
+            # cut the image into tile and operate on every of them
+            N_sub = [int(np.ceil(1.*n/s)) for n,s  in zip(data.shape,sub_blocks)]
+            Npads = [int(len(_h)/2) for _h in [hz,hy,hx]]
+            res = np.empty(data.shape, np.float32)
+            for i,(data_tile, data_s_src, data_s_dest)\
+                in enumerate(tile_iterator(data,blocksize=N_sub,
+                                     padsize=Npads,
+                                     mode = "constant")):
+
+                res_tile = _convolve_sep3_numpy(data_tile.copy(),
+                                              hx,hy, hz)
+                res[data_s_src] = res_tile[data_s_dest]
+            return res
+
+
     elif isinstance(data,OCLArray):
         return _convolve_sep3_gpu(data,hx, hy, hz, res_g = res_g)
     else:
         raise TypeError("array argument (1) has bad type: %s"%type(data))
+
+
 
 
 def _convolve_sep3_numpy(data,hx,hy,hz):
@@ -127,9 +152,9 @@ def test_2d():
 
     out = convolve_sep2(data,hx,hy)
 
-    data_g = OCLArray.from_array(data)
+    data_g = OCLArray.from_array(data.astype(np.float32))
     hx_g = OCLArray.from_array(hx.astype(np.float32))
-    hy_g = OCLArray.from_array(hy.astype(np.float64))
+    hy_g = OCLArray.from_array(hy.astype(np.float32))
 
     out_g = convolve_sep2(data_g,hx_g,hy_g)
         
@@ -151,7 +176,7 @@ def test_3d():
         out = convolve_sep3(data,hx,hy, hz)
     print "time: %.3f ms"%(1000.*(time()-t)/Niter)
 
-    data_g = OCLArray.from_array(data)
+    data_g = OCLArray.from_array(data.astype(np.float32))
     hx_g = OCLArray.from_array(hx.astype(np.float32))
     hy_g = OCLArray.from_array(hy.astype(np.float32))
     hz_g = OCLArray.from_array(hz.astype(np.float32))

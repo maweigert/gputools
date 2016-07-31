@@ -14,8 +14,10 @@ def _convolve_rand(dshape,hshape):
     out1 = sp_filter.convolve(d,h,mode="constant")
 
     out2 = gputools.convolve(d,h)
+    out3 = gputools.convolve(d,h, sub_blocks=(2,3,4))
 
     npt.assert_allclose(out1,out2,rtol=1.e-2,atol=1.e-5)
+    npt.assert_allclose(out1,out3,rtol=1.e-2,atol=1.e-5)
 
 def test_convolve():
     for ndim in [1,2,3]:
@@ -25,6 +27,7 @@ def test_convolve():
                 hshape = [Nh+3*n for n in range(ndim)]
                 
                 _convolve_rand(dshape,hshape)
+
     
 if __name__ == '__main__':
     test_convolve()
