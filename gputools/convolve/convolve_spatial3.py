@@ -232,8 +232,8 @@ def _convolve_spatial3(im, hs,
             prog.run_kernel("fill_psf_grid3",
                         Nblocks[::-1],None,
                         tmp_g.data,
-                        np.int32(im.shape[1]),
                         np.int32(im.shape[2]),
+                        np.int32(im.shape[1]),
                         np.int32(i*Nblocks[2]),
                         np.int32(j*Nblocks[1]),
                         np.int32(k*Nblocks[0]),
@@ -271,7 +271,9 @@ def _convolve_spatial3(im, hs,
     # convolution
     fft(patches_g,inplace=True, batch = np.prod(Gs), plan = plan)
     fft(h_g,inplace=True, batch = np.prod(Gs), plan = plan)
-    patches_g = patches_g *h_g
+    prog.run_kernel("mult_inplace",(np.prod(Npatchs)*np.prod(Gs),),None,
+                    patches_g.data, h_g.data)
+
     fft(patches_g,
         inplace=True,
         inverse = True,
