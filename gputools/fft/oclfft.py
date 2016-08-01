@@ -20,7 +20,13 @@ def fft_plan(shape, **kwargs):
 
     
 
-def fft(arr_obj,res_g = None, inplace = False, inverse = False, plan = None, batch = 1):
+def fft(arr_obj,res_g = None,
+        inplace = False,
+        inverse = False,
+        batch = 1,
+        plan = None,
+        fast_math = True,
+        normalize = True):
     """ (inverse) fourier trafo of 1-3D arrays
 
     creates a new plan or uses the given plan
@@ -37,17 +43,30 @@ def fft(arr_obj,res_g = None, inplace = False, inverse = False, plan = None, bat
         or returns a new OCLArray with the transform otherwise
     
     """
+
+    if plan is None:
+        if batch==1:
+            plan = Plan(arr_obj.shape, queue = get_device().queue,
+                        normalize = normalize,
+                        fast_math = fast_math)
+        else:
+            plan = Plan(arr_obj.shape[1:], queue = get_device().queue,
+                        normalize = normalize,
+                        fast_math = fast_math)
+
     
     if isinstance(arr_obj,np.ndarray):
-        return _ocl_fft_numpy(arr_obj,inverse = inverse, plan = plan)
+        return _ocl_fft_numpy(plan, arr_obj,inverse = inverse)
     elif isinstance(arr_obj,OCLArray):
         if not arr_obj.dtype.type is np.complex64:
             raise TypeError("OCLArray arr_obj has to be of complex64 type")
         
         if inplace:
-            _ocl_fft_gpu_inplace(arr_obj,inverse = inverse, plan = plan, batch = batch)
+            _ocl_fft_gpu_inplace(plan, arr_obj, inverse = inverse,
+                                 batch = batch)
         else:
-            return _ocl_fft_gpu(arr_obj,res_g,inverse = inverse, plan = plan, batch = batch)
+            return _ocl_fft_gpu(plan, arr_obj, res_arr = res_g, inverse = inverse,
+                                batch = batch)
 
     else:
         raise TypeError("array argument (1) has bad type: %s"%type(arr_obj))
@@ -55,12 +74,7 @@ def fft(arr_obj,res_g = None, inplace = False, inverse = False, plan = None, bat
 
 # implementation ------------------------------------------------
 
-def _ocl_fft_numpy(arr,inverse = False, plan = None, batch = 1):
-    if plan is None:
-        if batch==1:
-            plan = Plan(arr.shape, queue = get_device().queue)
-        else:
-            plan = Plan(arr.shape[1:], queue = get_device().queue)
+def _ocl_fft_numpy(plan, arr,inverse = False, batch = 1, fast_math = True):
 
     if arr.dtype != np.complex64:
        logger.info("converting %s to complex64, might slow things down..."%arr.dtype)
@@ -71,32 +85,16 @@ def _ocl_fft_numpy(arr,inverse = False, plan = None, batch = 1):
     
     return ocl_arr.get()
     
-def _ocl_fft_gpu_inplace(ocl_arr,inverse = False, plan = None, batch = 1):
+def _ocl_fft_gpu_inplace(plan, ocl_arr, inverse = False, batch = 1):
 
     assert_bufs_type(np.complex64,ocl_arr)
-
-    if plan is None:
-        if batch==1:
-            plan = Plan(ocl_arr.shape, queue = get_device().queue)
-        else:
-            plan = Plan(ocl_arr.shape[1:], queue = get_device().queue)
-
-
     plan.execute(ocl_arr.data,ocl_arr.data, inverse = inverse, batch = batch)
 
-def _ocl_fft_gpu(ocl_arr,res_arr = None,inverse = False, plan = None, batch = 1):
+def _ocl_fft_gpu(plan, ocl_arr,res_arr = None, inverse = False, batch = 1):
 
     assert_bufs_type(np.complex64,ocl_arr)
-
-    if plan is None:
-        if batch==1:
-            plan = Plan(ocl_arr.shape, queue = get_device().queue)
-        else:
-            plan = Plan(ocl_arr.shape[1:], queue = get_device().queue)
-
     if res_arr is None:
         res_arr = OCLArray.empty(ocl_arr.shape,np.complex64)
-        
     plan.execute(ocl_arr.data,res_arr.data, inverse = inverse, batch = batch)
 
     return res_arr
