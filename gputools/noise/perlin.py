@@ -101,6 +101,8 @@ def perlin3(size,units = (1.,)*3,repeat = (10.,)*3,offset = 0,scale = None, n_vo
             offset = (offset,)*len(size)
 
     if scale:
+        if np.isscalar(scale):
+            scale = (scale,)*3
         repeat = scale
         units = (1.,)*3
 
