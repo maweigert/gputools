@@ -40,12 +40,15 @@ def perlin2(size, units = None, repeat = (10.,)*2, scale = None):
     -------
 
     """
+
     if scale:
+        if np.isscalar(scale):
+            scale = (scale,)*2
         repeat = scale
         units = (1.,)*2
-    else:
-        wx, wy = repeat
-        dx, dy = units
+
+    wx, wy = repeat
+    dx, dy = units
 
     prog = OCLProgram(abspath("kernels/perlin.cl"))
 
@@ -58,12 +61,16 @@ def perlin2(size, units = None, repeat = (10.,)*2, scale = None):
     return d.get()
 
 
-def _perlin3_single(size,units = (1.,)*3,repeat = (10.,)*3,offz = 0,Nz0 = None):
+def _perlin3_single(size,units = (1.,)*3,repeat = (10.,)*3,
+                    offset = (0,0,0),
+                    offz = 0,
+                    Nz0 = None):
     if Nz0 is None:
         Nz0 = size[-1]
 
     dx, dy, dz = units
     wx, wy, wz = repeat
+    ox, oy, oz = offset
 
     prog = OCLProgram(abspath("kernels/perlin.cl"))
 
@@ -72,12 +79,13 @@ def _perlin3_single(size,units = (1.,)*3,repeat = (10.,)*3,offz = 0,Nz0 = None):
                     d.data,
                     np.int32(offz),
                     np.float32(dx),np.float32(dy),np.float32(dz),
-                    np.float32(wx),np.float32(wy),np.float32(wz) )
+                    np.float32(wx),np.float32(wy),np.float32(wz),
+                    np.float32(ox),np.float32(oy),np.float32(oz) )
 
     return d.get()
 
 
-def perlin3(size,units = (1.,)*3,repeat = (10.,)*3,scale = None, n_volumes=1):
+def perlin3(size,units = (1.,)*3,repeat = (10.,)*3,offset = 0,scale = None, n_volumes=1):
     """returns a 3d perlin noise array of given size (Nx,Ny,Nz)
     and units (dx,dy,dz) with given repeats (in units)
     by doing the noise calculations on the gpu
@@ -86,15 +94,18 @@ def perlin3(size,units = (1.,)*3,repeat = (10.,)*3,scale = None, n_volumes=1):
 
     either scale or units have to be given
 
+    offset = (.1,.1,.2)  or 1. can be used to slide the pattern in each dim (offset = 0 is the original)
 
     """
+    if np.isscalar(offset):
+            offset = (offset,)*len(size)
 
     if scale:
         repeat = scale
         units = (1.,)*3
 
     if n_volumes ==1:
-        return _perlin3_single(size,units,repeat)
+        return _perlin3_single(size,units,repeat, offset = offset)
     else:
         Nx, Ny, Nz = size
         Nz2 = Nz/n_volumes+1

@@ -409,7 +409,11 @@ perlin3d(__global float*	output,
 		float				dz,
 		float				wx,		// 1/width
 		float				wy,		// 1/height
-		float				wz
+		float				wz,
+		float				ox,
+		float				oy,
+		float				oz
+
 
 				)
 {
@@ -420,9 +424,9 @@ perlin3d(__global float*	output,
 	int	Nx = get_global_size(0);
 	int	Ny = get_global_size(1);
 	
-	float	fx = (float)i*dx /wx;
-	float	fy = (float)j*dy /wy;
-	float	fz = (float)(offz+k)*dz/wz;
+	float	fx = (float)i*dx /wx+ox;
+	float	fy = (float)j*dy /wy+oy;
+	float	fz = (float)(offz+k)*dz/wz+oz;
 
 	float	value;
 
