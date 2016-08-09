@@ -284,8 +284,6 @@ def _convolve_spatial2(im, hs,
                             np.int32(Gx),np.int32(Gy),
                             np.int32(Npatch_x),np.int32(Npatch_y))
 
-            if i>0:
-                return res_g.get()
     res = res_g.get()
 
     if return_plan:

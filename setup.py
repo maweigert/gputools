@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 
 setup(name='gputools',
-    version='0.1.2',
+    version='0.1.3',
     description='OpenCL accelerated volume processing',
     url='',
     author='Martin Weigert',
