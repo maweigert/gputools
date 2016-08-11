@@ -81,7 +81,7 @@ def _ocl_fft_numpy(plan, arr,inverse = False, batch = 1, fast_math = True):
 
     ocl_arr = OCLArray.from_array(arr.astype(np.complex64,copy=False))
     
-    _ocl_fft_gpu_inplace(ocl_arr, inverse = inverse, plan  = plan, batch = batch)
+    _ocl_fft_gpu_inplace(plan, ocl_arr, inverse = inverse, batch = batch)
     
     return ocl_arr.get()
     

@@ -12,7 +12,7 @@ def test_fftconv_np():
     res = fft_convolve(d,d)
     
 if __name__ == '__main__':
-    pass
+    test_fft_np()
     
 
 
