@@ -66,6 +66,14 @@ richardson lucy deconvolution
 res = gputools.deconv.deconv_rl(d,h,2)
 ```
 
+####Perlin noise
+
+fast 2d and 3d perlin noise calculations
+
+```python
+gputools.perlin3(size = (256,256,256), scale = (10.,10.,10.))
+```
+
 
 ####Transforms
 scaling, translate, rotate, affine...
@@ -85,3 +93,15 @@ wraps around pyfft
 gputools.fft(d)
 gputools.fft(d, inverse = True)
 ```
+
+### Configuration
+
+The default OpenCL platform and device can be changed in the config file "~/.gputools" (create it if necessary)  
+```
+#~/.gputools
+
+id_platform = 0
+id_device = 1
+```
+
+
