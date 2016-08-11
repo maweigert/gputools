@@ -1,9 +1,9 @@
 import logging
 logging.basicConfig(format='%(levelname)s:%(name)s | %(message)s')
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+#logger.setLevel(logging.WARNING)
 
-from gputools.core.config import init_device, get_device
+from gputools.config.config import init_device, get_device
 
 
 from gputools.utils.utils import pad_to_shape, pad_to_power2
