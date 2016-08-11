@@ -26,7 +26,7 @@ __ID_PLATFORM__ = int(config_parser.get("id_platform", 0))
 __USE_GPU__ = int(config_parser.get("use_gpu", 1))
 
 
-class _ocl_globals():
+class _ocl_globals(object):
     device = OCLDevice(id_platform=__ID_PLATFORM__,
                        id_device=__ID_DEVICE__,
                        use_gpu=__USE_GPU__)

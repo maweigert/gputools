@@ -120,8 +120,7 @@ def make_grid3(hs):
 
 
 def test_conv2():
-    from imgtools import test_images
-    im = test_images.lena().astype(np.float32)
+    im = np.zeros((128,128))
     Gx = 4
     Gy = 8
     hs = psf_grid_motion(Gx,Gy,100)
@@ -129,8 +128,7 @@ def test_conv2():
     return im, out, hs
 
 def test_conv3():
-    from imgtools import test_images
-    im = 1.*test_images.droso64().astype(np.float32)
+    im = np.zeros((128,64,32))
     Gx = 8
     Gy = 4
     Gz = 2
@@ -139,7 +137,7 @@ def test_conv3():
     return im,out, hs
 
 def test_conv3_psfs():
-    from imgtools import test_images
+
     im = np.zeros((128,64,32))
     im[::16,::16,::16] = 1.
     Gx = 16
@@ -165,7 +163,7 @@ def speed_test3(imshape=(128,128,128), gshape=(4,4,4)):
 
 if __name__ == '__main__':
 
-    #im2, out2, hs2 = test_conv2()
-    #im3, out3, hs3 = test_conv3_psfs()
+    im2, out2, hs2 = test_conv2()
+    # im3, out3, hs3 = test_conv3_psfs()
 
-    ts = [speed_test3((128,)*3,(4,4,2**n)) for n in range(5)]
+    # ts = [speed_test3((128,)*3,(4,4,2**n)) for n in range(5)]
