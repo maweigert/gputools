@@ -382,7 +382,9 @@ perlin2d(__global float*	output,
 	    float				dx,
 		float				dy,
 		float				wx,		// 1/width
-		float				wy		// 1/height
+		float				wy,		// 1/height
+		float				off_x,
+		float				off_y
 				)
 {
 	int	i = get_global_id(0);
@@ -390,8 +392,8 @@ perlin2d(__global float*	output,
 
 	int	Nx = get_global_size(0);
 
-	float	fx = (float)i*dx/wx;
-	float	fy = (float)j*dy/wy;
+	float	fx = off_x+(float)i*dx/wx;
+	float	fy = off_y+(float)j*dy/wy;
 
 	float	value;
 
