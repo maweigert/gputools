@@ -51,13 +51,11 @@ def _convolve_sep2_numpy(data,hx,hy):
 
     data_g = OCLArray.from_array(data.astype(np.float32))
 
-
     return _convolve_sep2_gpu(data_g,hx_g,hy_g).get()
 
 
 def _convolve_sep2_gpu(data_g, hx_g, hy_g, res_g = None):
 
-    
     assert_bufs_type(np.float32,data_g,hx_g,hy_g)
 
     prog = OCLProgram(abspath("kernels/convolve_sep.cl"))
@@ -79,7 +77,7 @@ def convolve_sep3(data, hx, hy, hz, res_g = None, sub_blocks = (1,1,1)):
     """convolves 3d data with kernel h = outer(hx,hy, hz)
     boundary conditions are clamping to edge.
 
-    data is either np array or a gpu buffer (OCLArray)
+    data, hx, hy.... are either np array or a gpu buffer (OCLArray)
 
     """
 
@@ -136,7 +134,7 @@ def _convolve_sep3_gpu(data_g, hx_g, hy_g, hz_g, res_g = None, dev = None):
     
     prog.run_kernel("conv_sep3_x",data_g.shape[::-1],None,data_g.data,hx_g.data,res_g.data,np.int32(Nx))
     prog.run_kernel("conv_sep3_y",data_g.shape[::-1],None,res_g.data,hy_g.data,tmp_g.data,np.int32(Ny))
-    prog.run_kernel("conv_sep3_z",data_g.shape[::-1],None,tmp_g.data,hy_g.data,res_g.data,np.int32(Nz))
+    prog.run_kernel("conv_sep3_z",data_g.shape[::-1],None,tmp_g.data,hz_g.data,res_g.data,np.int32(Nz))
 
     return res_g
 
