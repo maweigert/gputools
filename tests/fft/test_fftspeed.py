@@ -9,7 +9,7 @@ import numpy as np
 from gputools import OCLArray, fft, get_device, fft_plan
 from time import time
 
-def time_gpu(dshape, niter =100, fast_math = False):
+def time_gpu(dshape, niter = 100, fast_math = False):
     d_g = OCLArray.empty(dshape, np.complex64)
     get_device().queue.finish()
     plan = fft_plan(dshape, fast_math = fast_math)
@@ -20,7 +20,7 @@ def time_gpu(dshape, niter =100, fast_math = False):
     t = (time()-t)/niter
     print "GPU (fast_math = %s)\t%s\t\t%.2f ms"%(fast_math, dshape, 1000.*t)
 
-def time_np(dshape, niter =20):
+def time_np(dshape, niter =3):
     d =np.empty(dshape, np.complex64)
     get_device().queue.finish()
     t = time()
@@ -31,12 +31,18 @@ def time_np(dshape, niter =20):
     print "CPU\t\t\t%s\t\t%.2f ms"%(dshape, 1000.*t)
 
 def test_speed():
-    Ns  =(256,512, 1024, 2048)
+    Ns  = (256,512, 1024, 2048)
 
-    for N in Ns:
+    for N in (256,512, 1024, 2048):
         time_gpu((N,)*2, fast_math=True)
         time_gpu((N,)*2, fast_math=False)
         time_np((N,)*2)
+
+
+    for N in (128,256, 512):
+        time_gpu((N,) * 3, fast_math=True)
+        time_gpu((N,) * 3, fast_math=False)
+        time_np((N,) * 3)
 
 if __name__ == '__main__':
 
