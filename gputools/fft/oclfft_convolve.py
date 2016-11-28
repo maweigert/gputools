@@ -7,10 +7,6 @@ from gputools.core.oclalgos import OCLElementwiseKernel
 from gputools.core.ocltypes import assert_bufs_type
 
 
-_complex_multiply_kernel = OCLElementwiseKernel(
-        "cfloat_t *a, cfloat_t * b",
-        "a[i] = cfloat_mul(b[i],a[i])",
-    "mult")
 
 
 def fft_convolve(data, h, res_g = None,
@@ -88,6 +84,11 @@ def _fft_convolve_gpu(data_g, h_g, res_g = None,
                       kernel_is_fft = False):
     """ fft convolve for gpu buffer
     """
+
+    _complex_multiply_kernel = OCLElementwiseKernel(
+        "cfloat_t *a, cfloat_t * b",
+        "a[i] = cfloat_mul(b[i],a[i])","mult")
+
 
     dev = get_device()
 
