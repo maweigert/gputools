@@ -4,6 +4,7 @@
 mweigert@mpi-cbg.de
 
 """
+from __future__ import print_function, unicode_literals, absolute_import, division
 import numpy as np
 from termcolor import colored
 from gputools import OCLArray, fftshift
@@ -16,7 +17,7 @@ def create_data(dshape, use_complex= False):
 
 def check_single(data, axes = None):
     is_equal = np.allclose(np.fft.fftshift(data,axes = axes),fftshift(data, axes = axes))
-    print "shape = %s, axes = %s, dtype = %s"%(data.shape, axes, data.dtype) + colored("\t[OK]","blue" if is_equal else "red")
+    print("shape = %s, axes = %s, dtype = %s"%(data.shape, axes, data.dtype) + colored("\t[OK]","blue" if is_equal else "red"))
     assert is_equal
 
 def test_all():

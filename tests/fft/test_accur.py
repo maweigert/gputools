@@ -1,3 +1,5 @@
+from __future__ import print_function, unicode_literals, absolute_import, division
+
 import numpy as np
 from  gputools import OCLArray, fft, fft_plan
 
@@ -55,7 +57,6 @@ def test_parseval():
     s1, s2 = [],[]
     t = time()
     for i in range(Nz):
-        print i
         # myfunc(d_g)
 
         # fft(d_g, inplace=True, fast_math=False)
@@ -66,10 +67,9 @@ def test_parseval():
 
     s1.append(np.sum(np.abs(d_g.get())**2))
 
-    print time()-t
+    print(time()-t)
 
     for i in range(Nz):
-        print i
         d = np.fft.fftn(d).astype(np.complex64)
         d = np.fft.ifftn(d).astype(np.complex64)
         s2.append(np.sum(np.abs(d)**2))
