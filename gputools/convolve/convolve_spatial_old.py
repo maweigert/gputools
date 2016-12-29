@@ -6,11 +6,11 @@ mweigert@mpi-cbg.de
 
 """
 
-
+from __future__ import print_function, unicode_literals, absolute_import, division
 import numpy as np
 from gputools import fft_plan, OCLArray, OCLImage, fft, get_device, OCLProgram, pad_to_shape
 from gputools.utils.utils import _is_power2, _next_power_of_2
-from _abspath import abspath
+from ._abspath import abspath
 from itertools import product
 
 #
@@ -146,7 +146,7 @@ def convolve_spatial2(im, hs,
     Npatch_x, Npatch_y = _next_power_of_2(3*Nblock_x), _next_power_of_2(3*Nblock_y)
     #Npatch_x, Npatch_y = _next_power_of_2(2*Nblock_x), _next_power_of_2(2*Nblock_y)
 
-    print Nblock_x, Npatch_x
+    print(Nblock_x, Npatch_x)
 
     hs = np.fft.fftshift(pad_to_shape(hs,(Gy,Gx,Npatch_y,Npatch_x)),axes=(2,3))
 
@@ -167,7 +167,7 @@ def convolve_spatial2(im, hs,
     x0s = Nblock_x*np.arange(Gx)
     y0s = Nblock_y*np.arange(Gy)
 
-    print x0s
+    print(x0s)
 
     for i,_x0 in enumerate(x0s):
         for j,_y0 in enumerate(y0s):
@@ -191,8 +191,8 @@ def convolve_spatial2(im, hs,
     #accumulate
     res_g = OCLArray.empty(im.shape,np.float32)
 
-    for i in xrange(Gx+1):
-        for j in xrange(Gy+1):
+    for i in range(Gx+1):
+        for j in range(Gy+1):
             prog.run_kernel("interpolate2",(Nblock_x,Nblock_y),None,
                             patches_g.data,res_g.data,
                             np.int32(i),np.int32(j),
@@ -257,7 +257,7 @@ def convolve_spatial3(im, hs,
     # the size of the overlapping patches with safety padding
     Npatchs = tuple([_next_power_of_2(pad_factor*nb) for nb in Nblocks])
 
-    print hs.shape
+    print(hs.shape)
     hs = np.fft.fftshift(pad_to_shape(hs,Gs+Npatchs),axes=(3,4,5))
 
 
@@ -279,7 +279,7 @@ def convolve_spatial3(im, hs,
 
 
 
-    print Nblocks
+    print(Nblocks)
     # this loops over all i,j,k
     for (k,_z0), (j,_y0),(i,_x0) in product(*[enumerate(X) for X in Xs]):
         prog.run_kernel("fill_patch3",Npatchs[::-1],None,
@@ -294,7 +294,7 @@ def convolve_spatial3(im, hs,
 
 
 
-    print patches_g.shape, h_g.shape
+    print(patches_g.shape, h_g.shape)
 
 
 
@@ -315,7 +315,7 @@ def convolve_spatial3(im, hs,
     #accumulate
     res_g = OCLArray.zeros(im.shape,np.float32)
 
-    for k, j, i in product(*[range(g+1) for g in Gs]):
+    for k, j, i in product(*[list(range(g+1)) for g in Gs]):
         prog.run_kernel("interpolate3",Nblocks[::-1],None,
                         patches_g.data,
                         res_g.data,

@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals, absolute_import, division
 import logging
 logger = logging.getLogger(__name__)
 
@@ -7,7 +8,7 @@ from gputools import OCLArray, OCLProgram, get_device
 
 from gputools.core.ocltypes import assert_bufs_type
 from gputools.utils.tile_iterator import tile_iterator
-from _abspath import abspath
+from ._abspath import abspath
 
 
 def convolve_sep2(data, hx, hy, res_g = None, sub_blocks=None):
@@ -172,7 +173,7 @@ def test_3d():
     t = time()
     for _ in range(Niter):
         out = convolve_sep3(data,hx,hy, hz)
-    print "time: %.3f ms"%(1000.*(time()-t)/Niter)
+    print("time: %.3f ms"%(1000.*(time()-t)/Niter))
 
     data_g = OCLArray.from_array(data.astype(np.float32))
     hx_g = OCLArray.from_array(hx.astype(np.float32))
@@ -184,7 +185,7 @@ def test_3d():
         out_g = convolve_sep3(data_g,hx_g,hy_g, hz_g)
 
     out_g.get();
-    print "time: %.3f ms"%(1000.*(time()-t)/Niter)
+    print("time: %.3f ms"%(1000.*(time()-t)/Niter))
 
         
     return  out, out_g.get()

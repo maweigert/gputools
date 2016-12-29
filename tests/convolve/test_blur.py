@@ -11,7 +11,7 @@ def test_blur():
                 dshape = [N/ndim+3*n for n in range(ndim)]
                 size = [s+.2*i for i in range(ndim)]
 
-                print dshape, size
+                print(dshape, size)
                 d = np.random.uniform(0,1,dshape)
                 
                 gputools.blur(d,s)

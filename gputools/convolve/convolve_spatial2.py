@@ -4,7 +4,7 @@
 mweigert@mpi-cbg.de
 
 """
-
+from __future__ import print_function, unicode_literals, absolute_import, division
 import sys
 import numpy as np
 from gputools import fft_plan, OCLArray, OCLImage, \
@@ -13,7 +13,7 @@ from gputools import fft_plan, OCLArray, OCLImage, \
 from gputools.utils.utils import _is_power2, _next_power_of_2
 from gputools.utils.tile_iterator import tile_iterator
 
-from _abspath import abspath
+from ._abspath import abspath
 
 
 def convolve_spatial2(im, psfs,
@@ -137,7 +137,7 @@ def convolve_spatial2(im, psfs,
         Npads = [n*(s>1) for n,s  in zip(Nblocks, sub_blocks)]
         grid_dim_sub = [g/s+2*(s>1) for g,s   in zip(Gs, sub_blocks)]
 
-        print N_sub, Nblocks, grid_dim_sub, Npads
+        print(N_sub, Nblocks, grid_dim_sub, Npads)
 
         if grid_dim:
             res = np.empty(im.shape, np.float32)
@@ -206,7 +206,7 @@ def _convolve_spatial2(im, hs,
 
 
     # the size of each block within the grid
-    Nblock_y, Nblock_x = Ny/Gy, Nx/Gx
+    Nblock_y, Nblock_x = Ny // Gy, Nx // Gx
 
 
     # the size of the overlapping patches with safety padding
@@ -271,13 +271,13 @@ def _convolve_spatial2(im, hs,
     fft(patches_g,inplace=True, inverse = True, plan = plan)
 
 
-    print Nblock_x, Npatch_x
+    print(Nblock_x, Npatch_x)
     #return np.abs(patches_g.get())
     #accumulate
     res_g = OCLArray.empty(im.shape,np.float32)
 
-    for j in xrange(Gy+1):
-        for i in xrange(Gx+1):
+    for j in range(Gy+1):
+        for i in range(Gx+1):
             prog.run_kernel("interpolate2",(Nblock_x,Nblock_y),None,
                             patches_g.data,res_g.data,
                             np.int32(i),np.int32(j),

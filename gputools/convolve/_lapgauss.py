@@ -1,5 +1,5 @@
 """laplacian of gaussians for 2d and 3d data"""
-
+from __future__ import print_function, unicode_literals, absolute_import, division
 import numpy as np
 import imgtools
 

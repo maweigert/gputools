@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals, absolute_import, division
 import logging
 
 logger = logging.getLogger(__name__)
@@ -8,7 +9,7 @@ from gputools import OCLArray, OCLProgram, get_device
 
 from gputools.core.ocltypes import assert_bufs_type
 from gputools.utils.tile_iterator import tile_iterator
-from _abspath import abspath
+from ._abspath import abspath
 
 
 def _filter_max_2_gpu(data_g, size=10, res_g=None):

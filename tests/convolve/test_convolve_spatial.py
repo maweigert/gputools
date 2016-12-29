@@ -52,8 +52,8 @@ def make_grid2(hs):
     Gy,Gx, Hy, Hx = hs.shape
 
     im = np.zeros((Gy*Hy,Gx*Hx))
-    for i in xrange(Gx):
-        for j in xrange(Gy):
+    for i in range(Gx):
+        for j in range(Gy):
             im[j*Hy:(j+1)*Hy,i*Hx:(i+1)*Hx] = hs[j,i]
 
     return im
@@ -62,9 +62,9 @@ def make_grid2(hs):
 def psf_grid_const3(Gx,Gy,Gz, N=21, sig = (0.01,0.01,0.01)):
     return np.stack([np.stack([np.stack([create_psf3(N = N,
                                 sig = sig)
-                for _ in xrange(Gx)])
-                for _ in xrange(Gy)])
-                for _ in xrange(Gz)])
+                for _ in range(Gx)])
+                for _ in range(Gy)])
+                for _ in range(Gz)])
 
 def psf_grid_linear3(Gx,Gy,Gz, N=16):
         return np.stack([np.stack([np.stack([create_psf3(N = N,
@@ -77,9 +77,9 @@ def psf_grid_linear3(Gx,Gy,Gz, N=16):
 def psf_grid_const3(Gx,Gy,Gz, N=21, sig = (0.01,0.01,0.01)):
     return np.stack([np.stack([np.stack([create_psf3(N = N,
                                         sig = sig)
-                for _ in xrange(Gx)])
-                for _ in xrange(Gy)])
-                for _ in xrange(Gz)])
+                for _ in range(Gx)])
+                for _ in range(Gy)])
+                for _ in range(Gz)])
 
 
 
@@ -110,9 +110,9 @@ def make_grid3(hs):
     Gz, Gy,Gx, Hz, Hy, Hx = hs.shape
 
     im = np.zeros((Gz*Hz,Gy*Hy,Gx*Hx))
-    for i in xrange(Gx):
-        for j in xrange(Gy):
-            for k in xrange(Gz):
+    for i in range(Gx):
+        for j in range(Gy):
+            for k in range(Gz):
                 im[k*Hz:(k+1)*Hz,j*Hy:(j+1)*Hy,i*Hx:(i+1)*Hx] = hs[k,j,i]
 
     return im
@@ -150,6 +150,7 @@ def test_conv3():
 def test_conv3_psfs():
 
     im = np.zeros((128,64,32))
+    im = np.zeros((128, 128,128))
     im[::16,::16,::16] = 1.
     Gx = 16
     Gy = 16
@@ -168,7 +169,7 @@ def speed_test3(imshape=(128,128,128), gshape=(4,4,4)):
     t  = time()
     out = convolve_spatial3(im, hs, plan=plan)
     t = time()-t
-    print "imshape: %s \tgshape: %s   \ttime = %.2gs"%(imshape, gshape, t)
+    print("imshape: %s \tgshape: %s   \ttime = %.2gs"%(imshape, gshape, t))
     return t
 
 

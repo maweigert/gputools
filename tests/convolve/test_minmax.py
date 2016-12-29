@@ -16,7 +16,7 @@ def _test_single_minmax(dshape, size):
 
     out1 = maximum_filter(d, size)
     out2 = max_filter(d, size)
-    print("shape: %s \t\tsize: %s\t\tdifference: %s" % (dshape, size,np.amax(np.abs(out1 - out2))))
+    print(("shape: %s \t\tsize: %s\t\tdifference: %s" % (dshape, size,np.amax(np.abs(out1 - out2)))))
     npt.assert_almost_equal(out1,out2)
     return out1, out2
 

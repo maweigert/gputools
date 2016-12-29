@@ -4,14 +4,14 @@
 mweigert@mpi-cbg.de
 
 """
-
+from __future__ import print_function, unicode_literals, absolute_import, division
 import sys
 import numpy as np
 from gputools import fft_plan, OCLArray, OCLImage, fft, \
     get_device, OCLProgram, pad_to_shape, tile_iterator
 from itertools import product
 from gputools.utils.utils import _is_power2, _next_power_of_2
-from _abspath import abspath
+from ._abspath import abspath
 
 
 
@@ -138,10 +138,10 @@ def convolve_spatial3(im, psfs,
 
 
 
-        N_sub = [n/s for n,s  in zip(im.shape,sub_blocks)]
-        Nblocks = [n/g for n,g  in zip(im.shape,Gs)]
+        N_sub = [n // s for n,s  in zip(im.shape,sub_blocks)]
+        Nblocks = [n // g for n,g  in zip(im.shape,Gs)]
         Npads = [n*(s>1) for n,s  in zip(Nblocks, sub_blocks)]
-        grid_dim_sub = [g/s+2*(s>1) for g,s   in zip(Gs, sub_blocks)]
+        grid_dim_sub = [g//s+2*(s>1) for g,s   in zip(Gs, sub_blocks)]
 
         if grid_dim:
             res = np.empty(im.shape, np.float32)
@@ -154,7 +154,7 @@ def convolve_spatial3(im, psfs,
                                   padsize=Npads,
                                   mode = mode))):
 
-                print "convolve_spatial3 ... %s\t/ %s"%(i+1,np.prod(sub_blocks))
+                print("convolve_spatial3 ... %s\t/ %s"%(i+1,np.prod(sub_blocks)))
                 res_tile, plan = _convolve_spatial3(im_tile.copy(),
                                               hs_tile.copy(),
                                               mode = mode,
@@ -207,7 +207,7 @@ def _convolve_spatial3(im, hs,
 
 
     # the size of each block within the grid
-    Nblocks = [n/g for n,g  in zip(Ns,Gs)]
+    Nblocks = [n//g for n,g  in zip(Ns,Gs)]
 
 
     # the size of the overlapping patches with safety padding
@@ -241,9 +241,9 @@ def _convolve_spatial3(im, hs,
                         np.int32(Npatchs[2]),
                         np.int32(Npatchs[1]),
                         np.int32(Npatchs[0]),
-                        np.int32(-Nblocks[2]/2+Npatchs[2]/2),
-                        np.int32(-Nblocks[1]/2+Npatchs[1]/2),
-                        np.int32(-Nblocks[0]/2+Npatchs[0]/2),
+                        np.int32(-Nblocks[2]//2+Npatchs[2]//2),
+                        np.int32(-Nblocks[1]//2+Npatchs[1]//2),
+                        np.int32(-Nblocks[0]//2+Npatchs[0]//2),
                         np.int32(i*np.prod(Npatchs)+
                          j*Gs[2]*np.prod(Npatchs)+
                          k*Gs[2]*Gs[1]*np.prod(Npatchs)))
@@ -259,9 +259,9 @@ def _convolve_spatial3(im, hs,
     for (k,_z0), (j,_y0),(i,_x0) in product(*[enumerate(X) for X in Xs]):
         prog.run_kernel("fill_patch3",Npatchs[::-1],None,
                 im_g,
-                    np.int32(_x0+Nblocks[2]/2-Npatchs[2]/2),
-                    np.int32(_y0+Nblocks[1]/2-Npatchs[1]/2),
-                    np.int32(_z0+Nblocks[0]/2-Npatchs[0]/2),
+                    np.int32(_x0+Nblocks[2]//2-Npatchs[2]//2),
+                    np.int32(_y0+Nblocks[1]//2-Npatchs[1]//2),
+                    np.int32(_z0+Nblocks[0]//2-Npatchs[0]//2),
                     patches_g.data,
                     np.int32(i*np.prod(Npatchs)+
                              j*Gs[2]*np.prod(Npatchs)+
@@ -283,7 +283,7 @@ def _convolve_spatial3(im, hs,
     #accumulate
     res_g = OCLArray.zeros(im.shape,np.float32)
 
-    for k, j, i in product(*[range(g+1) for g in Gs]):
+    for k, j, i in product(*[list(range(g+1)) for g in Gs]):
         prog.run_kernel("interpolate3",Nblocks[::-1],None,
                         patches_g.data,
                         res_g.data,

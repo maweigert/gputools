@@ -1,7 +1,8 @@
+from __future__ import print_function, unicode_literals, absolute_import, division
 import numpy as np
 from gputools import OCLArray
-from convolve import convolve
-from convolve_sep import convolve_sep2, convolve_sep3
+from .convolve import convolve
+from .convolve_sep import convolve_sep2, convolve_sep3
 
 
 def blur(data, width = 4., res_g  = None):

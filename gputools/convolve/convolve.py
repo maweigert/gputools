@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals, absolute_import, division
 import logging
 logger = logging.getLogger(__name__)
 
@@ -9,7 +10,7 @@ from gputools.core.ocltypes import assert_bufs_type
 from gputools.utils.tile_iterator import tile_iterator
 import sys
 
-from _abspath import abspath
+from ._abspath import abspath
 
 
 
@@ -108,8 +109,8 @@ def _convolve3_old(data,h, dev = None):
     dtypes_options = {np.float32:"",
                       np.uint16:"-D SHORTTYPE"}
 
-    if not dtype in dtypes_options.keys():
-        raise TypeError("data type %s not supported yet, please convert to:"%dtype,dtypes_options.keys())
+    if not dtype in list(dtypes_options.keys()):
+        raise TypeError("data type %s not supported yet, please convert to:"%dtype,list(dtypes_options.keys()))
 
     prog = OCLProgram(abspath("kernels/convolve3.cl"),
                       build_options = dtypes_options[dtype])
