@@ -55,4 +55,3 @@ def get_device():
 
 if __name__ == '__main__':
     print(get_device())
-    print(__ID_DEVICE__)
