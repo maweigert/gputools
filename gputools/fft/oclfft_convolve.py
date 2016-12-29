@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals, absolute_import, division
 import numpy as np
 
 
@@ -134,10 +135,10 @@ if __name__ == '__main__':
     N = 512
     
     d = np.zeros((N,)*2)
-    d[N/2,N/2] = 1.
+    d[N//2,N/2] = 1.
 
     h = np.zeros((N,)*2)
-    h[N/3:2*N/3,N/3:2*N/3] = 1.
+    h[N//3:2*N//3,N//3:2*N//3] = 1.
 
     h = np.fft.fftshift(h)
         
@@ -154,4 +155,4 @@ if __name__ == '__main__':
     out = fft_convolve(d,h, inplace = False)
 
     
-    print np.sum(abs(out_g.get())),N**2/9
+    print(np.sum(abs(out_g.get())),N**2/9)

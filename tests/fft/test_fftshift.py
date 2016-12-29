@@ -4,7 +4,7 @@
 mweigert@mpi-cbg.de
 
 """
-from __future__ import print_function, unicode_literals, absolute_import, division
+
 import numpy as np
 from termcolor import colored
 from gputools import OCLArray, fftshift
@@ -23,10 +23,10 @@ def check_single(data, axes = None):
 def test_all():
     from itertools import combinations
 
-    for ndim in xrange(1,4):
-        d = create_data([140+20*n for n in xrange(ndim)])
-        for n_ax in xrange(1,min(ndim,3)+1):
-            for axes in combinations(range(ndim),n_ax):
+    for ndim in range(1,4):
+        d = create_data([140+20*n for n in range(ndim)])
+        for n_ax in range(1,min(ndim,3)+1):
+            for axes in combinations(list(range(ndim)),n_ax):
                 check_single(d, axes)
                 check_single(d.astype(np.complex64), axes)
 

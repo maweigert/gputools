@@ -2,7 +2,7 @@
 
 fftshift on OCLArrays
 
-as of now, olny supports even  dimensions (as ifftshift == fftshift then ;)
+as of now, only supports even  dimensions (as ifftshift == fftshift then ;)
 
 kernels adapted from
 Abdellah, Marwan.
@@ -14,10 +14,10 @@ Proc High Performance Computing Symposium.
 mweigert@mpi-cbg.de
 
 """
-
+from __future__ import print_function, unicode_literals, absolute_import, division
 import numpy as np
 from gputools import OCLArray, OCLProgram
-from _abspath import abspath
+from ._abspath import abspath
 
 
 DTYPE_KERNEL_NAMES = {np.float32:"fftshift_1_f",
@@ -46,11 +46,11 @@ def fftshift(arr_obj, axes = None, res_g = None, return_buffer = False):
     """
 
     if axes is None:
-        axes = range(arr_obj.ndim)
+        axes = list(range(arr_obj.ndim))
 
 
     if isinstance(arr_obj, OCLArray):
-        if not arr_obj.dtype.type in DTYPE_KERNEL_NAMES.keys():
+        if not arr_obj.dtype.type in list(DTYPE_KERNEL_NAMES.keys()):
             raise NotImplementedError("only works for float32 or complex64")
     elif isinstance(arr_obj, np.ndarray):
         if np.iscomplexobj(arr_obj):
@@ -110,7 +110,7 @@ def _fftshift_single(d_g, res_g, ax = 0):
     dtype = d_g.dtype.type
 
     prog = OCLProgram(abspath("kernels/fftshift.cl"))
-    prog.run_kernel(dtype_kernel_name[dtype],(N2,N/2,N1),None,
+    prog.run_kernel(dtype_kernel_name[dtype],(N2,N//2,N1),None,
                     d_g.data, res_g.data,
                     np.int32(N),
                     np.int32(N2))
@@ -228,7 +228,7 @@ if __name__ == '__main__':
     Nx, Ny, Nz = (256,)*3
     d = np.linspace(0,1,Nx*Ny*Nz).reshape(Nz, Ny,Nx).astype(np.float32)
 
-    d[Nz/2-30:Nz/2+30,Ny/2-20:Ny/2+20,Nx/2-20:Nx/2+20] = 2.
+    d[Nz//2-30:Nz//2+30,Ny//2-20:Ny//2+20,Nx//2-20:Nx//2+20] = 2.
 
     d_g = OCLArray.from_array(d)
     out_g = OCLArray.empty_like(d)
