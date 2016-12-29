@@ -5,7 +5,7 @@ mweigert@mpi-cbg.de
 
 """
 
-from __future__ import print_function
+
 
 from gputools import get_device, init_device
 

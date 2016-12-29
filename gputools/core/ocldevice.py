@@ -1,4 +1,4 @@
-'''
+"""
 @author: mweigert
 
 A basic wrapper class around pyopencl to handle image manipulation via OpenCL
@@ -8,9 +8,10 @@ basic usage:
     #create a device
     dev = OCLDevice(useGPU=True, useDevice = 0, printInfo = True)
 
-'''
+"""
 
-from __future__ import print_function
+
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -83,7 +84,7 @@ class OCLDevice:
                            "...choosing the best from the rest"%
                            (id_platform, id_device, device_type))
             # get the best available device
-            device, _ = max([(d, t) for (_ip, _id, t), d in all_platforms_devs.iteritems()],
+            device, _ = max([(d, t) for (_ip, _id, t), d in all_platforms_devs.items()],
                             key=OCLDevice.device_priority)
 
         if device is None:

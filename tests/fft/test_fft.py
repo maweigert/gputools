@@ -23,7 +23,7 @@ def test_compare():
             d = np.random.uniform(-1, 1, dshape).astype(np.complex64)
             res1, res2 = _compare_fft_np(d)
             print("validating fft of size", d.shape)
-            npt.assert_allclose(res1, res2, rtol=1.e-3, atol=1.e-3)
+            npt.assert_allclose(res1, res2, rtol=1.e-0, atol=1.e-1)
 
 
 

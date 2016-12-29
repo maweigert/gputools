@@ -1,5 +1,6 @@
 """ OpenCL error codes taken from cl.h
 """
+
 import pyopencl as cl
                        
 __all__ = []
@@ -67,12 +68,12 @@ _CL_ERROR_DICT_BY_NAME={
     ,"CL_INVALID_DEVICE_PARTITION_COUNT":-68
 }
 
-_CL_ERROR_DICT_BY_CODE = dict((code,name) for name,code in _CL_ERROR_DICT_BY_NAME.iteritems())
+_CL_ERROR_DICT_BY_CODE = dict((code,name) for name,code in _CL_ERROR_DICT_BY_NAME.items())
 
 def create_exception_class(name):
     return type(name,(Exception,),{})
 
-globals().update(dict((name,create_exception_class(name)) for code ,name in _CL_ERROR_DICT_BY_CODE.iteritems()))
+globals().update(dict((name,create_exception_class(name)) for code ,name in _CL_ERROR_DICT_BY_CODE.items()))
 
 def _from_pycl_exception(e):
     if hasattr(e,"code"):

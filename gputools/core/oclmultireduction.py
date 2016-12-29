@@ -6,9 +6,7 @@ like sum(a*b)
 mweigert@mpi-cbg.de
 
 """
-
-from __future__ import division
-from __future__ import absolute_import
+from __future__ import print_function, unicode_literals, absolute_import, division
 from six.moves import zip
 
 import pyopencl as cl
@@ -443,7 +441,7 @@ if __name__=='__main__':
 
     k1(a).get()
     k1(b).get()
-    print time()-t
+    print(time()-t)
 
 
     t = time()
@@ -452,7 +450,7 @@ if __name__=='__main__':
         k2(a[0],b[0], outs = [o1,o2])
 
     o1.get()
-    print time()-t
+    print(time()-t)
 
 
     # open("kern_new_1.txt","w").write(("%s"%k2.stage_1_inf).replace("\\n","\n"))

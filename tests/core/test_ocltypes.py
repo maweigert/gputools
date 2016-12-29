@@ -19,7 +19,6 @@ def buffer_from_array(data):
     assert np.allclose(data,buf.get())
 
 def buffer_create_write(data):
-    print
     buf = OCLArray.empty(data.shape,data.dtype)
     buf.write_array(data)
     assert np.allclose(data,buf.get())
@@ -32,7 +31,7 @@ def test_all():
     for N in Ns:
         for ndim in ndims:
             shape = [N+n for n in ndims[:ndim]]
-            print "testing creation and writing %s"%(shape)
+            print("testing creation and writing %s"%(shape))
             data = np.linspace(0,1,np.prod(shape)).reshape(shape).astype(np.float32)
             image_create_write(data)
             image_from_array(data)

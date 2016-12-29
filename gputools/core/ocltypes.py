@@ -1,9 +1,10 @@
-'''
+"""
 @author: mweigert
 
 A basic wrapper class around pyopencl.cl__array
 
-'''
+"""
+
 import numpy as np
 import pyopencl.array as cl_array
 import pyopencl as cl
@@ -13,6 +14,7 @@ from gputools import get_device
 from gputools.core.oclprogram import OCLProgram
 
 import pyopencl.clmath as cl_math
+import collections
 
 
 def abspath(myPath):
@@ -122,12 +124,12 @@ def _wrap_OCLArray(cls):
         setattr(cls,f,wrap_module_func(cl_array,f))
 
     for f in dir(cl_math):
-        if callable(getattr(cl_math,f)):
+        if isinstance(getattr(cl_math,f), collections.Callable):
             setattr(cls,f,wrap_module_func(cl_math,f))
 
     
     # cls.sum = sum
-    cls.__name__ = "OCLArray"
+    cls.__name__ = str("OCLArray")
     return cls
 
 def _wrap_OCLImage(cls):
@@ -321,7 +323,7 @@ def _wrap_OCLImage(cls):
 
     cls.get = get
 
-    cls.__name__ = "OCLImage"
+    cls.__name__ = str("OCLImage")
     return cls
 
 
@@ -350,7 +352,7 @@ def test_types():
 
     for x in [b0,b1,b2,im0,im1,im2]:
         if hasattr(x,"sum"):
-            print "sum: %s" %x.sum()
+            print("sum: %s" %x.sum())
         assert np.allclose(d,x.get())
 
         
