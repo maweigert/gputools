@@ -6,6 +6,7 @@ mweigert@mpi-cbg.de
 """
 import numpy as np
 from time import time
+from functools import reduce
 from gputools import convolve_spatial2, convolve_spatial3
 
 
@@ -127,6 +128,16 @@ def test_conv2():
     out = convolve_spatial2(im, hs)
     return im, out, hs
 
+
+def test_conv2_psfs():
+    im = np.zeros((384,512))
+    im[::32, ::32] = 1.
+    Gx = 8
+    Gy = 4
+    hs = psf_grid_motion(Gx,Gy,30)
+    out = convolve_spatial2(im, hs)
+    return im, out, hs
+
 def test_conv3():
     im = np.zeros((128,64,32))
     Gx = 8
@@ -163,7 +174,7 @@ def speed_test3(imshape=(128,128,128), gshape=(4,4,4)):
 
 if __name__ == '__main__':
 
-    im2, out2, hs2 = test_conv2()
-    # im3, out3, hs3 = test_conv3_psfs()
+    im2, out2, hs2 = test_conv2_psfs()
+    im3, out3, hs3 = test_conv3_psfs()
 
     # ts = [speed_test3((128,)*3,(4,4,2**n)) for n in range(5)]

@@ -10,9 +10,9 @@ setup(name='gputools',
     license='MIT',
     packages=find_packages(),
 
-    install_requires=["numpy>=1.10.0",
+    install_requires=["numpy>=1.11.0",
                       "pyopencl>=2016.1",
-                      "pyfft"],
+                      "reikna>=0.6.7"],
 
     package_data={"gputools":
                   ['core/kernels/*.cl',

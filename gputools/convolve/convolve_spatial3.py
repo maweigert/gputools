@@ -217,7 +217,7 @@ def _convolve_spatial3(im, hs,
                       build_options=["-D","ADDRESSMODE=%s"%mode_str[mode]])
 
     if plan is None:
-        plan = fft_plan(Npatchs)
+        plan = fft_plan(Gs+Npatchs, axes = (-3,-2,-1))
 
 
     Xs = [nb*np.arange(g) for nb, g in zip(Nblocks,Gs)]
@@ -269,15 +269,14 @@ def _convolve_spatial3(im, hs,
 
 
     # convolution
-    fft(patches_g,inplace=True, batch = np.prod(Gs), plan = plan)
-    fft(h_g,inplace=True, batch = np.prod(Gs), plan = plan)
+    fft(patches_g,inplace=True, plan = plan)
+    fft(h_g,inplace=True,  plan = plan)
     prog.run_kernel("mult_inplace",(np.prod(Npatchs)*np.prod(Gs),),None,
                     patches_g.data, h_g.data)
 
     fft(patches_g,
         inplace=True,
         inverse = True,
-        batch = np.prod(Gs),
         plan = plan)
 
     #return patches_g.get()

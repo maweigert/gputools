@@ -217,7 +217,7 @@ def _convolve_spatial2(im, hs,
                       build_options=["-D","ADDRESSMODE=%s"%mode_str[mode]])
 
     if plan is None:
-        plan = fft_plan((Npatch_y,Npatch_x))
+        plan = fft_plan((Gy, Gx, Npatch_y,Npatch_x), axes = (-2,-1))
 
     x0s = Nblock_x*np.arange(Gx)
     y0s = Nblock_y*np.arange(Gy)
@@ -264,11 +264,11 @@ def _convolve_spatial2(im, hs,
 
     #return np.abs(patches_g.get())
     # convolution
-    fft(patches_g,inplace=True, batch = Gx*Gy, plan = plan)
-    fft(h_g,inplace=True, batch = Gx*Gy, plan = plan)
+    fft(patches_g,inplace=True,  plan = plan)
+    fft(h_g,inplace=True,  plan = plan)
     prog.run_kernel("mult_inplace",(Npatch_x*Npatch_y*Gx*Gy,),None,
                     patches_g.data, h_g.data)
-    fft(patches_g,inplace=True, inverse = True, batch = Gx*Gy, plan = plan)
+    fft(patches_g,inplace=True, inverse = True, plan = plan)
 
 
     print Nblock_x, Npatch_x
@@ -298,8 +298,7 @@ if __name__ == '__main__':
 
     im = np.zeros((128,128))
     im[::10,::10] = 1.
-    im = 0*im+1.
-    psfs = np.ones((2, 2, 10, 10))
+    psfs = np.ones((2, 2, 3, 3))
     #hs *= 1./np.sum(hs[0,0])
 
     out = convolve_spatial2(im, psfs, mode ="constant", pad_factor = 2)

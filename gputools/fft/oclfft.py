@@ -9,26 +9,40 @@ from gputools.core.ocltypes import assert_bufs_type
 import reikna.cluda as cluda
 from reikna.fft import FFT
 
+def _convert_axes_to_absolute(dshape, axes):
+    """axes = (-2,-1) does not work in reikna, so we have to convetr that"""
 
-def fft_plan_pyfft(shape, **kwargs):
-    """returns an opencl/pyfft plan of shape dshape
+    if axes is None:
+        return None
+    elif isinstance(axes, (tuple, list)):
+        return tuple(np.arange(len(dshape))[list(axes)])
+    else:
+        raise NotImplementedError("axes %s is of unsupported type %s "%(str(axes), type(axes)))
 
-    kwargs are the same as pyfft.cl.Plan
-    """
-    return Plan(shape, queue=get_device().queue, **kwargs)
 
 
-def fft_plan(shape, dtype=np.complex64, axes = None, fast_math=True):
+# def fft_plan_pyfft(shape, **kwargs):
+#     """returns an opencl/pyfft plan of shape dshape
+#
+#     kwargs are the same as pyfft.cl.Plan
+#     """
+#     return Plan(shape, queue=get_device().queue, **kwargs)
+
+
+def fft_plan(shape, dtype=np.complex64, axes=None, fast_math=True):
     """returns an reikna plan/FFT obj of shape dshape
-
-
     """
+    # if not axes is None and any([a<0 for a in axes]):
+    #     raise NotImplementedError("indices of axes have to be non negative, but are: %s"%str(axes))
+
+    axes = _convert_axes_to_absolute(shape, axes)
+
     mock_buffer = namedtuple("mock", ["shape", "dtype"])
     mock_buffer.dtype = dtype
     mock_buffer.shape = shape
 
-    fft_plan = FFT(mock_buffer, axes = axes).compile(cluda.ocl_api().Thread(get_device().queue),
-                                        fast_math=fast_math)
+    fft_plan = FFT(mock_buffer, axes=axes).compile(cluda.ocl_api().Thread(get_device().queue),
+                                                   fast_math=fast_math)
 
     return fft_plan
 
@@ -77,14 +91,14 @@ def fft(arr_obj, res_g=None,
                                 )
 
     else:
-        raise TypeError("array argument (1) has bad type: %s"%type(arr_obj))
+        raise TypeError("array argument (1) has bad type: %s" % type(arr_obj))
 
 
 # implementation ------------------------------------------------
 
-def _ocl_fft_numpy(plan, arr, inverse=False,  fast_math=True):
+def _ocl_fft_numpy(plan, arr, inverse=False, fast_math=True):
     if arr.dtype != np.complex64:
-        logger.info("converting %s to complex64, might slow things down..."%arr.dtype)
+        logger.info("converting %s to complex64, might slow things down..." % arr.dtype)
 
     ocl_arr = OCLArray.from_array(arr.astype(np.complex64, copy=False))
 
@@ -108,8 +122,8 @@ def _ocl_fft_gpu(plan, ocl_arr, res_arr=None, inverse=False):
     return res_arr
 
 
-if __name__=='__main__':
-    d = np.random.uniform(0, 1, (64,)*2).astype(np.complex64)
+if __name__ == '__main__':
+    d = np.random.uniform(0, 1, (64,) * 2).astype(np.complex64)
 
     b = OCLArray.from_array(d)
 
