@@ -6,4 +6,4 @@ mweigert@mpi-cbg.de
 """
 
 
-from perlin import perlin2, perlin3
+from .perlin import perlin2, perlin3

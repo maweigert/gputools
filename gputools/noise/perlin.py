@@ -113,7 +113,7 @@ def perlin3(size, units=(1.,)*3, repeat=(10.,)*3, shift=0, scale=None, n_volumes
         return _perlin3_single(size, units, repeat, shift=shift)
     else:
         Nx, Ny, Nz = size
-        Nz2 = Nz/n_volumes+1
+        Nz2 = Nz//n_volumes+1
         res = np.empty((Nz, Ny, Nx), np.float32)
         res_part = np.empty((Nz2, Ny, Nx), np.float32)
         for i in range(n_volumes):
