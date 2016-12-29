@@ -16,14 +16,15 @@ def test_2d():
     d[ind[0],ind[1]] = 1.
     
     h = np.ones((11,)*2)/121.
-    
+
+
     y = convolve(d,h)
 
     y += 0.0*np.amax(d)*np.random.uniform(0,1,d.shape)
 
     print "start"
     
-    u = deconv_rl(y,h, 2)
+    #u = deconv_rl(y,h, 2)
 
 
 if __name__ == '__main__':
