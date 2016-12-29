@@ -20,7 +20,7 @@ def bilateral3(data, size_filter, sigma_p, sigma_x = 10.):
     dtype = data.dtype.type
     dtypes_kernels = {np.float32:"bilat3_float",}
 
-    if not dtype in list(dtypes_kernels.keys()):
+    if not dtype in dtypes_kernels:
         logger.info("data type %s not supported yet (%s), casting to float:"%(dtype,list(dtypes_kernels.keys())))
         data = data.astype(np.float32)
         dtype = data.dtype.type

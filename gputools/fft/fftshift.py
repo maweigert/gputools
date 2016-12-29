@@ -50,7 +50,7 @@ def fftshift(arr_obj, axes = None, res_g = None, return_buffer = False):
 
 
     if isinstance(arr_obj, OCLArray):
-        if not arr_obj.dtype.type in list(DTYPE_KERNEL_NAMES.keys()):
+        if not arr_obj.dtype.type in DTYPE_KERNEL_NAMES:
             raise NotImplementedError("only works for float32 or complex64")
     elif isinstance(arr_obj, np.ndarray):
         if np.iscomplexobj(arr_obj):

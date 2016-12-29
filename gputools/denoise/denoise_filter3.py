@@ -41,7 +41,7 @@ def bilateral3(data, fSize, sigmaX, dev = None):
     dtypes_kernels = {np.float32:"run3_float",
                         np.uint16:"run3_short"}
 
-    if not dtype in list(dtypes_kernels.keys()):
+    if not dtype in dtypes_kernels:
         print("data type %s not supported yet, please convert to:"%dtype,list(dtypes_kernels.keys()))
         return
 
@@ -76,7 +76,7 @@ def nlm3(data, fSize, bSize, sigma, dev = None):
     dtypes_kernels = {np.float32:"nlm3_float",
                         np.uint16:"nlm3_short"}
 
-    if not dtype in list(dtypes_kernels.keys()):
+    if not dtype in dtypes_kernels:
         print("data type %s not supported yet, please convert to:"%dtype,list(dtypes_kernels.keys()))
         return
 

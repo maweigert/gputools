@@ -109,7 +109,7 @@ def _convolve3_old(data,h, dev = None):
     dtypes_options = {np.float32:"",
                       np.uint16:"-D SHORTTYPE"}
 
-    if not dtype in list(dtypes_options.keys()):
+    if not dtype in dtypes_options:
         raise TypeError("data type %s not supported yet, please convert to:"%dtype,list(dtypes_options.keys()))
 
     prog = OCLProgram(abspath("kernels/convolve3.cl"),

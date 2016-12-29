@@ -23,7 +23,7 @@ def bilateral(data, fSize, sigma, sigma_x = 10., dev= None):
     dtypes_kernels = {np.float32:"run2d_float",
                         np.uint16:"run2d_short"}
 
-    if not dtype in list(dtypes_kernels.keys()):
+    if not dtype in dtypes_kernels:
         print("data type %s not supported yet, casting to float:"%dtype,list(dtypes_kernels.keys()))
         return
 
@@ -121,7 +121,7 @@ def nlm(data, fSize, bSize, sigma, dev = None, proc = None):
     dtypes_kernels = {np.float32:"run2d_float",
                         np.uint16:"run2d_short"}
 
-    if not dtype in list(dtypes_kernels.keys()):
+    if not dtype in dtypes_kernels:
         print("data type %s not supported yet, please convert to:"%dtype,list(dtypes_kernels.keys()))
         return
 
@@ -461,7 +461,7 @@ def test_filter():
           }
 
     t = time.time()
-    for f in list(fs.keys()):
+    for f in fs.keys:
         fs[f]()
         print("%s \t: \t %.2f s"%(f,time.time()-t))
         t = time.time()

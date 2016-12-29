@@ -4,7 +4,7 @@
 mweigert@mpi-cbg.de
 
 """
-
+from __future__ import print_function, unicode_literals, absolute_import, division
 import numpy as np
 from itertools import product
 
@@ -66,13 +66,13 @@ def tile_iterator(im,
     #if the image dimension are not divible by the blocksize, pad it accordingly
     pad_mismatch = tuple([(s*b-n) for n,s, b in zip(im.shape,subgrids,blocksize)])
 
-    print "tile padding... "
+    print("tile padding... ")
     im_pad = np.pad(im,[(p,p+pm) for pm,p in zip(pad_mismatch,padsize)], mode = mode)
 
     # ierates over cartesian product of subgrids
-    for i,index in enumerate(product(*[xrange(sg) for sg in subgrids])):
+    for i,index in enumerate(product(*[range(sg) for sg in subgrids])):
         # the slices
-        print "tile %s/%s"%(i+1,np.prod(subgrids))
+        print("tile %s/%s"%(i+1,np.prod(subgrids)))
 
         # dest[s_output] is where we will write to
         s_input = tuple([slice(i*b,(i+1)*b) for i,b in zip(index, blocksize)])
@@ -100,8 +100,8 @@ if __name__ == '__main__':
 
 
     for n in [1,2,3]:
-        print "n = %s"%n
-        im = np.random.uniform(-1,1,[103+13*_n for _n in xrange(n)])
+        print("n = %s"%n)
+        im = np.random.uniform(-1,1,[103+13*_n for _n in range(n)])
         res = np.empty_like(im)
 
         for padded_tile, s_src, s_dest in tile_iterator(im,
@@ -112,5 +112,5 @@ if __name__ == '__main__':
             # reassemble the result at the correct position
             res[s_src] = padded_tile[s_dest]
 
-        print "OK" if np.allclose(res, im) else "ERRRRRRRRRRROOOOOOOORRRRRR"
+        print("OK" if np.allclose(res, im) else "ERRRRRRRRRRROOOOOOOORRRRRR")
 

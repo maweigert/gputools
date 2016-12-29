@@ -21,7 +21,7 @@ def bilateral2(data, fSize, sigma_p, sigma_x = 10.):
     dtypes_kernels = {np.float32:"bilat2_float",
                         np.uint16:"bilat2_short"}
 
-    if not dtype in list(dtypes_kernels.keys()):
+    if not dtype in dtypes_kernels:
         logger.info("data type %s not supported yet (%s), casting to float:"%(dtype,list(dtypes_kernels.keys())))
         data = data.astype(np.float32)
         dtype = data.dtype.type
