@@ -81,4 +81,4 @@ if __name__ == '__main__':
 
     for t in np.linspace(0,1,10):
         q = quaternion_slerp(q1,q2,t)
-        print t, q, q.norm()
+        print(t, q, q.norm())

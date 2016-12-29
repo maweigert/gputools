@@ -11,7 +11,7 @@ import numpy as np
 from gputools import OCLArray, OCLImage, OCLProgram, get_device
 from gputools import OCLElementwiseKernel
 
-from _abspath import abspath
+from ._abspath import abspath
 
 
 def scale(data, scale = (1.,1.,1.), interp = "linear"):
@@ -26,8 +26,8 @@ def scale(data, scale = (1.,1.,1.), interp = "linear"):
 
     bop = {"linear":[],"nearest":["-D","USENEAREST"]}
 
-    if not interp in bop.keys():
-        raise KeyError("interp = '%s' not defined ,valid: %s"%(interp,bop.keys()))
+    if not interp in bop:
+        raise KeyError("interp = '%s' not defined ,valid: %s"%(interp,list(bop.keys())))
     
     if not isinstance(scale,(tuple, list, np.ndarray)):
         scale = (scale,)*3

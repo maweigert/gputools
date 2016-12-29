@@ -11,10 +11,10 @@ import numpy as np
 from gputools import OCLArray, OCLImage, OCLProgram, get_device
 from gputools import OCLElementwiseKernel
 
-from _abspath import abspath
+from ._abspath import abspath
 
 
-from quaternion import Quaternion 
+from .quaternion import Quaternion 
 
 
 
@@ -39,8 +39,8 @@ def affine(data, mat = np.identity(4), mode ="linear"):
 
     bop = {"linear":[],"nearest":["-D","USENEAREST"]}
 
-    if not mode in bop.keys():
-        raise KeyError("mode = '%s' not defined ,valid: %s"%(mode, bop.keys()))
+    if not mode in bop:
+        raise KeyError("mode = '%s' not defined ,valid: %s"%(mode, list(bop.keys())))
     
     d_im = OCLImage.from_array(data)
     res_g = OCLArray.empty(data.shape,np.float32)
