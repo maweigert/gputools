@@ -2,6 +2,7 @@
 version for spatially varying kernels
 
 """
+from __future__ import print_function, unicode_literals, absolute_import, division
 import logging
 logger = logging.getLogger(__name__)
 
@@ -11,7 +12,7 @@ from gputools import OCLArray, OCLProgram, get_device
 from gputools import convolve, fft_convolve, fft, fft_plan
 from gputools import OCLElementwiseKernel
 
-from _abspath import abspath
+from ._abspath import abspath
 
 
 
@@ -108,7 +109,7 @@ def _deconv_rl_np_fft(data, h, Niter = 10,
     fft(hflip_f_g,inplace = True)
 
     for i in range(Niter):
-        print i
+        print(i)
         fft_convolve(u_g, hf_g,
                      res_g = tmp_g,
                      kernel_is_fft = True)
@@ -152,7 +153,7 @@ def _deconv_rl_gpu_fft(data_g, h_g, Niter = 10):
     fft(hflip_g,inplace = True)
 
     for i in range(Niter):
-        print i
+        print(i)
         fft_convolve(u_g, h_g,
                      res_g = tmp_g,
                      kernel_is_fft = True)
@@ -215,7 +216,7 @@ if __name__ == '__main__':
 
     y += 0.02*np.max(d)*np.random.uniform(0,1,d.shape)
 
-    print "start"
+    print("start")
 
     
     # u = deconv_rl(y,h, 1)

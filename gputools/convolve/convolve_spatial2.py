@@ -132,10 +132,10 @@ def convolve_spatial2(im, psfs,
                                   grid_dim = grid_dim)
     else:
         # cut the image into tile and operate on every of them
-        N_sub = [n/s for n,s  in zip(im.shape,sub_blocks)]
-        Nblocks = [n/g for n,g  in zip(im.shape,Gs)]
+        N_sub = [n//s for n,s  in zip(im.shape,sub_blocks)]
+        Nblocks = [n//g for n,g  in zip(im.shape,Gs)]
         Npads = [n*(s>1) for n,s  in zip(Nblocks, sub_blocks)]
-        grid_dim_sub = [g/s+2*(s>1) for g,s   in zip(Gs, sub_blocks)]
+        grid_dim_sub = [g//s+2*(s>1) for g,s   in zip(Gs, sub_blocks)]
 
         print(N_sub, Nblocks, grid_dim_sub, Npads)
 
@@ -240,8 +240,8 @@ def _convolve_spatial2(im, hs,
                         h_g.data,
                         np.int32(Npatch_x),
                         np.int32(Npatch_y),
-                        np.int32(-Nblock_x/2+Npatch_x/2),
-                        np.int32(-Nblock_y/2+Npatch_y/2),
+                        np.int32(-Nblock_x//2+Npatch_x//2),
+                        np.int32(-Nblock_y//2+Npatch_y//2),
                         np.int32(i*Npatch_x*Npatch_y+j*Gx*Npatch_x*Npatch_y)
                             )
     else:
@@ -256,8 +256,8 @@ def _convolve_spatial2(im, hs,
         for j,_y0 in enumerate(y0s):
             prog.run_kernel("fill_patch2",(Npatch_x,Npatch_y),None,
                     im_g,
-                    np.int32(_x0+Nblock_x/2-Npatch_x/2),
-                    np.int32(_y0+Nblock_y/2-Npatch_y/2),
+                    np.int32(_x0+Nblock_x//2-Npatch_x//2),
+                    np.int32(_y0+Nblock_y//2-Npatch_y//2),
                     patches_g.data,
                     np.int32(i*Npatch_x*Npatch_y+j*Gx*Npatch_x*Npatch_y))
 

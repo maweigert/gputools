@@ -1,1 +1,1 @@
-from deconv_rl import deconv_rl
+from .deconv_rl import deconv_rl
