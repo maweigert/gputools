@@ -2,7 +2,7 @@
 bilateral filter in 3d
 
 """
-
+from __future__ import print_function, unicode_literals, absolute_import, division
 import logging
 logger = logging.getLogger(__name__)
 
@@ -11,7 +11,7 @@ import numpy as np
 
 from gputools import OCLArray,OCLImage, OCLProgram, get_device
 
-from _abspath import abspath
+from ._abspath import abspath
 
 
 def bilateral3(data, size_filter, sigma_p, sigma_x = 10.):
@@ -20,8 +20,8 @@ def bilateral3(data, size_filter, sigma_p, sigma_x = 10.):
     dtype = data.dtype.type
     dtypes_kernels = {np.float32:"bilat3_float",}
 
-    if not dtype in dtypes_kernels.keys():
-        logger.info("data type %s not supported yet (%s), casting to float:"%(dtype,dtypes_kernels.keys()))
+    if not dtype in list(dtypes_kernels.keys()):
+        logger.info("data type %s not supported yet (%s), casting to float:"%(dtype,list(dtypes_kernels.keys())))
         data = data.astype(np.float32)
         dtype = data.dtype.type
 
@@ -32,7 +32,7 @@ def bilateral3(data, size_filter, sigma_p, sigma_x = 10.):
     
     prog = OCLProgram(abspath("kernels/bilateral3.cl"))
 
-    print img.shape
+    print(img.shape)
 
     prog.run_kernel(dtypes_kernels[dtype],
                     img.shape,None,

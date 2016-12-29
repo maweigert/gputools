@@ -2,7 +2,7 @@
 bilateral filter
 
 """
-
+from __future__ import print_function, unicode_literals, absolute_import, division
 import logging
 logger = logging.getLogger(__name__)
 
@@ -11,7 +11,7 @@ import numpy as np
 
 from gputools import OCLArray,OCLImage, OCLProgram, get_device
 
-from _abspath import abspath
+from ._abspath import abspath
 
 def _tv2(data,weight,Niter=50):
     """
@@ -61,8 +61,8 @@ def _tv2(data,weight,Niter=50):
         Nz,Ny,Nx = data.shape
         # a heuristic guess: Npad = Niter means perfect
         Npad = 1+Niter/2
-        for i0,(i,j,k) in enumerate(product(range(Ncut),repeat=3)):
-            print "calculating box  %i/%i"%(i0+1,Ncut**3)
+        for i0,(i,j,k) in enumerate(product(list(range(Ncut)),repeat=3)):
+            print("calculating box  %i/%i"%(i0+1,Ncut**3))
             sx = slice(i*Nx/Ncut,(i+1)*Nx/Ncut)
             sy = slice(j*Ny/Ncut,(j+1)*Ny/Ncut)
             sz = slice(k*Nz/Ncut,(k+1)*Nz/Ncut)

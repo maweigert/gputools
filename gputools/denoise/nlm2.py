@@ -4,6 +4,7 @@ fast implementation see (fix ref)
 
 
 """
+from __future__ import print_function, unicode_literals, absolute_import, division
 import logging
 logger = logging.getLogger(__name__)
 
@@ -12,7 +13,7 @@ import numpy as np
 
 from gputools import OCLArray,OCLImage, OCLProgram, get_device
 
-from _abspath import abspath
+from ._abspath import abspath
 
 
 def nlm2(data,sigma, size_filter = 2, size_search = 3):

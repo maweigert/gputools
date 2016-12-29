@@ -2,7 +2,7 @@
 bilateral filter
 
 """
-
+from __future__ import print_function, unicode_literals, absolute_import, division
 import logging
 logger = logging.getLogger(__name__)
 
@@ -11,7 +11,7 @@ import numpy as np
 
 from gputools import OCLArray,OCLImage, OCLProgram, get_device
 
-from _abspath import abspath
+from ._abspath import abspath
 
 
 def bilateral2(data, fSize, sigma_p, sigma_x = 10.):
@@ -21,8 +21,8 @@ def bilateral2(data, fSize, sigma_p, sigma_x = 10.):
     dtypes_kernels = {np.float32:"bilat2_float",
                         np.uint16:"bilat2_short"}
 
-    if not dtype in dtypes_kernels.keys():
-        logger.info("data type %s not supported yet (%s), casting to float:"%(dtype,dtypes_kernels.keys()))
+    if not dtype in list(dtypes_kernels.keys()):
+        logger.info("data type %s not supported yet (%s), casting to float:"%(dtype,list(dtypes_kernels.keys())))
         data = data.astype(np.float32)
         dtype = data.dtype.type
 
