@@ -3,18 +3,20 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import logging
 logger = logging.getLogger(__name__)
 
-import ConfigParser
+
 import six
 
 if six.PY2:
+    from ConfigParser import SafeConfigParser
     import StringIO as io
 else:
+    from configparser import SafeConfigParser
     import io
 
 
-class MyConfigParser(ConfigParser.SafeConfigParser):
+class MyConfigParser(SafeConfigParser):
     def __init__(self,fName = None, defaults = {}):
-        ConfigParser.SafeConfigParser.__init__(self,defaults)
+        SafeConfigParser.__init__(self,defaults)
         self.dummySection = "DUMMY"
         if fName:
             self.read(fName)
@@ -30,7 +32,7 @@ class MyConfigParser(ConfigParser.SafeConfigParser):
 
     def get(self,key, defaultValue = None):
         try:
-            val =  ConfigParser.ConfigParser.get(self,self.dummySection,key)
+            val =  SafeConfigParser.get(self,self.dummySection,key)
             logger.debug("from config file: %s = %s "%(key,val))
             return val
         except Exception as e:

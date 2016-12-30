@@ -4,7 +4,7 @@ import numpy as np
 
 
 def _convolve_rand(dshape,hshape):
-    print "convolving test: dshape = %s, hshape  = %s"%(dshape,hshape)
+    print("convolving test: dshape = %s, hshape  = %s"%(dshape,hshape))
     np.random.seed(1)
     d = np.random.uniform(-1,1,dshape).astype(np.float32)
     h = np.random.uniform(-1,1,hshape).astype(np.float32)
