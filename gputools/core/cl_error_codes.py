@@ -1,6 +1,6 @@
 """ OpenCL error codes taken from cl.h
 """
-
+from __future__ import absolute_import, print_function
 import pyopencl as cl
                        
 __all__ = []

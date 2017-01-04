@@ -1,5 +1,5 @@
 
-
+from __future__ import absolute_import, print_function
 from gputools import get_device
 
 from pyopencl import elementwise, reduction, scan, algorithm

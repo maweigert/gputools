@@ -4,7 +4,7 @@
 A basic wrapper class around pyopencl.cl__array
 
 """
-
+from __future__ import absolute_import, print_function
 import numpy as np
 import pyopencl.array as cl_array
 import pyopencl as cl
@@ -142,7 +142,7 @@ def _wrap_OCLImage(cls):
         elif arr.ndim == 4:
             num_channels = arr.shape[-1]
         else:
-            num_channels = None
+            num_channels = 1
 
         if arr.dtype.type == np.complex64:
             num_channels = 2

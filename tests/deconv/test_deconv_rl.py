@@ -1,5 +1,6 @@
 """ Lucy richardson deconvolution
 """
+from __future__ import absolute_import, print_function
 import logging
 logger = logging.getLogger(__name__)
 
@@ -22,7 +23,7 @@ def test_2d():
 
     y += 0.0*np.amax(d)*np.random.uniform(0,1,d.shape)
 
-    print "start"
+    print("start")
     
     #u = deconv_rl(y,h, 2)
 
@@ -43,7 +44,7 @@ if __name__ == '__main__':
 
     y += 0.0*np.amax(d)*np.random.uniform(0,1,d.shape)
 
-    print "start"
+    print("start")
     
     u = deconv_rl(y.astype(np.float32),h.astype(np.float32), 2)
 
