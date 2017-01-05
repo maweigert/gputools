@@ -1,4 +1,4 @@
-
+from __future__ import print_function, unicode_literals, absolute_import, division
 import numpy as np
 import gputools
 
@@ -8,7 +8,7 @@ def test_conv_gpu():
     N  = 128
     d = np.zeros((N,N+3,N+5),np.float32)
 
-    d[N/2,N/2,N/2]  = 1.
+    d[N//2,N//2,N//2]  = 1.
 
     h = np.exp(-10*np.linspace(-1,1,17)**2)
 

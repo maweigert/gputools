@@ -16,7 +16,7 @@ def test_convolve():
     for ndim in [1,2,3]:
         for N in range(10,200,40):
             for Nh in range(3,11,2):
-                dshape = [N/ndim+3*n for n in range(ndim)]
+                dshape = [N//ndim+3*n for n in range(ndim)]
                 hshape = [Nh+3*n for n in range(ndim)]
                 _convolve_rand(dshape,hshape)
 

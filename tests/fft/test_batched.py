@@ -1,5 +1,5 @@
 
-
+from __future__ import print_function, unicode_literals, absolute_import, division
 import numpy as np
 import numpy.testing as npt
 from itertools import product
@@ -16,7 +16,7 @@ def _single_batched(d, axes):
 
 def test_batched():
     for ndim in [1, 2, 3]:
-        dshape = 1024/(2**np.arange(ndim, 2*ndim))
+        dshape = 1024//(2**np.arange(ndim, 2*ndim))
         d = 1.+np.random.uniform(-1, 1, dshape).astype(np.complex64)
 
         for n_axes in range(1,ndim+1):

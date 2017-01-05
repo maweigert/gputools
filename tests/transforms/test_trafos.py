@@ -1,7 +1,7 @@
 """ some image manipulation functions like scaling, rotating, etc...
 
 """
-
+from __future__ import print_function, unicode_literals, absolute_import, division
 import numpy as np
 
 from gputools import scale, rotate, translate
@@ -9,7 +9,7 @@ from gputools import scale, rotate, translate
 
 def create_shape(shape):
     d = np.zeros(shape,np.float32)
-    ss = tuple([slice(s/4,3*s/4) for s in shape])
+    ss = tuple([slice(s//4,3*s//4) for s in shape])
     d[ss] = 1.
     return d
 
