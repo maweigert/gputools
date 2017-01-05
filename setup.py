@@ -1,13 +1,16 @@
 
 from setuptools import setup, find_packages
 
+exec(open('gputools/version.py').read())
+
+
 setup(name='gputools',
-    version='0.1.3',
+    version=__version__,
     description='OpenCL accelerated volume processing',
-    url='',
+    url='https://github.com/maweigert/gputools',
     author='Martin Weigert',
     author_email='mweigert@mpi-cbg.de',
-    license='MIT',
+    license='BSD 3-Clause License',
     packages=find_packages(),
 
     install_requires=["numpy>=1.11.0",

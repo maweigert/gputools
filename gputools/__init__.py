@@ -1,3 +1,5 @@
+from .version import __version__
+
 import logging
 logging.basicConfig(format='%(levelname)s:%(name)s | %(message)s')
 logger = logging.getLogger(__name__)
