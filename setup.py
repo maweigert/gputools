@@ -18,6 +18,11 @@ setup(name='gputools',
                       "configparser",
                       "reikna>=0.6.7"],
 
+    extras_require={
+    ':python_version<="3.0"': ["scikit-tensor",
+                               ],
+    },
+
     package_data={"gputools":
                   ['core/kernels/*.cl',
                    'convolve/kernels/*.cl',
@@ -26,6 +31,7 @@ setup(name='gputools',
                    'noise/kernels/*.cl',
                    'transforms/kernels/*.cl',
                   ],
+
     },
 
     entry_points = {}
