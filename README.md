@@ -11,7 +11,7 @@ This package aims to provide GPU accelerated implementations of common volume pr
 
 ### Requirements 
 
-- python 2.7 /3.5
+- python 2.7 / 3.5+
 - a working OpenCL environment (check with clinfo).
 
 ### Installation
