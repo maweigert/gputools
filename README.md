@@ -4,13 +4,13 @@ OpenCL accelerated volume processing in Python
 
 ### Requirements 
 
-- python 2 (yet)
+- python 2.7 /3.5
 - a working OpenCL environment (check with clinfo).
 
 ### Installation
 
 ```
-pip install --user git+https://github.com/maweigert/gputools
+pip install gputools
 ```
 check if basic stuff is working:
 
@@ -26,7 +26,10 @@ Most of the methods work on both numpy arrays or GPU memory objects (gputools.OC
 
 ####Convolutions
 
-1D-3D convolutions/seperable convolutions/fft based convolution
+* 2D-3D convolutions
+* separable convolutions
+* fft based convolution
+* spatially varying convolutions
 
 ```python
 
@@ -87,7 +90,7 @@ gputools.transforms.translate(d,10,20,30)
 ```
 
 ####fft
-wraps around pyfft 
+wraps around reikna
 
 ```python
 gputools.fft(d)
