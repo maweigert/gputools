@@ -1,6 +1,6 @@
 # gputools - OpenCL accelerated volume processing in Python
 
-This package aims to provide GPU accelerated implementations of common volume processing algorithms, such as 
+This package aims to provide GPU accelerated implementations of common volume processing algorithms to the python ecosystem. 
 
 * convolutions 
 * denoising
