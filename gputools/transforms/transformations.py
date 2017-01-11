@@ -60,7 +60,31 @@ def translate(data,x = 0, y = 0,z = 0, mode = "linear"):
     return affine(data,_mat4_translate(x,y,z),mode)
 
 
-def rotate(data, center = (0,0,0), axis = (1.,0,0), angle = 0., mode ="linear"):
+def rotate(data, center = None, axis = (1.,0,0), angle = 0., mode ="linear"):
+    """
+    rotates data around axis by a given angle
+
+    Parameters
+    ----------
+    data: ndarray
+        3d array
+
+    center: tuple or None
+        origin of rotation (cz,cy,cx) in pixels
+        if None, center is the middle of data
+    axis: tuple
+        axis = (x,y,z)
+    angle: float
+    mode: str
+
+    Returns
+    -------
+    rotated array
+
+    """
+    if center is None:
+        center = tuple([s//2 for s in data.shape])
+
     cz, cy , cx  = center
     m = np.dot(_mat4_translate(cx,cy,cz),
                np.dot(_mat4_rotation(angle,*axis),
