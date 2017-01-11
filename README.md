@@ -114,4 +114,39 @@ id_platform = 0
 id_device = 1
 ```
 
+### Troubleshooting
+
+#### pyopencl: _cffi.so ImportError
+If you see a
+```
+ImportError: _cffi.so: undefined symbol: clSVMFree
+```
+after importing gputools, this is most likely a problem of pyopencl being installed with an incorrent OpenCL version. 
+Check the OpenCL version for your GPU with clinfo (e.g. 1.2):
+
+```
+clinfo | grep Version
+```
+
+and install pyopencl manually while enforcing your opencl version:
+
+```
+# uninstall pyopencl
+pip uninstall pyopencl cffi
+  
+# get pyopencl source
+git clone https://github.com/pyopencl/pyopencl.git
+cd pyopencl
+python configure.py
+	
+# add in siteconf.py the line
+# CL_PRETEND_VERSION = "1.2"
+echo 'CL_PRETEND_VERSION = "1.2"' >> siteconf.py
+
+pip install .
+```
+where e.g. "1.2" is your version of OpenCL.
+
+
+
 
