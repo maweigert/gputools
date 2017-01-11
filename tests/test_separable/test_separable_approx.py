@@ -23,7 +23,7 @@ def test_2d():
     print("########" * 5, "separable approximation dim = %s " % u.ndim)
     print("reconstruction error:")
     for i, h in enumerate(hs):
-        print("i = %s \t error: %s"%(i+1,np.amax(np.abs(h-u))/np.amax(np.abs(u))))
+        print("i = %s \t difference: %s"%(i+1,np.amax(np.abs(h-u))/np.amax(np.abs(u))))
 
     return u, hs
 
@@ -41,7 +41,7 @@ def test_3d():
     print("########"*5,"separable approximation dim = %s "%u.ndim)
     print("reconstruction error:")
     for i, h in enumerate(hs):
-        print("i = %s \t error: %s"%(i+1,np.amax(np.abs(h-u))/np.amax(np.abs(u))))
+        print("i = %s \t difference: %s"%(i+1,np.amax(np.abs(h-u))/np.amax(np.abs(u))))
 
     return u, hs
 
