@@ -42,6 +42,7 @@ setup(name='gputools',
                          'denoise/kernels/*.cl',
                          'deconv/kernels/*.cl',
                          'noise/kernels/*.cl',
+                         'fft/kernels/*.cl',
                          'transforms/kernels/*.cl',
                          ],
 
