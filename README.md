@@ -106,13 +106,18 @@ gputools.fft(d, inverse = True)
 
 ### Configuration
 
-The default OpenCL platform and device can be changed in the config file "~/.gputools" (create it if necessary)  
+Some configuration data (e.g. the default OpenCL platform and devic) can be changed in the config file "~/.gputools" (create it if necessary)  
 ```
 #~/.gputools
 
 id_platform = 0
 id_device = 1
 ```
+See 
+```python
+gputools.config.defaults
+```
+for available keys and their defaults.
 
 ### Troubleshooting
 
