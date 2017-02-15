@@ -11,7 +11,8 @@ from itertools import product
 def tile_iterator(im,
                  blocksize = (64, 64),
                  padsize = (64,64),
-                 mode = "constant"):
+                 mode = "constant",
+                  verbose = False):
     """
 
     iterates over padded tiles of the input images
@@ -66,13 +67,16 @@ def tile_iterator(im,
     #if the image dimension are not divible by the blocksize, pad it accordingly
     pad_mismatch = tuple([(s*b-n) for n,s, b in zip(im.shape,subgrids,blocksize)])
 
-    print("tile padding... ")
+    if verbose:
+        print("tile padding... ")
+
     im_pad = np.pad(im,[(p,p+pm) for pm,p in zip(pad_mismatch,padsize)], mode = mode)
 
     # ierates over cartesian product of subgrids
     for i,index in enumerate(product(*[range(sg) for sg in subgrids])):
         # the slices
-        print("tile %s/%s"%(i+1,np.prod(subgrids)))
+        # if verbose:
+        #     print("tile %s/%s"%(i+1,np.prod(subgrids)))
 
         # dest[s_output] is where we will write to
         s_input = tuple([slice(i*b,(i+1)*b) for i,b in zip(index, blocksize)])

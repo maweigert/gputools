@@ -6,7 +6,10 @@
 #endif
 
 
-__kernel void scale(__read_only image3d_t input, __global float* output)
+
+
+
+__kernel void scale(__read_only image3d_t input, __global TYPENAME* output)
 {
 
     const sampler_t sampler = CLK_NORMALIZED_COORDS_TRUE |
@@ -20,7 +23,7 @@ __kernel void scale(__read_only image3d_t input, __global float* output)
   uint Ny = get_global_size(1);
   uint Nz = get_global_size(2);
 
-  float pix = read_imagef(input,sampler,(float4)(1.f*i/(Nx-1.f),
+  TYPENAME pix = READ_IMAGE(input,sampler,(float4)(1.f*i/(Nx-1.f),
 						 1.f*j/(Ny-1.f),
 						 1.f*k/(Nz-1.f),0)).x;
   

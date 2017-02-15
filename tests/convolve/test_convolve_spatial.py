@@ -174,9 +174,33 @@ def speed_test3(imshape=(128,128,128), gshape=(4,4,4)):
     return t
 
 
+def test_single_z():
+    Ng = 32
+    Nx = 512
+    Nh = 3
+
+    im = np.zeros((16, Nx, Nx))
+    im[4:-4, 4::16, 4::16] = 1.
+    hs = np.zeros((16, Nx, Nx))
+
+
+    for i in range(Ng):
+        for j in range(Ng):
+            si = slice(i*(Nx//Ng)-Nh+(Nx//Ng)//2,i*(Nx//Ng)+Nh+1+(Nx//Ng)//2)
+            sj = slice(j * (Nx // Ng) - Nh+(Nx//Ng)//2, j * (Nx // Ng) + Nh+1+(Nx//Ng)//2)
+            hs[:,sj,si] = np.ones((16,2*Nh+1,2*Nh+1))
+
+    hs[:,Nx//Ng//2::Nx//Ng,Nx//Ng//2::Nx//Ng] = 1.
+
+
+    out = convolve_spatial3(im, hs, grid_dim = (1, Ng,Ng), pad_factor=2)
+    return im, out, hs
+
+
 if __name__ == '__main__':
 
-    im2, out2, hs2 = test_conv2_psfs()
-    im3, out3, hs3 = test_conv3_psfs()
+    im, out, hs = test_single_z()
+    # im2, out2, hs2 = test_conv2_psfs()
+    # im3, out3, hs3 = test_conv3_psfs()
 
     # ts = [speed_test3((128,)*3,(4,4,2**n)) for n in range(5)]

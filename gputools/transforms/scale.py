@@ -24,10 +24,21 @@ def scale(data, scale = (1.,1.,1.), interp = "linear"):
     interp = "linear" | "nearest"
     """ 
 
-    bop = {"linear":[],"nearest":["-D","USENEAREST"]}
+    options_interp = {"linear":[],"nearest":["-D","USENEAREST"]}
 
-    if not interp in bop:
-        raise KeyError("interp = '%s' not defined ,valid: %s"%(interp,list(bop.keys())))
+    options_types = {np.uint8:["-D","TYPENAME=uchar","-D","READ_IMAGE=read_imageui"],
+                    np.uint16: ["-D","TYPENAME=short","-D", "READ_IMAGE=read_imageui"],
+                    np.float32: ["-D","TYPENAME=float", "-D","READ_IMAGE=read_imagef"],
+                    }
+
+    dtype = data.dtype.type
+
+    if not dtype in options_types:
+        raise ValueError("type %s not supported! Available: $s"%(dtype ,str(list(options_types.keys()))))
+
+
+    if not interp in options_interp:
+        raise ValueError("interp = '%s' not defined ,valid: %s"%(interp,list(options_interp.keys())))
     
     if not isinstance(scale,(tuple, list, np.ndarray)):
         scale = (scale,)*3
@@ -40,10 +51,10 @@ def scale(data, scale = (1.,1.,1.), interp = "linear"):
     nshape = np.array(data.shape)*np.array(scale)
     nshape = tuple(nshape.astype(np.int))
 
-    res_g = OCLArray.empty(nshape,np.float32)
+    res_g = OCLArray.empty(nshape,dtype)
 
 
-    prog = OCLProgram(abspath("kernels/scale.cl"), build_options=bop[interp])
+    prog = OCLProgram(abspath("kernels/scale.cl"), build_options=options_interp[interp]+options_types[dtype ])
 
 
     prog.run_kernel("scale",
