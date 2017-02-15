@@ -23,19 +23,22 @@ def convolve_spatial3(im, psfs,
                       return_plan=False,
                       verbose=False):
     """
-    GPU accelerated spatial varying convolution of an 2d image with a
-    (Gz, Gy,Gx) grid of psfs assumed to be equally spaced within the image
+    GPU accelerated spatial varying convolution of an 3d image with a
+    (Gz, Gy, Gx) grid of psfs assumed to be equally spaced within the image
+
     the input image im is subdivided into (Gz, Gy,Gx) blocks, each block is
     convolved with the corresponding psf and linearly interpolated to give the
-    final rresult
+    final result
 
     The psfs can be given either in
 
     A) Stackmode
-    psfs.shape =  (Gz, Gy,Gx, Hz, Hy, Hx)
+
+    psfs.shape =  (Gz, Gy, Gx, Hz, Hy, Hx)
     then psfs[k,j,i] is the psf at the center of each block (i,j,k) in the image
 
     B) Flatmode
+
     psfs.shape = im.shape
     then the psfs are assumed to be definied on the gridpoints of the images itself
     in this case grid_dim = (Gz,Gy,Gx) has to be given

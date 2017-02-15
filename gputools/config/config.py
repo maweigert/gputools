@@ -23,9 +23,21 @@ __CONFIGFILE__ = os.path.expanduser("~/.gputools")
 
 config_parser = MyConfigParser(__CONFIGFILE__)
 
-__ID_DEVICE__ = int(config_parser.get("id_device", 0))
-__ID_PLATFORM__ = int(config_parser.get("id_platform", 0))
-__USE_GPU__ = int(config_parser.get("use_gpu", 1))
+
+defaults = {
+    "id_device": 0,
+    "id_platform": 0,
+    "use_gpu": 1,
+}
+
+
+def _get_param(name, type):
+    return type(config_parser.get(name, defaults[name]))
+
+
+__ID_DEVICE__ = _get_param("id_device", int)
+__ID_PLATFORM__ = _get_param("id_platform", int)
+__USE_GPU__ = _get_param("use_gpu", int)
 
 
 class _ocl_globals(object):

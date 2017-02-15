@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 #logger.setLevel(logging.WARNING)
 
 from gputools.config.config import init_device, get_device
-
+from gputools.config import config
 
 from gputools.utils.utils import pad_to_shape, pad_to_power2
 from gputools.utils.utils import remove_cache_dir
