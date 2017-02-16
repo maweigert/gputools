@@ -20,6 +20,8 @@ def convolve_sep2(data, hx, hy, res_g = None, sub_blocks=None):
     """
 
     if isinstance(data,np.ndarray):
+        data = np.ascontiguousarray(data)
+
         if sub_blocks == (1,1) or sub_blocks is None:
             return _convolve_sep2_numpy(data, hx, hy)
         else:
@@ -83,6 +85,7 @@ def convolve_sep3(data, hx, hy, hz, res_g = None, sub_blocks = (1,1,1)):
     """
 
     if isinstance(data,np.ndarray):
+        data = np.ascontiguousarray(data)
         if sub_blocks == (1, 1, 1) or sub_blocks is None:
             return _convolve_sep3_numpy(data, hx, hy, hz)
         else:

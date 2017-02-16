@@ -89,6 +89,7 @@ def max_filter(data, size=10, res_g=None, sub_blocks=(1, 1, 1)):
         size = (size,)*len(data.shape)
 
     if isinstance(data, np.ndarray):
+        data = np.ascontiguousarray(data)
         if set(sub_blocks) == {1} or sub_blocks is None:
             return _max_filter_numpy(data, size)
         else:
