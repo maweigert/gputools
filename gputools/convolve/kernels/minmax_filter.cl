@@ -9,7 +9,7 @@ __kernel void max_2_x(__global float * input,
   int j = get_global_id(1);
 
   int Nx = get_global_size(0);
-  int Ny = get_global_size(1);
+
 
   float res = -INFINITY;
 
@@ -62,7 +62,7 @@ __kernel void min_2_x(__global float * input,
   int j = get_global_id(1);
   
   int Nx = get_global_size(0);
-  int Ny = get_global_size(1);
+
 
   float res = INFINITY;
 
@@ -117,7 +117,7 @@ __kernel void max_3_x(__global float * input,
 
   int Nx = get_global_size(0);
   int Ny = get_global_size(1);
-  int Nz = get_global_size(2);
+
 
 
 
@@ -145,7 +145,6 @@ __kernel void max_3_y(__global float * input,
 
   int Nx = get_global_size(0);
   int Ny = get_global_size(1);
-  int Nz = get_global_size(2);
 
 
 
@@ -204,7 +203,7 @@ __kernel void min_3_x(__global float * input,
 
   int Nx = get_global_size(0);
   int Ny = get_global_size(1);
-  int Nz = get_global_size(2);
+
 
 
 
@@ -232,7 +231,7 @@ __kernel void min_3_y(__global float * input,
 
   int Nx = get_global_size(0);
   int Ny = get_global_size(1);
-  int Nz = get_global_size(2);
+
 
 
 

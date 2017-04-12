@@ -17,7 +17,37 @@ from ._abspath import abspath
 
 
 def nlm3(data,sigma, size_filter = 2, size_search = 3):
-    """for noise level of sigma_0, choose sigma = 1.5*sigma_0
+    """
+    Non local mean denoising of 3 dimensional data
+    see [1]_
+
+    Parameters
+    ----------
+    data: 3d ndarray
+        the input volume
+    sigma: float
+        denoising strength
+    size_filter: int
+        the size of the image patches
+    size_search: int
+        the size of the search window
+
+    Returns
+    -------
+    ndarray
+        the denoised volume
+
+    Examples
+    --------
+
+    >>> d = np.random.uniform(0,1,(100,)*3)
+    >>> d[40:60,40:60,40:60] += 5
+    >>> res = nlm3(d,1.,3,4)
+
+    References
+    ----------
+
+    .. [1] Buades, Antoni, Bartomeu Coll, and J-M. Morel. "A non-local algorithm for image denoising." CVPR 2005.
     """
 
     prog = OCLProgram(abspath("kernels/nlm3.cl"),

@@ -26,6 +26,10 @@ __kernel void affine(__read_only image3d_t input,
   float y = (mat[4]*i+mat[5]*j+mat[6]*k+mat[7]);
   float z = (mat[8]*i+mat[9]*j+mat[10]*k+mat[11]);
 
+  //ensure correct sampling, see opencl 1.2 specification pg. 329
+  x += 0.5f;
+  y += 0.5f;
+  z += 0.5f;
   float pix = read_imagef(input,sampler,(float4)(x,y,z,0)).x;
 
   output[i+Nx*j+Nx*Ny*k] = pix;

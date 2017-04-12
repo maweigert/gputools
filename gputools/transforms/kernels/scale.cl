@@ -22,6 +22,9 @@ __kernel void scale(__read_only image3d_t input, __global TYPENAME* output)
   uint Nx = get_global_size(0);
   uint Ny = get_global_size(1);
   uint Nz = get_global_size(2);
+  x += 0.5f;
+  y += 0.5f;
+  z += 0.5f;
 
   TYPENAME pix = READ_IMAGE(input,sampler,(float4)(1.f*i/(Nx-1.f),
 						 1.f*j/(Ny-1.f),
