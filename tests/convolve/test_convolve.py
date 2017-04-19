@@ -3,35 +3,47 @@ import numpy as np
 import numpy.testing as npt
 from time import time
 import scipy.ndimage.filters as sp_filter
-
 import gputools
 
-def _convolve_rand(dshape,hshape):
-    print("convolving test: dshape = %s, hshape  = %s"%(dshape,hshape))
+
+
+def _convolve_rand(dshape, hshape, assert_close = True, test_subblocks = True):
+    print("convolving test: dshape = %s, hshape  = %s" % (dshape, hshape))
     np.random.seed(1)
-    d = np.random.uniform(-1,1,dshape).astype(np.float32)
-    h = np.random.uniform(-1,1,hshape).astype(np.float32)
-    
-    out1 = sp_filter.convolve(d,h,mode="constant")
+    d = np.random.uniform(-1, 1, dshape).astype(np.float32)
+    h = np.random.uniform(-1, 1, hshape).astype(np.float32)
 
-    out2 = gputools.convolve(d,h)
-    out3 = gputools.convolve(d,h, sub_blocks=(2,3,4))
 
-    npt.assert_allclose(out1,out2,rtol=1.e-2,atol=1.e-5)
-    npt.assert_allclose(out1,out3,rtol=1.e-2,atol=1.e-5)
+    print("gputools")
+    outs = [gputools.convolve(d, h)]
+
+    print("scipy")
+    out1 = sp_filter.convolve(d, h, mode="constant", cval = 0.)
+
+    if test_subblocks:
+        outs.append(gputools.convolve(d, h, sub_blocks=(2, 3, 4)))
+
+    if assert_close:
+        for out in outs:
+            npt.assert_allclose(out1, out, rtol=1.e-2, atol=1.e-3)
+
+    return [out1]+outs
 
 def test_convolve():
-    for ndim in [1,2,3]:
-        for N in range(10,200,40):
-            for Nh in range(3,11,2):
-                dshape = [N//ndim+3*n for n in range(ndim)]
-                hshape = [Nh+3*n for n in range(ndim)]
-                
-                _convolve_rand(dshape,hshape)
+    for ndim in [1, 2, 3]:
+        for N in range(10, 200, 40):
+            for Nh in range(3, 11, 2):
+                dshape = [N // ndim + 3 * n for n in range(ndim)]
+                hshape = [Nh + 3 * n for n in range(ndim)]
 
-    
+                _convolve_rand(dshape, hshape)
+
+
+def test_small():
+    for N1 in range(10, 40, 7):
+        _convolve_rand((N1,) * 3, (N1,) * 3, test_subblocks=False)
+
 if __name__ == '__main__':
-    test_convolve()
-
-   
+    test_small()
+    # a = _convolve_rand((31,)*3,(31,)*3, assert_close=False, test_subblocks=False)
 
