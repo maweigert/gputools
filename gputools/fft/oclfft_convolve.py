@@ -7,7 +7,9 @@ from gputools.fft.oclfft import fft, fft_plan
 from gputools.core.oclalgos import OCLElementwiseKernel
 from gputools.core.ocltypes import assert_bufs_type
 
-
+_complex_multiply_kernel = OCLElementwiseKernel(
+    """cfloat_t *a, cfloat_t * b""",
+    """a[i] = cfloat_mul(a[i],b[i])""", "mult")
 
 
 def fft_convolve(data, h, res_g = None,
@@ -52,8 +54,6 @@ def _fft_convolve_numpy(data, h, plan = None,
     data and h must have the same size
     """
 
-    dev = get_device()
-
     if data.shape != h.shape:
         raise ValueError("data and kernel must have same size! %s vs %s "%(str(data.shape),str(h.shape)))
 
@@ -86,12 +86,8 @@ def _fft_convolve_gpu(data_g, h_g, res_g = None,
     """ fft convolve for gpu buffer
     """
 
-    _complex_multiply_kernel = OCLElementwiseKernel(
-        "cfloat_t *a, cfloat_t * b",
-        "a[i] = cfloat_mul(b[i],a[i])","mult")
 
 
-    dev = get_device()
 
     assert_bufs_type(np.complex64,data_g,h_g)
 
@@ -119,7 +115,6 @@ def _fft_convolve_gpu(data_g, h_g, res_g = None,
 
 
     fft(res_g,inplace=True, plan = plan)
-
 
     #multiply in fourier domain
     _complex_multiply_kernel(res_g,kern_g)
