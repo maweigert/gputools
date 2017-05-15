@@ -62,3 +62,8 @@ def get_times():
 if __name__ == '__main__':
 
     test_acc()
+    #
+    # try:
+    #     print(time_gpu((512,)*3))
+    # except Exception as e:
+    #     print("catched:", e)

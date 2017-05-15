@@ -34,7 +34,7 @@ def scale(data, scale = (1.,1.,1.), interp = "linear"):
     dtype = data.dtype.type
 
     if not dtype in options_types:
-        raise ValueError("type %s not supported! Available: $s"%(dtype ,str(list(options_types.keys()))))
+        raise ValueError("type %s not supported! Available: %s"%(dtype ,str(list(options_types.keys()))))
 
 
     if not interp in options_interp:

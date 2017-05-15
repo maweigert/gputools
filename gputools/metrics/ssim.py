@@ -98,13 +98,12 @@ def ssim(x, y, data_range=None):
         dmin, dmax = np.amin(x), np.amax(x)
         data_range = dmax - dmin
 
-
     x_g = OCLArray.from_array(x.astype(np.float32, copy=False))
     y_g = OCLArray.from_array(y.astype(np.float32, copy=False))
 
     ndim = x.ndim
     NP = win_size ** ndim
-    cov_norm = 1.*NP / (NP - 1)  # sample covariance
+    cov_norm = 1. * NP / (NP - 1)  # sample covariance
 
     filter_func = uniform_filter
     filter_args = {'size': win_size}
@@ -120,7 +119,7 @@ def ssim(x, y, data_range=None):
     vy = cov_norm * (uyy - uy * uy)
     vxy = cov_norm * (uxy - ux * uy)
 
-    R = 1.*data_range
+    R = 1. * data_range
     C1 = (K1 * R) ** 2
     C2 = (K2 * R) ** 2
 
@@ -130,6 +129,100 @@ def ssim(x, y, data_range=None):
                        vx + vy + C2))
     D = B1 * B2
     S = (A1 * A2) / D
+
+    # to avoid edge effects will ignore filter radius strip around edges
+    pad = (win_size - 1) // 2
+
+    ss = tuple(slice(pad, s - pad) for s in x.shape)
+    # compute (weighted) mean of ssim
+    mssim = S.get()[ss].mean()
+
+    return mssim
+
+
+def ssim(x, y, data_range=None):
+    """compute ssim
+    parameters are like the defaults for skimage.compare_ssim
+
+    """
+    if not x.shape == y.shape:
+        raise ValueError('Input images must have the same dimensions.')
+
+    K1 = 0.01
+    K2 = 0.03
+    sigma = 1.5
+    win_size = 7
+
+    if np.any((np.asarray(x.shape) - win_size) < 0):
+        raise ValueError("win_size exceeds image extent.")
+
+    if data_range is None:
+        dmin, dmax = np.amin(x), np.amax(x)
+        data_range = dmax - dmin
+
+    x_g = OCLArray.from_array(x.astype(np.float32, copy=False))
+    y_g = OCLArray.from_array(y.astype(np.float32, copy=False))
+
+    ndim = x.ndim
+    NP = win_size ** ndim
+    cov_norm = 1. * NP / (NP - 1)  # sample covariance
+
+    filter_func = uniform_filter
+    filter_args = {'size': win_size}
+
+    ux = filter_func(x_g, **filter_args)
+    uy = filter_func(y_g, **filter_args)
+
+    # compute (weighted) variances and covariances
+    uxx = filter_func(x_g * x_g, **filter_args)
+    uyy = filter_func(y_g * y_g, **filter_args)
+    uxy = filter_func(x_g * y_g, **filter_args)
+    vx = cov_norm * (uxx - ux * ux)
+    vy = cov_norm * (uyy - uy * uy)
+    vxy = cov_norm * (uxy - ux * uy)
+
+    R = 1. * data_range
+    C1 = (K1 * R) ** 2
+    C2 = (K2 * R) ** 2
+
+    # save some gpu space by minimizing intermediate buffers
+
+    # A1 = 2. * ux * uy+C1
+    A1 = 2. * ux
+    A1 *= uy
+    A1 += C1
+
+    # A2 =  2. * vxy + C2
+    # overwrite vxy to save space
+    A2 = vxy
+    A2 *= 2.
+    A2 += C2
+
+    # B1 =  ux ** 2 + uy ** 2 + C1
+    # overwrite ux to save space
+    B1 = ux
+    B1 *= ux
+    uy *= uy
+    B1 += uy
+    B1 += C1
+
+    # B2 =  vx + vy + C2
+    # overwrite vx to save space
+    B2 = vx
+    B2 += vy
+    B2 += C2
+
+
+
+    D = B1
+    D *= B2
+    S = A1
+    S *= A2
+    S /= D
+
+    # import time
+    # time.sleep(2)
+    # return 1
 
     # to avoid edge effects will ignore filter radius strip around edges
     pad = (win_size - 1) // 2
