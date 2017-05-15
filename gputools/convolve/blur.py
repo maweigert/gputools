@@ -31,7 +31,7 @@ def blur(data, width = 4., res_g  = None):
 
 def _blur_buf(d_g,width = (4.,4.), res_g = None ):
 
-    Ns = [3*s+1 for s in width]
+    Ns = [(int(3*s+1)//2)*2+1 for s in width]
     sigmas = [.5*s for s in width]
     
     hs = [np.exp(-.5/s**2*np.linspace(-N/2,N/2,N)**2) for s,N in zip(sigmas,Ns)]

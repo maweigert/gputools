@@ -11,24 +11,12 @@ import numpy as np
 from gputools import OCLArray, OCLImage, OCLProgram, get_device
 from gputools import OCLElementwiseKernel
 
+from gputools.utils import mat4_rotate, mat4_translate
 from ._abspath import abspath
 
 
-from .quaternion import Quaternion 
 
 
-
-def _mat4_rotation(w=0,x=1,y=0,z=0):
-    n = np.array([x,y,z]).astype(np.float32)
-    n *= 1./np.sqrt(1.*np.sum(n**2))
-    q = Quaternion(np.cos(.5*w),*(np.sin(.5*w)*n))
-    return q.toRotation4()
-
-
-def _mat4_translate(x=0,y=0,z=0):
-    M = np.identity(4)
-    M[:3,3] = x,y,z
-    return M
 
 
 
@@ -57,7 +45,7 @@ def affine(data, mat = np.identity(4), mode ="linear"):
 
 
 def translate(data,x = 0, y = 0,z = 0, mode = "linear"):
-    return affine(data,_mat4_translate(x,y,z),mode)
+    return affine(data,mat4_translate(x,y,z),mode)
 
 
 def rotate(data, center = None, axis = (1.,0,0), angle = 0., mode ="linear"):
@@ -86,9 +74,9 @@ def rotate(data, center = None, axis = (1.,0,0), angle = 0., mode ="linear"):
         center = tuple([s//2 for s in data.shape])
 
     cz, cy , cx  = center
-    m = np.dot(_mat4_translate(cx,cy,cz),
-               np.dot(_mat4_rotation(angle,*axis),
-                      _mat4_translate(-cx,-cy,-cz)))
+    m = np.dot(mat4_translate(cx,cy,cz),
+               np.dot(mat4_rotate(angle,*axis),
+                      mat4_translate(-cx,-cy,-cz)))
     return affine(data, m, mode)
 
 
