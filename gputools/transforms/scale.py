@@ -14,6 +14,12 @@ from gputools import OCLElementwiseKernel
 from ._abspath import abspath
 
 
+def _scale_shape(dshape, scale = (1,1,1)):
+    """returns the shape after scaling"""
+    nshape = np.round(np.array(dshape) * np.array(scale))
+    return tuple(nshape.astype(np.int))
+
+
 def scale(data, scale = (1.,1.,1.), interp = "linear"):
     """returns a interpolated, scaled version of data
 
@@ -48,8 +54,7 @@ def scale(data, scale = (1.,1.,1.), interp = "linear"):
 
     d_im = OCLImage.from_array(data)
 
-    nshape = np.array(data.shape)*np.array(scale)
-    nshape = tuple(nshape.astype(np.int))
+    nshape = _scale_shape(data.shape,scale)
 
     res_g = OCLArray.empty(nshape,dtype)
 
