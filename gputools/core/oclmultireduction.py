@@ -225,7 +225,7 @@ def get_reduction_kernel(stage,
     if stage==2 and arguments is not None:
         arguments = parse_arg_list(arguments)
         arguments = (
-            [VectorArg(dtype_out, "pyopencl_reduction_inp_%i"%i) for i in xrange(len(map_exprs))]
+            [VectorArg(dtype_out, "pyopencl_reduction_inp_%i"%i) for i in range(len(map_exprs))]
             +arguments)
 
 

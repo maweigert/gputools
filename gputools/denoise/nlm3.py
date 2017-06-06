@@ -18,7 +18,7 @@ from ._abspath import abspath
 
 def nlm3(data,sigma, size_filter = 2, size_search = 3):
     """
-    Non local mean denoising of 3 dimensional data
+    Fast version of Non local mean denoising of 3 dimensional data
     see [1]_
 
     Parameters
