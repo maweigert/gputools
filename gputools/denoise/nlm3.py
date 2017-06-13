@@ -28,9 +28,9 @@ def nlm3(data,sigma, size_filter = 2, size_search = 3):
     sigma: float
         denoising strength
     size_filter: int
-        the size of the image patches
+        the half size of the image patches (i.e. width is 2*size_filter+1 along every dimension)
     size_search: int
-        the size of the search window
+        the half size of the search window (i.e. width is 2*size_search+1 along every dimension)
 
     Returns
     -------

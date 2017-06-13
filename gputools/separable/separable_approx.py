@@ -52,6 +52,10 @@ def _separable_approx2(h, N=1):
 
 
 def _splitrank3(h, verbose=False):
+    # this fixes a bug in scikit-tensor
+    if np.sum(np.abs(h))<1.e-30:
+        return tuple(np.zeros(s) for s in h.shape)+(np.zeros_like(h),)
+
     P, fit, itr, exectimes = cp_als(dtensor(h.copy()), 1)
     hx, hy, hz = [(P.lmbda[0]) ** (1. / 3) * np.array(P.U[i])[:, 0] for i in range(3)]
     if verbose:
