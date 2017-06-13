@@ -23,6 +23,7 @@ def nlm2(data,sigma, size_filter = 2, size_search = 3):
     prog = OCLProgram(abspath("kernels/nlm2.cl"),
                       build_options="-D FS=%i -D BS=%i"%(size_filter,size_search))
 
+    data = data.astype(np.float32)
     img = OCLImage.from_array(data)
 
     distImg = OCLImage.empty_like(data)

@@ -37,4 +37,4 @@ if __name__ == '__main__':
 
 
     y2, out2 = test_2d()
-    y3, out3 = test_3d(10)
+    #y3, out3 = test_3d(10)
