@@ -1,13 +1,15 @@
 # gputools - OpenCL accelerated volume processing in Python
 
-This package aims to provide GPU accelerated implementations of common volume processing algorithms to the python ecosystem. 
+This package aims to provide GPU accelerated implementations of common volume processing algorithms to the python ecosystem, such as  
 
 * convolutions 
 * denoising
 * deconvolution
 * synthetic noise
-* ffts 
-* transforms
+* ffts (simple wrapper around [reikna])
+* affine transforms
+
+For that, pputools mostly uses the excellent [pyopencl](https://documen.tician.de/pyopencl/) bindings.
 
 ### Requirements 
 
