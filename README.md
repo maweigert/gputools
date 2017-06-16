@@ -19,13 +19,14 @@ For that, pputools mostly uses the excellent [pyopencl](https://documen.tician.d
 ### Installation
 
 ```
-pip install gputools
+pip3 install gputools
 ```
 check if basic stuff is working:
 
 ```
-python -m gputools
+python3 -m gputools
 ```
+
 
 ### Usage
 
