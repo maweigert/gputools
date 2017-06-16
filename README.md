@@ -31,7 +31,7 @@ Docs are still to be done ;)
 
 Most of the methods work on both numpy arrays or GPU memory objects (gputools.OCLArrays/OCLImage). The latter saving the memory transfer (which e.g. for simple convolutions accounts for the main run time)
 
-####Convolutions
+#### Convolutions
 
 * 2D-3D convolutions
 * separable convolutions
@@ -42,32 +42,37 @@ Most of the methods work on both numpy arrays or GPU memory objects (gputools.OC
 
 import gputools
 
-d = ones((128,200))
-h = ones((17,17))
-res = gputools.convolve.convolve(d,h)
+d = np.zeros((128,128))
+d[64,64] = 1.
+h = np.ones((17,17))
+res = gputools.convolve(d,h)
 
 ```
 
 ```python
-d = ones((128,128,128))
-h = ones(17)
-res = gputools.convolve.convolve_sep3(d,h)
+d = np.zeros((128,128,128))
+d[64,64,64] = 1.
+hx,hy,hz = np.ones(7),np.ones(9),np.ones(11)
+res = gputools.convolve_sep3(d,hx,hy,hz)
 
 ```
 
-####Denoising
+#### Denoising
 
 bilateral filter, non local means
 
 ```python
 ...
-res = gputools.denoise.nlm3(d,10.,3,4)
-res = gputools.denoise.bilateral(d,3,10.)
+d = np.zeros((128,128,128))
+d[50:78,50:78,50:78:2] = 4.
+d = d+np.random.normal(0,1,d.shape)
+res_nlm = gputools.denoise.nlm3(d,2.,2,3)
+res_bilat = gputools.denoise.bilateral3(d,3,4.)
 
 ```
 
 
-####Deconvolution
+#### Deconvolution
 
 richardson lucy deconvolution 
 
@@ -76,7 +81,7 @@ richardson lucy deconvolution
 res = gputools.deconv.deconv_rl(d,h,2)
 ```
 
-####Perlin noise
+#### Perlin noise
 
 fast 2d and 3d perlin noise calculations
 
@@ -85,7 +90,7 @@ gputools.perlin3(size = (256,256,256), scale = (10.,10.,10.))
 ```
 
 
-####Transforms
+#### Transforms
 scaling, translate, rotate, affine...
 
 
@@ -96,7 +101,7 @@ gputools.transforms.translate(d,10,20,30)
 ...
 ```
 
-####fft
+#### fft
 wraps around reikna
 
 ```python
