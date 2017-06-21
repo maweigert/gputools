@@ -32,7 +32,7 @@ def affine(data, mat=np.identity(4), mode="constant", interpolation="linear"):
             pads with zeros 
         'edge'
             pads with edge values
-        'repeat'
+        'wrap'
             pads with the repeated version of the input 
     interpolation, string
         interpolation mode, one of the following    
@@ -41,8 +41,8 @@ def affine(data, mat=np.identity(4), mode="constant", interpolation="linear"):
         
     Returns
     -------
-        res, ndarray
-            transformed array
+    res: ndarray
+        transformed array (same shape as input)
         
     """
 
@@ -53,7 +53,7 @@ def affine(data, mat=np.identity(4), mode="constant", interpolation="linear"):
                              "nearest": ["-D", "SAMPLER_FILTER=CLK_FILTER_NEAREST"]}
 
     mode_defines = {"constant": ["-D", "SAMPLER_ADDRESS=CLK_ADDRESS_CLAMP"],
-                    "repeat": ["-D", "SAMPLER_ADDRESS=CLK_ADDRESS_REPEAT"],
+                    "wrap": ["-D", "SAMPLER_ADDRESS=CLK_ADDRESS_REPEAT"],
                     "edge": ["-D", "SAMPLER_ADDRESS=CLK_ADDRESS_CLAMP_TO_EDGE"]
                     }
 
@@ -82,6 +82,8 @@ def affine(data, mat=np.identity(4), mode="constant", interpolation="linear"):
 def translate(data, shift=(0, 0, 0), mode="constant", interpolation="linear"):
     """
     translates 3d data by given amount
+  
+    
     Parameters
     ----------
     data: ndarray
@@ -94,7 +96,7 @@ def translate(data, shift=(0, 0, 0), mode="constant", interpolation="linear"):
             pads with zeros 
         'edge'
             pads with edge values
-        'repeat'
+        'wrap'
             pads with the repeated version of the input 
     interpolation, string
         interpolation mode, one of the following       
@@ -103,7 +105,8 @@ def translate(data, shift=(0, 0, 0), mode="constant", interpolation="linear"):
         
     Returns
     -------
-        shifted array
+    res: ndarray
+        shifted array (same shape as input)
     """
     if len(shift) != 3:
         raise ValueError("shift (%s) should be of length 3!")
@@ -132,7 +135,7 @@ def rotate(data, axis=(1., 0, 0), angle=0., center=None, mode="constant", interp
             pads with zeros 
         'edge'
             pads with edge values
-        'repeat'
+        'wrap'
             pads with the repeated version of the input 
     interpolation, string
         interpolation mode, one of the following      
@@ -141,7 +144,8 @@ def rotate(data, axis=(1., 0, 0), angle=0., center=None, mode="constant", interp
         
     Returns
     -------
-    rotated array
+    res: ndarray
+        rotated array (same shape as input)
 
     """
     if center is None:

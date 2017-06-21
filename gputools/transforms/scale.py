@@ -21,14 +21,26 @@ def _scale_shape(dshape, scale = (1,1,1)):
 
 
 def scale(data, scale = (1.,1.,1.), interpolation = "linear"):
-    """returns a interpolated, scaled version of data
-
-    scale = (scale_z,scale_y,scale_x)
-    or
-    scale = scale_all
-
-    interp = "linear" | "nearest"
     """
+    returns a interpolated, scaled version of data
+    
+    the output shape is scaled too.
+    
+    Parameters
+    ----------
+    data: ndarray
+        3d input array
+    scale: float, tuple
+        scaling factor along each axis (x,y,z) 
+    interpolation: str
+        either "nearest" or "linear"
+
+    Returns
+    -------
+        scaled output 
+
+    """
+
 
     if not (isinstance(data, np.ndarray) and data.ndim == 3):
         raise ValueError("input data has to be a 3d array!")

@@ -32,7 +32,7 @@ def test_translate():
 def test_modes():
     d = create_shape((101,101,101))
     outs = []
-    for mode in ("constant","edge","repeat"):
+    for mode in ("constant","edge","wrap"):
         for interp in ("linear", "nearest"):
             print(interp, mode)
             outs.append(rotate(d,axis = (0,1,0), angle = 0.4, mode = mode, interpolation=interp))
