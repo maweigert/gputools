@@ -32,7 +32,7 @@ def test_compare():
             d = np.random.uniform(-1, 1, dshape).astype(np.complex64)
             res1, res2 = _compare_fft_np(d)
             print("validating fft of size", d.shape)
-            print("max absolute error: %.3f "%np.amax(np.abs(res1-res2)))
+            print("max relative error: %.4gf "%(np.amax(np.abs(res1-res2))/np.amax(np.abs(res1))))
 
 if __name__ == '__main__':
     test_convolve()
