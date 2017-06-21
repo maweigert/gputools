@@ -20,7 +20,7 @@ def _scale_shape(dshape, scale = (1,1,1)):
     return tuple(nshape.astype(np.int))
 
 
-def scale(data, scale = (1.,1.,1.), interp = "linear"):
+def scale(data, scale = (1.,1.,1.), interpolation = "linear"):
     """returns a interpolated, scaled version of data
 
     scale = (scale_z,scale_y,scale_x)
@@ -28,9 +28,18 @@ def scale(data, scale = (1.,1.,1.), interp = "linear"):
     scale = scale_all
 
     interp = "linear" | "nearest"
-    """ 
+    """
 
-    options_interp = {"linear":[],"nearest":["-D","USENEAREST"]}
+    if not (isinstance(data, np.ndarray) and data.ndim == 3):
+        raise ValueError("input data has to be a 3d array!")
+
+    interpolation_defines = {"linear": ["-D", "SAMPLER_FILTER=CLK_FILTER_LINEAR"],
+                             "nearest": ["-D", "SAMPLER_FILTER=CLK_FILTER_NEAREST"]}
+
+    if not interpolation in interpolation_defines:
+        raise KeyError(
+            "interpolation = '%s' not defined ,valid: %s" % (interpolation, list(interpolation_defines.keys())))
+
 
     options_types = {np.uint8:["-D","TYPENAME=uchar","-D","READ_IMAGE=read_imageui"],
                     np.uint16: ["-D","TYPENAME=short","-D", "READ_IMAGE=read_imageui"],
@@ -43,9 +52,6 @@ def scale(data, scale = (1.,1.,1.), interp = "linear"):
         raise ValueError("type %s not supported! Available: %s"%(dtype ,str(list(options_types.keys()))))
 
 
-    if not interp in options_interp:
-        raise ValueError("interp = '%s' not defined ,valid: %s"%(interp,list(options_interp.keys())))
-    
     if not isinstance(scale,(tuple, list, np.ndarray)):
         scale = (scale,)*3
 
@@ -59,7 +65,8 @@ def scale(data, scale = (1.,1.,1.), interp = "linear"):
     res_g = OCLArray.empty(nshape,dtype)
 
 
-    prog = OCLProgram(abspath("kernels/scale.cl"), build_options=options_interp[interp]+options_types[dtype ])
+    prog = OCLProgram(abspath("kernels/scale.cl"),
+                      build_options=interpolation_defines[interpolation]+options_types[dtype ])
 
 
     prog.run_kernel("scale",
