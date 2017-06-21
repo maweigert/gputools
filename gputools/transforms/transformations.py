@@ -20,16 +20,24 @@ from ._abspath import abspath
 
 
 
-def affine(data, mat = np.identity(4), mode ="linear"):
+def affine(data, mat = np.identity(4), mode ="linear", edge="repeat"):
     """affine transform data with matrix mat
 
-    """ 
+    """
 
     bop = {"linear":[],"nearest":["-D","USENEAREST"]}
 
     if not mode in bop:
         raise KeyError("mode = '%s' not defined ,valid: %s"%(mode, list(bop.keys())))
-    
+
+    edge_options = {'repeat' : [],
+                    'border' : ["-D", "CLAMP"],
+                    'none'   : ["-D", "ADDNONE"]}
+    if not edge in edge_options:
+        raise KeyError("edge = '%s' not defined ,valid: %s" % (
+            edge, list(edge_options.keys())))
+    bop[mode].extend(edge_options[edge])
+
     d_im = OCLImage.from_array(data)
     res_g = OCLArray.empty(data.shape,np.float32)
     mat_g = OCLArray.from_array(np.linalg.inv(mat).astype(np.float32,copy=False))
@@ -82,12 +90,12 @@ def rotate(data, center = None, axis = (1.,0,0), angle = 0., mode ="linear"):
 
 
 if __name__ == '__main__':
-    
+
     d = np.zeros((200,200,200),np.float32)
     d[20:-20,20:-20,20:-20] = 1.
 
     # res = translate(d, x = 10, y = 5, z= -10 )
     res = rotate(d,center = (100,100,100),angle = .5 )
 
-    
-    
+
+
