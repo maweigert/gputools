@@ -145,7 +145,7 @@ def compare_ssim_bare(X, Y, data_range=None):
 #     return mssim
 
 
-def ssim(x, y, data_range=None):
+def ssim(x, y, data_range=None, scaled = False):
     """compute ssim
     parameters are like the defaults for skimage.compare_ssim
 
@@ -157,6 +157,21 @@ def ssim(x, y, data_range=None):
     K2 = 0.03
     sigma = 1.5
     win_size = 7
+
+
+    if scaled:
+        x = x.astype(np.float32)
+        y = y.astype(np.float32)
+        # center it first for numerical stability...
+        my = np.mean(y)
+        mx = np.mean(x)
+        y = y - my
+        sxy = np.mean(x * y)  # mean(y)=0
+        sy = np.std(y)
+        a, b = sxy / (sy ** 2 + 1.e-30), mx
+        print("scaling in ssim: y2 = %.2g*y+%.2g" % (a, b-my))
+        y = a * y + b
+
 
     if np.any((np.asarray(x.shape) - win_size) < 0):
         raise ValueError("win_size exceeds image extent.")
