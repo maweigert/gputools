@@ -173,7 +173,8 @@ def ssim(x, y, data_range=None, scaled = False):
         # print("scaling in ssim: y2 = %.2g*y+%.2g" % (a, b-my))
         # y = a * y + b
 
-        y = y - np.mean(y)
+        my = np.mean(y)
+        y = y - my
         sxy = np.mean(x * y)  # - np.mean(x) * np.mean(y)
         sy = np.std(y)
         sx = np.std(x)
@@ -188,7 +189,7 @@ def ssim(x, y, data_range=None, scaled = False):
 
     if data_range is None:
         dmin, dmax = np.amin(x), np.amax(x)
-        data_range = dmax - dmin
+        data_range = dmax - dmin+1.e-10
 
     x_g = OCLArray.from_array(x.astype(np.float32, copy=False))
     y_g = OCLArray.from_array(y.astype(np.float32, copy=False))
@@ -231,6 +232,7 @@ def ssim(x, y, data_range=None, scaled = False):
     A2 *= np.float32(2.)
     A2 += np.float32(C2)
 
+
     # B1 =  ux ** 2 + uy ** 2 + C1
     # overwrite ux to save space
     B1 = ux
@@ -245,13 +247,12 @@ def ssim(x, y, data_range=None, scaled = False):
     B2 += vy
     B2 += np.float32(C2)
 
-
-
     D = B1
     D *= B2
     S = A1
     S *= A2
     S /= D
+
 
     # import time
     # time.sleep(2)
