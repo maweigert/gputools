@@ -162,13 +162,23 @@ def ssim(x, y, data_range=None, scaled = False):
     if scaled:
         x = x.astype(np.float32)
         y = y.astype(np.float32)
-        # center it first for numerical stability...
-        my = np.mean(y)
-        mx = np.mean(x)
-        y = y - my
-        sxy = np.mean(x * y)  # mean(y)=0
+
+        # # center it first for numerical stability...
+        # my = np.mean(y)
+        # mx = np.mean(x)
+        # y = y - my
+        # sxy = np.mean(x * y)  # mean(y)=0
+        # sy = np.std(y)
+        # a, b = sxy / (sy ** 2 + 1.e-30), mx
+        # print("scaling in ssim: y2 = %.2g*y+%.2g" % (a, b-my))
+        # y = a * y + b
+
+        y = y - np.mean(y)
+        sxy = np.mean(x * y)  # - np.mean(x) * np.mean(y)
         sy = np.std(y)
-        a, b = sxy / (sy ** 2 + 1.e-30), mx
+        sx = np.std(x)
+        mx = np.mean(x)
+        a, b = sx / sy, mx
         print("scaling in ssim: y2 = %.2g*y+%.2g" % (a, b-my))
         y = a * y + b
 
