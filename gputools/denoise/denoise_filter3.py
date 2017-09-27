@@ -15,7 +15,8 @@ from itertools import product
 import utils
 import imgtools
 from time import time
-
+import logging
+logger = logging.getLogger(__name__)
 
 def absPath(myPath):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -42,7 +43,7 @@ def bilateral3(data, fSize, sigmaX, dev = None):
                         np.uint16:"run3_short"}
 
     if not dtype in dtypes_kernels:
-        print("data type %s not supported yet, please convert to:"%dtype,list(dtypes_kernels.keys()))
+        logger.error("data type %s not supported yet, please convert to:"%dtype,list(dtypes_kernels.keys()))
         return
 
     proc = OCLProcessor(dev,utils.absPath("kernels/bilateral.cl"))
@@ -77,7 +78,7 @@ def nlm3(data, fSize, bSize, sigma, dev = None):
                         np.uint16:"nlm3_short"}
 
     if not dtype in dtypes_kernels:
-        print("data type %s not supported yet, please convert to:"%dtype,list(dtypes_kernels.keys()))
+        logger.error("data type %s not supported yet, please convert to:"%dtype,list(dtypes_kernels.keys()))
         return
 
     proc = OCLProcessor(dev,utils.absPath("kernels/nlmeans3d.cl"))
@@ -87,7 +88,7 @@ def nlm3(data, fSize, bSize, sigma, dev = None):
     dev.writeImage(img,data)
 
 
-    print(img.shape)
+    logger.debug("nlm3, image shape: {}".format(img.shape))
     proc.runKernel(dtypes_kernels[dtype],img.shape,None,img,buf,
                      np.int32(img.width),np.int32(img.height),
                      np.int32(fSize), np.int32(bSize),np.float32(sigma))
@@ -178,7 +179,7 @@ def nlm3_fast(data,FS,BS,sigma,dev = None, proc = None):
     dtype = data.dtype.type
 
     if not dtype in [np.float32,np.uint16]:
-        print("data type %s not supported yet, please convert to:"%[np.float32,np.uint16])
+        logger.error("data type %s not supported yet, please convert to:"%[np.float32,np.uint16])
         return
 
     if dtype == np.float32:
@@ -297,7 +298,7 @@ def nlm3_thresh(dev, data, FS,BS, sigma, thresh= 0, mean = False):
     dtype = data.dtype.type
 
     if not dtype in [np.float32,np.uint16]:
-        print("data type %s not supported yet, please convert to:"%[np.float32,np.uint16])
+        logger.error("data type %s not supported yet, please convert to:"%[np.float32,np.uint16])
         return
 
     if dtype == np.float32:
@@ -405,7 +406,7 @@ def tv3_gpu(data,weight,Niter=50, Ncut = 1, dev = None):
         # a heuristic guess: Npad = Niter means perfect
         Npad = 1+Niter/2
         for i0,(i,j,k) in enumerate(product(list(range(Ncut)),repeat=3)):
-            print("calculating box  %i/%i"%(i0+1,Ncut**3))
+            logger.info("calculating box  %i/%i"%(i0+1,Ncut**3))
             sx = slice(i*Nx/Ncut,(i+1)*Nx/Ncut)
             sy = slice(j*Ny/Ncut,(j+1)*Ny/Ncut)
             sz = slice(k*Nz/Ncut,(k+1)*Nz/Ncut)

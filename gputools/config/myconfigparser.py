@@ -34,7 +34,7 @@ class MyConfigParser(SafeConfigParser):
                     self.read_file(f)
 
         except Exception as e:
-            print(e)
+            logger.warn(e)
 
 
 

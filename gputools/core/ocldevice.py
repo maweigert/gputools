@@ -102,7 +102,7 @@ class OCLDevice:
                                                                  pyopencl.mem_flags.READ_WRITE,
                                                                  pyopencl.mem_object_type.IMAGE3D)
 
-        print(self.device)
+        logger.info("intialized, device: {}".format(self.device))
         if print_info:
             self.print_info()
 

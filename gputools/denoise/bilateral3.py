@@ -16,7 +16,7 @@ from ._abspath import abspath
 
 def bilateral3(data, size_filter, sigma_p, sigma_x = 10.):
     """bilateral filter """
-    
+
     dtype = data.dtype.type
     dtypes_kernels = {np.float32:"bilat3_float",}
 
@@ -29,10 +29,10 @@ def bilateral3(data, size_filter, sigma_p, sigma_x = 10.):
     img = OCLImage.from_array(data)
     res = OCLArray.empty_like(data)
 
-    
+
     prog = OCLProgram(abspath("kernels/bilateral3.cl"))
 
-    print(img.shape)
+    logger.debug("in bilateral3, image shape: {}".format(img.shape))
 
     prog.run_kernel(dtypes_kernels[dtype],
                     img.shape,None,
