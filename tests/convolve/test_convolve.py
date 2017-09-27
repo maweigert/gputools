@@ -40,7 +40,8 @@ def test_convolve():
 
 
 def test_small():
-    for N1 in range(10, 40, 7):
+    # for N1 in range(10, 40, 7):  # <-- out of resources on macbook pro
+    for N1 in range(10, 25, 5):
         _convolve_rand((N1,) * 3, (N1,) * 3, test_subblocks=False)
 
 if __name__ == '__main__':
