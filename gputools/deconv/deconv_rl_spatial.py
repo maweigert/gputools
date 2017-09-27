@@ -52,10 +52,10 @@ def deconv_rl(data, h, Niter = 10):
     """ richardson lucy deconvolution of data with psf h
     using spatial convolutions (h should be small then)
     """
-    
+
     if isinstance(data,np.ndarray):
         return _deconv_rl_np(data,h, Niter)
-    
+
     elif isinstance(data,OCLArray):
         return _deconv_rl_gpu_conv(data,h, Niter)
 
@@ -71,14 +71,14 @@ def _deconv_rl_np(data, h, Niter = 10, ):
     h_g = OCLArray.from_array(h.astype(np.float32, copy = False))
     res_g = _deconv_rl_gpu_conv(d_g,h_g,Niter)
     return res_g.get()
-    
-def _deconv_rl_np_fft(data, h, Niter = 10, 
+
+def _deconv_rl_np_fft(data, h, Niter = 10,
                 h_is_fftshifted = False):
     """ deconvolves data with given psf (kernel) h
 
     data and h have to be same shape
 
-    
+
     via lucy richardson deconvolution
     """
 
@@ -90,18 +90,18 @@ def _deconv_rl_np_fft(data, h, Niter = 10,
 
 
     hflip = h[::-1,::-1]
-        
+
     #set up some gpu buffers
     y_g = OCLArray.from_array(data.astype(np.complex64))
     u_g = OCLArray.from_array(data.astype(np.complex64))
-    
+
     tmp_g = OCLArray.empty(data.shape,np.complex64)
 
     hf_g = OCLArray.from_array(h.astype(np.complex64))
     hflip_f_g = OCLArray.from_array(hflip.astype(np.complex64))
 
     # hflipped_g = OCLArray.from_array(h.astype(np.complex64))
-    
+
     plan = fft_plan(data.shape)
 
     #transform psf
@@ -109,7 +109,7 @@ def _deconv_rl_np_fft(data, h, Niter = 10,
     fft(hflip_f_g,inplace = True)
 
     for i in range(Niter):
-        print(i)
+        logger.info("Iteration: {}".format(i))
         fft_convolve(u_g, hf_g,
                      res_g = tmp_g,
                      kernel_is_fft = True)
@@ -121,12 +121,12 @@ def _deconv_rl_np_fft(data, h, Niter = 10,
                      kernel_is_fft = True)
 
         _complex_multiply_inplace(u_g,tmp_g)
-        
+
 
     return np.abs(u_g.get())
 
 def _deconv_rl_gpu_fft(data_g, h_g, Niter = 10):
-    """ 
+    """
     using fft_convolve
 
     """
@@ -135,12 +135,12 @@ def _deconv_rl_gpu_fft(data_g, h_g, Niter = 10):
     if data_g.shape != h_g.shape:
         raise ValueError("data and h have to be same shape")
 
-        
+
     #set up some gpu buffers
     u_g = OCLArray.empty(data_g.shape,np.complex64)
 
     u_g.copy_buffer(data_g)
-    
+
     tmp_g = OCLArray.empty(data_g.shape,np.complex64)
 
     #fix this
@@ -153,7 +153,7 @@ def _deconv_rl_gpu_fft(data_g, h_g, Niter = 10):
     fft(hflip_g,inplace = True)
 
     for i in range(Niter):
-        print(i)
+        logger.info("Iteration: {}".format(i))
         fft_convolve(u_g, h_g,
                      res_g = tmp_g,
                      kernel_is_fft = True)
@@ -161,7 +161,7 @@ def _deconv_rl_gpu_fft(data_g, h_g, Niter = 10):
 
         _complex_divide_inplace(data_g,tmp_g)
 
-        
+
         fft_convolve(tmp_g,hflip_g,
                      inplace = True,
                      kernel_is_fft = True)
@@ -171,16 +171,16 @@ def _deconv_rl_gpu_fft(data_g, h_g, Niter = 10):
     return u_g
 
 def _deconv_rl_gpu_conv(data_g, h_g, Niter = 10):
-    """ 
+    """
     using convolve
 
     """
-        
+
     #set up some gpu buffers
     u_g = OCLArray.empty(data_g.shape,np.float32)
 
     u_g.copy_buffer(data_g)
-    
+
     tmp_g = OCLArray.empty(data_g.shape,np.float32)
     tmp2_g = OCLArray.empty(data_g.shape,np.float32)
 
@@ -195,7 +195,7 @@ def _deconv_rl_gpu_conv(data_g, h_g, Niter = 10):
         _divide_inplace(data_g,tmp_g)
 
         # return data_g, tmp_g
-        
+
         convolve(tmp_g, hflip_g,
                  res_g = tmp2_g)
         _multiply_inplace(u_g,tmp2_g)
@@ -206,9 +206,9 @@ def _deconv_rl_gpu_conv(data_g, h_g, Niter = 10):
 if __name__ == '__main__':
 
     from scipy.misc import lena
-    
+
     d = np.pad(lena(),((50,)*2,)*2,mode="constant")
-    
+
     h = np.ones((11,)*2)/121.
     # hpad = np.pad(h,((251,250),(251,250)),mode="constant")
 
@@ -218,9 +218,9 @@ if __name__ == '__main__':
 
     print("start")
 
-    
+
     # u = deconv_rl(y,h, 1)
 
 
     out = [r.get() for r in _deconv_rl_gpu_conv(OCLArray.from_array(y.astype(np.float32)),OCLArray.from_array(h.astype(np.float32)),1)]
-    
+

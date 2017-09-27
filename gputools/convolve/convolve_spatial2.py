@@ -15,6 +15,8 @@ from gputools.utils.tile_iterator import tile_iterator
 
 from ._abspath import abspath
 
+import logging
+logger = logging.getLogger(__name__)
 
 def convolve_spatial2(im, psfs,
                       mode = "constant",
@@ -137,7 +139,10 @@ def convolve_spatial2(im, psfs,
         Npads = [n*(s>1) for n,s  in zip(Nblocks, sub_blocks)]
         grid_dim_sub = [g//s+2*(s>1) for g,s   in zip(Gs, sub_blocks)]
 
-        print(N_sub, Nblocks, grid_dim_sub, Npads)
+        logger.debug(
+            "N_sub: {}, Nblocks: {}, grid_dim_sub, {}, Npads, {}".format(
+                N_sub, Nblocks, grid_dim_sub, Npads
+            ))
 
         if grid_dim:
             res = np.empty(im.shape, np.float32)
@@ -271,7 +276,7 @@ def _convolve_spatial2(im, hs,
     fft(patches_g,inplace=True, inverse = True, plan = plan)
 
 
-    print(Nblock_x, Npatch_x)
+    logger.debug("Nblock_x: {}, Npatch_x: {}".format(Nblock_x, Npatch_x))
     #return np.abs(patches_g.get())
     #accumulate
     res_g = OCLArray.empty(im.shape,np.float32)

@@ -62,7 +62,7 @@ def _tv2(data,weight,Niter=50):
         # a heuristic guess: Npad = Niter means perfect
         Npad = 1+Niter/2
         for i0,(i,j,k) in enumerate(product(list(range(Ncut)),repeat=3)):
-            print("calculating box  %i/%i"%(i0+1,Ncut**3))
+            logger.info("calculating box  %i/%i"%(i0+1,Ncut**3))
             sx = slice(i*Nx/Ncut,(i+1)*Nx/Ncut)
             sy = slice(j*Ny/Ncut,(j+1)*Ny/Ncut)
             sz = slice(k*Nz/Ncut,(k+1)*Nz/Ncut)
@@ -83,7 +83,7 @@ def tv2(data,weight,Niter=50):
 
     weight should be around  2+1.5*noise_sigma
     """
-    
+
     prog = OCLProgram(abspath("kernels/tv2.cl"))
 
     data_im = OCLImage.from_array(data.astype(np,float32,copy=False))
@@ -116,7 +116,7 @@ def tv2(data,weight,Niter=50):
 
 if __name__ == '__main__':
     from scipy.misc import lena
-    
+
     d = lena()
 
     d = np.random.poisson(d,d.shape)

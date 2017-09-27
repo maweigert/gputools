@@ -123,7 +123,7 @@ def _deconv_rl_np_fft(data, h, Niter=10,
 
     data and h have to be same shape
 
-    
+
     via lucy richardson deconvolution
     """
 
@@ -153,7 +153,7 @@ def _deconv_rl_np_fft(data, h, Niter=10,
     fft(hflip_f_g, inplace=True)
 
     for i in range(Niter):
-        print(i)
+        logger.info("Iteration: {}".format(i))
         fft_convolve(u_g, hf_g,
                      res_g=tmp_g,
                      kernel_is_fft=True)
@@ -170,7 +170,7 @@ def _deconv_rl_np_fft(data, h, Niter=10,
 
 
 def _deconv_rl_gpu_fft(data_g, h_g, Niter=10):
-    """ 
+    """
     using fft_convolve
 
     """
@@ -195,7 +195,7 @@ def _deconv_rl_gpu_fft(data_g, h_g, Niter=10):
     fft(hflip_g, inplace=True)
 
     for i in range(Niter):
-        print(i)
+        logger.info("Iteration: {}".format(i))
         fft_convolve(u_g, h_g,
                      res_g=tmp_g,
                      kernel_is_fft=True)
