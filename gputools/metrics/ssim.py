@@ -145,7 +145,7 @@ def compare_ssim_bare(X, Y, data_range=None):
 #     return mssim
 
 
-def ssim(x, y, data_range=None):
+def ssim(x, y, data_range=None, scaled = False):
     """compute ssim
     parameters are like the defaults for skimage.compare_ssim
 
@@ -158,12 +158,38 @@ def ssim(x, y, data_range=None):
     sigma = 1.5
     win_size = 7
 
+
+    if scaled:
+        x = x.astype(np.float32)
+        y = y.astype(np.float32)
+
+        # # center it first for numerical stability...
+        # my = np.mean(y)
+        # mx = np.mean(x)
+        # y = y - my
+        # sxy = np.mean(x * y)  # mean(y)=0
+        # sy = np.std(y)
+        # a, b = sxy / (sy ** 2 + 1.e-30), mx
+        # print("scaling in ssim: y2 = %.2g*y+%.2g" % (a, b-my))
+        # y = a * y + b
+
+        my = np.mean(y)
+        y = y - my
+        sxy = np.mean(x * y)  # - np.mean(x) * np.mean(y)
+        sy = np.std(y)
+        sx = np.std(x)
+        mx = np.mean(x)
+        a, b = sx / sy, mx
+        print("scaling in ssim: y2 = %.2g*y+%.2g" % (a, b-my))
+        y = a * y + b
+
+
     if np.any((np.asarray(x.shape) - win_size) < 0):
         raise ValueError("win_size exceeds image extent.")
 
     if data_range is None:
         dmin, dmax = np.amin(x), np.amax(x)
-        data_range = dmax - dmin
+        data_range = dmax - dmin+1.e-10
 
     x_g = OCLArray.from_array(x.astype(np.float32, copy=False))
     y_g = OCLArray.from_array(y.astype(np.float32, copy=False))
@@ -206,6 +232,7 @@ def ssim(x, y, data_range=None):
     A2 *= np.float32(2.)
     A2 += np.float32(C2)
 
+
     # B1 =  ux ** 2 + uy ** 2 + C1
     # overwrite ux to save space
     B1 = ux
@@ -220,13 +247,12 @@ def ssim(x, y, data_range=None):
     B2 += vy
     B2 += np.float32(C2)
 
-
-
     D = B1
     D *= B2
     S = A1
     S *= A2
     S /= D
+
 
     # import time
     # time.sleep(2)
