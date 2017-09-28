@@ -40,10 +40,13 @@ def _wrap_OCLArray(cls):
     WRAPPER
     """
 
+    def prepare(arr):
+        return np.require(arr,None,"C")
+
     @classmethod
     def from_array(cls,arr,*args, **kwargs):
         queue = get_device().queue
-        return cl_array.to_device(queue, arr,*args, **kwargs)
+        return cl_array.to_device(queue, prepare(arr),*args, **kwargs)
 
     @classmethod
     def empty(cls, shape, dtype = np.float32):
@@ -61,6 +64,7 @@ def _wrap_OCLArray(cls):
 
     @classmethod
     def zeros_like(cls, arr):
+        queue = get_device().queue
         return cl_array.zeros_like(queue, arr)
 
     def copy_buffer(self,buf, **kwargs):
@@ -70,7 +74,7 @@ def _wrap_OCLArray(cls):
 
     def write_array(self,data, **kwargs):
         queue = get_device().queue
-        return cl.enqueue_write_buffer(queue, self.data, data,
+        return cl.enqueue_write_buffer(queue, self.data, prepare(data),
                                       **kwargs)
     
     def copy_image(self,img, **kwargs):
@@ -133,6 +137,10 @@ def _wrap_OCLArray(cls):
     return cls
 
 def _wrap_OCLImage(cls):
+    def prepare(arr):
+        return np.require(arr,None,"C")
+
+
     @classmethod
     def from_array(cls,arr, *args, **kwargs):
 
@@ -150,7 +158,7 @@ def _wrap_OCLImage(cls):
             res.write_array(arr)
             res.dtype = np.float32
         else:
-            res =  cl.image_from_array(ctx, arr,num_channels = num_channels,
+            res =  cl.image_from_array(ctx, prepare(arr),num_channels = num_channels,
                                              *args, **kwargs)
 
             res.dtype = arr.dtype

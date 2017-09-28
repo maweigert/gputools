@@ -7,7 +7,8 @@ MW, 2014
 from __future__ import print_function, unicode_literals, absolute_import, division
 import numpy as np
 import subprocess
-
+import logging
+logger = logging.getLogger(__name__)
 
 
 def bilateral(data, fSize, sigma, sigma_x = 10., dev= None):
@@ -24,7 +25,7 @@ def bilateral(data, fSize, sigma, sigma_x = 10., dev= None):
                         np.uint16:"run2d_short"}
 
     if not dtype in dtypes_kernels:
-        print("data type %s not supported yet, casting to float:"%dtype,list(dtypes_kernels.keys()))
+        logger.error("data type %s not supported yet, casting to float:"%dtype,list(dtypes_kernels.keys()))
         return
 
 
@@ -122,7 +123,7 @@ def nlm(data, fSize, bSize, sigma, dev = None, proc = None):
                         np.uint16:"run2d_short"}
 
     if not dtype in dtypes_kernels:
-        print("data type %s not supported yet, please convert to:"%dtype,list(dtypes_kernels.keys()))
+        logger.error("data type %s not supported yet, please convert to:"%dtype,list(dtypes_kernels.keys()))
         return
 
 
