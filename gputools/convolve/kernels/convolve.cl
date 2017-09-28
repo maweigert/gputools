@@ -82,12 +82,15 @@ __kernel void convolve3d_buf(__global float * input,
 
   for (int htx = hx_start; htx< hx_end; ++htx)
     for (int hty = hy_start; hty< hy_end; ++hty)
-	  for (int htz = hz_start; htz< hz_end; ++htz) 
-		res += h[htx+hty*Nhx+htz*Nhx*Nhy]*
+	  for (int htz = hz_start; htz< hz_end; ++htz){
+	   res += h[htx+hty*Nhx+htz*Nhx*Nhy]*
 		  input[startx-htx+(starty-hty)*Nx+(startz-htz)*Nx*Ny];
-  
-	
+
+		  }
+
+
   output[i+j*Nx+k*Nx*Ny] = res;
+
 }
 
 

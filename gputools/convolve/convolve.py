@@ -59,8 +59,8 @@ def _convolve_np(data, h):
     numpy variant
     """
 
-    data_g = OCLArray.from_array(data.astype(np.float32, copy=False))
-    h_g = OCLArray.from_array(h.astype(np.float32, copy=False))
+    data_g = OCLArray.from_array(np.require(data,np.float32,"C"))
+    h_g = OCLArray.from_array(np.require(h,np.float32,"C"))
 
     return _convolve_buf(data_g, h_g).get()
 
@@ -87,7 +87,7 @@ def _convolve_buf(data_g, h_g, res_g=None):
                         *Nhs)
 
     except cl.cffi_cl.LogicError as e:
-        # this catches the logicerror if the kernel is to big for constant memory
+        # this catches the logic error if the kernel is to big for constant memory
         if e.code == -52:
             kernel_name = "convolve%sd_buf_global" % (len(data_g.shape))
             prog.run_kernel(kernel_name, data_g.shape[::-1], None,
@@ -96,6 +96,19 @@ def _convolve_buf(data_g, h_g, res_g=None):
 
         else:
             raise e
+    except cl.cffi_cl.RuntimeError as e:
+        # this catches the runtime error if the kernel is to big for constant memory
+        if e.code == -5:
+            kernel_name = "convolve%sd_buf_global" % (len(data_g.shape))
+            prog.run_kernel(kernel_name, data_g.shape[::-1], None,
+                            data_g.data, h_g.data, res_g.data,
+                            *Nhs)
+
+        else:
+            raise e
+
+
+
 
     return res_g
 
