@@ -3,7 +3,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import logging
 logger = logging.getLogger(__name__)
 
-
+import os
 import six
 
 
@@ -17,10 +17,14 @@ else:
 
 
 class MyConfigParser(SafeConfigParser):
-    def __init__(self, fName=None, defaults={}):
+    def __init__(self, fName=None, defaults={},create_file = True):
         SafeConfigParser.__init__(self, defaults)
         self.dummySection = "dummy"
         if fName:
+            # create file if not existing
+            if create_file and not os.path.exists(fName):
+                os.mknod(fName)
+
             self.read(fName)
 
     def read(self, fName):
