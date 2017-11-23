@@ -9,7 +9,7 @@ import numpy as np
 from time import time
 from functools import reduce
 from gputools import convolve_spatial2, convolve_spatial3
-
+import numpy.testing as npt
 
 def create_psf(sig=(.1,.1), xy_angle = 0., N = 10):
     x = np.linspace(-1,1,N+1)[:-1]
@@ -197,10 +197,31 @@ def test_single_z():
     return im, out, hs
 
 
+def test_identity2():
+    from scipy.misc import ascent
+    from scipy.ndimage.interpolation import zoom
+
+    im = zoom(ascent().astype(np.float32),(2,2))
+
+    Ng = 32
+    Ny,Nx = im.shape
+
+    h = np.zeros_like(im)
+    h[Ny//Ng//2::Ny//Ng,Nx//Ng//2::Nx//Ng] = 1.
+
+
+    out = convolve_spatial2(im, h, grid_dim = (Ng,Ng), pad_factor=3)
+
+    #npt.assert_almost_equal(im, out, decimal = 3)
+    return im, out, h
+
+
 if __name__ == '__main__':
 
-    im, out, hs = test_single_z()
+    #im, out, hs = test_single_z()
     # im2, out2, hs2 = test_conv2_psfs()
     # im3, out3, hs3 = test_conv3_psfs()
 
     # ts = [speed_test3((128,)*3,(4,4,2**n)) for n in range(5)]
+
+    im, out, h = test_identity2()

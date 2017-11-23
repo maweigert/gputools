@@ -30,7 +30,7 @@ def convolve_spatial2(im, psfs,
     (Gy,Gx) grid of psfs assumed to be equally spaced within the image
     the input image im is subdivided into (Gy,Gx) blocks, each block is
     convolved with the corresponding psf and linearly interpolated to give the
-    final rresult
+    final result
 
     The psfs can be given either in
 

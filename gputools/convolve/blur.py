@@ -6,9 +6,9 @@ from .convolve_sep import convolve_sep2, convolve_sep3
 
 
 def blur(data, width = 4., res_g  = None):
-    """ blurs data with a gaussian kernel of given width (i.e. sigma = width/2)
+    """ blurs data with a normalized gaussian kernel of given width (FWHM)
 
-    width is either a scalar or a list of widths (of length data.ndim)
+    width is either a scalar or a list of sigmas, e.g. (wz,wy,wx)
     """
 
     
@@ -17,6 +17,9 @@ def blur(data, width = 4., res_g  = None):
 
     if np.isscalar(width):
         width = [width]*data.ndim
+
+    if any(tuple(w<=0 for w in width)):
+        raise ValueError("width = %s : all widths have to be positive!"%str(width))
         
     if isinstance(data,OCLArray):
         return _blur_buf(data, width,res_g)
@@ -26,17 +29,23 @@ def blur(data, width = 4., res_g  = None):
     else:
         raise TypeError("unknown type (%s)"%(type(data)))
 
-    return 
+
+
+
 
 
 def _blur_buf(d_g,width = (4.,4.), res_g = None ):
 
-    Ns = [(int(3*s+1)//2)*2+1 for s in width]
-    sigmas = [.5*s for s in width]
+    Ns = tuple((int(3*s+1)//2)*2+1 for s in width)
+    sigmas = tuple(s/2.35 for s in width)
     
-    hs = [np.exp(-.5/s**2*np.linspace(-N/2,N/2,N)**2) for s,N in zip(sigmas,Ns)]
-    
-    h_gs = [OCLArray.from_array(h.astype(np.float32)) for h in hs][::-1]
+    hs = tuple(np.exp(-.5/s**2*np.linspace(-N/2.,N/2.,N)**2) for s,N in zip(reversed(sigmas),reversed(Ns)))
+
+    #normalize
+    hs = tuple(1.*h/np.sum(h) for h in hs)
+
+
+    h_gs = tuple(OCLArray.from_array(h.astype(np.float32)) for h in hs)
 
     if len(d_g.shape) == 1:
         return convolve(d_g,*h_gs, res_g = res_g)
