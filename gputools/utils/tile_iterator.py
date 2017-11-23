@@ -12,10 +12,10 @@ def tile_iterator(im,
                  blocksize = (64, 64),
                  padsize = (64,64),
                  mode = "constant",
-                  verbose = False):
+                 verbose = False):
     """
 
-    iterates over padded tiles of the input images
+    iterates over padded tiles of an ND image 
     while keeping track of the slice positions
 
     Example:
@@ -39,7 +39,7 @@ def tile_iterator(im,
     Parameters
     ----------
     im: ndarray
-        the input data
+        the input data (arbitrary dimension)
     blocksize:
         the dimension of the blocks to split into
         e.g. (nz, ny, nx) for a 3d image
@@ -72,7 +72,7 @@ def tile_iterator(im,
 
     im_pad = np.pad(im,[(p,p+pm) for pm,p in zip(pad_mismatch,padsize)], mode = mode)
 
-    # ierates over cartesian product of subgrids
+    # iterates over cartesian product of subgrids
     for i,index in enumerate(product(*[range(sg) for sg in subgrids])):
         # the slices
         # if verbose:

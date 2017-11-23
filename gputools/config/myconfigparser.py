@@ -22,8 +22,15 @@ class MyConfigParser(SafeConfigParser):
         self.dummySection = "dummy"
         if fName:
             # create file if not existing
+
             if create_file and not os.path.exists(fName):
-                os.mknod(fName)
+                try:
+                    logger.debug("trying to create %s" % fName)
+                    with open(fName, "w") as f:
+                        pass
+                except Exception as e:
+                    logger.debug("failed to create %s" % fName)
+                    logger.debug(e)
 
             self.read(fName)
 
