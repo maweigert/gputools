@@ -145,7 +145,7 @@ def compare_ssim_bare(X, Y, data_range=None):
 #     return mssim
 
 
-def ssim(x, y, data_range=None, scaled = False):
+def ssim(x, y, data_range=None, scaled = False, verbose = False):
     """compute ssim
     parameters are like the defaults for skimage.compare_ssim
 
@@ -170,7 +170,8 @@ def ssim(x, y, data_range=None, scaled = False):
         sxy = np.mean(x * y)  # mean(y)=0
         sy = np.std(y)
         a, b = sxy / (sy ** 2 + 1.e-30), mx
-        print("scaling in ssim: y2 = %.2g*y+%.2g" % (a, b-my))
+        if verbose:
+            print("scaling in ssim: y2 = %.2g*y+%.2g" % (a, b-my))
         y = a * y + b
 
         # my = np.mean(y)
