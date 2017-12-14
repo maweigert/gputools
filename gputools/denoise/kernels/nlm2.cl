@@ -68,7 +68,7 @@ __kernel void computePlus(__read_only image2d_t input,__read_only image2d_t dist
 
   float pix  = read_imagef(input,sampler,(int2)(i0+dx,j0+dy)).x;
 
-  float Npatch = (2.f*FS+1)*(2*FS+1);
+  float Npatch = (2.f*FS+1.f)*(2.f*FS+1.f);
   
   float weight = exp(-1.f*dist/Npatch/sigma/sigma);
 
@@ -95,8 +95,7 @@ __kernel void computeMinus(__read_only image2d_t input,__read_only image2d_t dis
 
   float pix  = read_imagef(input,sampler,(int2)(i0-dx,j0-dy)).x;
 
-  float Npatch = (2.f*FS+1)*(2*FS+1);
-
+  float Npatch = (2.f*FS+1.f)*(2.f*FS+1.f);
   
   float weight = exp(-1.f*dist/Npatch/sigma/sigma);
 

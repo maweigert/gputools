@@ -18,6 +18,7 @@ from ._abspath import abspath
 
 def nlm2(data,sigma, size_filter = 2, size_search = 3):
     """for noise level of sigma_0, choose sigma = 1.5*sigma_0
+    
     """
 
     prog = OCLProgram(abspath("kernels/nlm2.cl"),
@@ -39,7 +40,6 @@ def nlm2(data,sigma, size_filter = 2, size_search = 3):
         for dy in range(-size_search,size_search+1):
                 prog.run_kernel("dist",img.shape,None,
                                 img,tmpImg,np.int32(dx),np.int32(dy))
-                
                 prog.run_kernel("convolve",img.shape,None,
                                 tmpImg,tmpImg2,np.int32(1))
                 prog.run_kernel("convolve",img.shape,None,
@@ -50,7 +50,8 @@ def nlm2(data,sigma, size_filter = 2, size_search = 3):
                                np.int32(img.shape[0]),np.int32(img.shape[1]),
                                np.int32(dx),np.int32(dy),np.float32(sigma))
 
-                if any([dx,dy]):
+                if dx!=0:
+                #if any([dx,dy]):
                     prog.run_kernel("computeMinus",img.shape,None,
                                     img,distImg,accBuf.data,weightBuf.data,
                                np.int32(img.shape[0]),np.int32(img.shape[1]),

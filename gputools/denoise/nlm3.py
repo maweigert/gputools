@@ -84,8 +84,8 @@ def nlm3(data,sigma, size_filter = 2, size_search = 3):
                                 np.int32(img.shape[2]),
                                 np.int32(dx),np.int32(dy),np.int32(dz),
                                 np.float32(sigma))
-
-                if any([dx,dy,dz]):
+                if dx!=0:
+                #if any([dx,dy,dz]):
                     prog.run_kernel("computeMinus",img.shape,None,
                                     img,distImg,accBuf.data,weightBuf.data,
                                     np.int32(img.shape[0]),
