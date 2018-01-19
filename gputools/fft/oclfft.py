@@ -21,6 +21,14 @@ def _convert_axes_to_absolute(dshape, axes):
         raise NotImplementedError("axes %s is of unsupported type %s "%(str(axes), type(axes)))
 
 
+class MockBuffer():
+    """
+    Used during creation of fft plan, as it expects a numpy array (which we dont want to create in the first place)
+    """
+    def __init__(self, dtype, shape):
+        self.dtype = dtype
+        self.shape = shape
+
 
 # def fft_plan_pyfft(shape, **kwargs):
 #     """returns an opencl/pyfft plan of shape dshape
@@ -38,9 +46,7 @@ def fft_plan(shape, dtype=np.complex64, axes=None, fast_math=True):
 
     axes = _convert_axes_to_absolute(shape, axes)
 
-    mock_buffer = namedtuple("mock", ["shape", "dtype"])
-    mock_buffer.dtype = dtype
-    mock_buffer.shape = shape
+    mock_buffer = MockBuffer(dtype, shape)
 
     fft_plan = FFT(mock_buffer, axes=axes).compile(cluda.ocl_api().Thread(get_device().queue),
                                                    fast_math=fast_math)
