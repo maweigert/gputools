@@ -95,7 +95,7 @@ def max_filter(data, size=10, res_g=None, sub_blocks=(1, 1, 1)):
         else:
             # cut the image into tile and operate on every of them
             N_sub = [int(np.ceil(1. * n / s)) for n, s in zip(data.shape, sub_blocks)]
-            Npads = int(size // 2)
+            Npads = tuple(map(lambda x: x//2, size))
             res = np.empty(data.shape, np.float32)
             for i, (data_tile, data_s_src, data_s_dest) \
                     in enumerate(tile_iterator(data, blocksize=N_sub,
@@ -196,7 +196,7 @@ def min_filter(data, size=10, res_g=None, sub_blocks=(1, 1, 1)):
         else:
             # cut the image into tile and operate on every of them
             N_sub = [int(np.ceil(1. * n / s)) for n, s in zip(data.shape, sub_blocks)]
-            Npads = int(size // 2)
+            Npads = tuple(map(lambda x: x//2, size))
             res = np.empty(data.shape, np.float32)
             for i, (data_tile, data_s_src, data_s_dest) \
                     in enumerate(tile_iterator(data, blocksize=N_sub,
