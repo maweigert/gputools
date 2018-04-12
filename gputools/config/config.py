@@ -23,13 +23,14 @@ __CONFIGFILE__ = os.path.expanduser("~/.gputools")
 
 config_parser = MyConfigParser(__CONFIGFILE__)
 
-
+#Using os here allows us to configure multiple python gputools processes 
+#in a multi GPU environnement.
+#Simply changing the device with init_device keeps the first device in the process. And that takes some memory on the gpu
 defaults = {
-    "id_device": 0,
-    "id_platform": 0,
-    "use_gpu": 1,
+    "id_device": os.getenv('gputools_device',0),
+    "id_platform": os.getenv('gputools_platform',0),
+    "use_gpu": os.getenv('gputools_use_gpu',1)
 }
-
 
 def _get_param(name, type):
     return type(config_parser.get(name, defaults[name]))
