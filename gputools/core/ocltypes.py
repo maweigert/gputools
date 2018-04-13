@@ -178,7 +178,10 @@ def _wrap_OCLImage(cls):
     def empty(cls,shape,dtype, num_channels = 1, channel_order = None):
         ctx = get_device().context
         if not len(shape) in [2,3]:
-            raise ValueError("dimension of shape wrong, should be 2...3 but is %s"%len(shape))
+            raise ValueError("number of dimension = %s not supported (can be 2 or 3)"%len(shape))
+        if not num_channels in [1,2,3,4]:
+            raise ValueError("number of channels = %s not supported (can be 1,2, 3 or 4)" % num_channels)
+
         mem_flags = cl.mem_flags.READ_WRITE
         channel_type = cl.DTYPE_TO_CHANNEL_TYPE[np.dtype(dtype)]
 

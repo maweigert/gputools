@@ -42,7 +42,7 @@ def fft_convolve(data, h, res_g = None,
                                  plan = plan, inplace = inplace,
                                  kernel_is_fft = kernel_is_fft)
     else:
-        raise TypeError("array argument (1) has bad type: %s"%type(arr_obj))
+        raise TypeError("array argument (1) has bad type: %s"%type(data))
 
 
 
