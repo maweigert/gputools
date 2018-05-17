@@ -1,0 +1,53 @@
+{% set name = "llspy" %}
+{% set setupdata = load_setup_py_data() %}
+
+package:
+  name: {{ name }}
+  {% if environ.get('BRANCH') == "master" %}
+  version: {{ setupdata['version'] }}
+  {% else %}
+  version: "{{ GIT_DESCRIBE_TAG }}_{{ GIT_BUILD_STR }}"
+  {% endif %}
+
+source:
+  path: ..
+  git_url: git://github.com/tlambert03/gputools
+  git_rev: "{{ environ.get('BRANCH') }}"
+
+build:
+  number: 0
+  string: 'py{{ PY_VER|replace(".", "") }}_{{ PKG_BUILDNUM }}'
+  script: python setup.py install --single-version-externally-managed --record record.txt
+
+requirements:
+  build:
+    - python {{ python }}
+    - setuptools
+  run:
+    - python {{ python }}
+    - numpy >=1.11.0
+    - scipy
+    - pyopencl ==2017.2+cl12 # [win64]
+    - pyopencl # [not win64]
+    - configparser # [py2k]
+    - reikna >=0.6.7
+#    - ocl-icd ==1.2.0 # [linux]
+#    - scikit-tensor
+
+test:
+  requires:
+    - nose
+    - pocl # [linux]
+    - scikit-image
+    - termcolor
+    - funcsigs ==0.4 # [py35]
+    - funcsigs ==0.4 # [py34]
+  commands:
+    - nosetests -v tests
+
+
+about:
+  home: {{ setupdata.get('url') }}
+  license: {{ setupdata.get('license') }}
+  license_file: LICENSE.txt
+  summary: {{ setupdata.get('description') }}
