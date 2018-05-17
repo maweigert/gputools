@@ -3,12 +3,11 @@
 
 package:
   name: {{ name }}
+  {% if environ.get('BRANCH') == "master" %}
   version: {{ setupdata['version'] }}
-  # {% if environ.get('BRANCH') == "master" %}
-  # version: {{ setupdata['version'] }}
-  # {% else %}
-  # version: "{{ GIT_DESCRIBE_TAG }}_{{ GIT_BUILD_STR }}"
-  # {% endif %}
+  {% else %}
+  version: "{{ GIT_DESCRIBE_TAG }}_{{ GIT_BUILD_STR }}"
+  {% endif %}
 
 source:
   # path: ..
