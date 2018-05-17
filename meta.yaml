@@ -1,16 +1,17 @@
-{% set name = "llspy" %}
+{% set name = "gputools" %}
 {% set setupdata = load_setup_py_data() %}
 
 package:
   name: {{ name }}
-  {% if environ.get('BRANCH') == "master" %}
   version: {{ setupdata['version'] }}
-  {% else %}
-  version: "{{ GIT_DESCRIBE_TAG }}_{{ GIT_BUILD_STR }}"
-  {% endif %}
+  # {% if environ.get('BRANCH') == "master" %}
+  # version: {{ setupdata['version'] }}
+  # {% else %}
+  # version: "{{ GIT_DESCRIBE_TAG }}_{{ GIT_BUILD_STR }}"
+  # {% endif %}
 
 source:
-  path: ..
+  # path: ..
   git_url: git://github.com/tlambert03/gputools
   git_rev: "{{ environ.get('BRANCH') }}"
 

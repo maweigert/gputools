@@ -1,34 +1,64 @@
 language: python
 python:
-  - "2.7"
+  - 3.6
+  - 3.5
+  - 2.7
 
-before_install:
-  - gcc -v
-  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq g++-4.8 gcc-4.8
-  - alias gcc=gcc-4.8
-  - alias g++=g++-4.8
-  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
-  - sudo update-alternatives --install /usr/bin/gcc g++ /usr/bin/gcc-4.8 90
-  - gcc -v
+branches:
+  only:
+  - master
+  - develop
 
-  - sudo apt-get install -qq opencl-headers;
-  - bash .travis/amd_sdk.sh;
-  - tar -xjf AMD-SDK.tar.bz2;
-  - AMDAPPSDKROOT=${HOME}/AMDAPPSDK;
-  - export OPENCL_VENDOR_PATH=${AMDAPPSDKROOT}/etc/OpenCL/vendors;
-  - mkdir -p ${OPENCL_VENDOR_PATH};
-  - sh AMD-APP-SDK*.sh --tar -xf -C ${AMDAPPSDKROOT};
-  - echo libamdocl64.so > ${OPENCL_VENDOR_PATH}/amdocl64.icd;
-  - export LD_LIBRARY_PATH=${AMDAPPSDKROOT}/lib/x86_64:${LD_LIBRARY_PATH};
-  - export CMAKE_LIBRARY_PATH=${AMDAPPSDKROOT}/lib/x86_64;
-  - chmod +x ${AMDAPPSDKROOT}/bin/x86_64/clinfo;
-  - ${AMDAPPSDKROOT}/bin/x86_64/clinfo;
-  - echo "HUHU"
-  - ls ${AMDAPPSDKROOT}/lib/x86_64/*
-  - echo ${LD_LIBRARY_PATH}
+addons:
+  apt:
+    packages:
+      # On Linux we need OpenBLAS, on OSX Apple Accelerate is present by default
+      - libopenblas-dev
+      - liblapack-dev
 
 install:
-  - pip install .
+  - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
+  - if [[ "$BRANCH" == "master" ]]; then
+      export LABEL="main";
+    else
+      export LABEL="dev";
+    fi
+
+  - sudo apt-get update
+  # We do this conditionally because it saves us some downloading if the
+  # version is the same.
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+    else
+      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+    fi
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - export USER=talley
+  - export CONDA_BLD_PATH=~/conda-bld
+
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda install conda-build anaconda-client
+  - conda update -q conda
+  - conda config --add channels conda-forge
+  - conda config --set show_channel_urls true
+  # Useful for debugging any issues with conda
+  - conda info -a
+
+script:
+  - conda build --py $TRAVIS_PYTHON_VERSION .
+  - OUTPUT=$(conda build --py $TRAVIS_PYTHON_VERSION --output conda.recipe)
+  - echo $OUTPUT
+
+after_success:
+  - echo $TRAVIS_TEST_RESULT
+#  - anaconda -t $CONDA_UPLOAD_TOKEN -v upload --all -u $USER --force -s "Lattice Light Sheet Processing Tools" $OUTPUT
+  - conda convert -p osx-64 -o $CONDA_BLD_PATH $OUTPUT
+#  - ls $CONDA_BLD_PATH/*
+  - anaconda -v -t $CONDA_UPLOAD_TOKEN upload -u $USER --force $CONDA_BLD_PATH/osx-64/*.tar.bz2 --label $LABEL
+  - anaconda -v -t $CONDA_UPLOAD_TOKEN upload -u $USER --force $CONDA_BLD_PATH/linux-64/*.tar.bz2 --label $LABEL
+#  - anaconda -v -t $CONDA_UPLOAD_TOKEN upload $CONDA_BLD_PATH/win-64/*.tar.bz2 -u $USER --force
+#  - test $TRAVIS_BRANCH = "master" && bash conda.recipe/conda_upload.sh
+
 
