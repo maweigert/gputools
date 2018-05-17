@@ -54,8 +54,8 @@ install:
   - conda info -a
 
 script:
-  - conda build --py $TRAVIS_PYTHON_VERSION .
-  - OUTPUT=$(conda build --py $TRAVIS_PYTHON_VERSION --output conda.recipe)
+  - conda build --py 36 .
+  - OUTPUT=$(conda build --py 36 --output conda.recipe)
   - echo $OUTPUT
 
 after_success:
