@@ -8,7 +8,7 @@ This package aims to provide GPU accelerated implementations of common volume pr
 * ffts (simple wrapper around [reikna])
 * affine transforms
 
-For that, pputools mostly uses the excellent [pyopencl](https://documen.tician.de/pyopencl/) bindings.
+For that, gputools mostly uses the excellent [pyopencl](https://documen.tician.de/pyopencl/) bindings.
 
 ### Requirements 
 
