@@ -2,7 +2,6 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import logging
 logger = logging.getLogger(__name__)
-
 import os
 import six
 
@@ -53,7 +52,6 @@ class MyConfigParser(SafeConfigParser):
         try:
             val = SafeConfigParser.get(self, self.dummySection, key,**kwargs)
             logger.debug("from config file: %s = %s " % (key, val))
-
             return val
         except Exception as e:
             logger.debug("%s (%s)" % (e, key))
