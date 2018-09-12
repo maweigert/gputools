@@ -1,3 +1,4 @@
+#pragma OPENCL EXTENSION cl_khr_3d_image_writes : enable
 
 __kernel void run2d_short(__read_only image2d_t input, __global short* output,const int Nx, const int Ny, const int FSIZE, const int BSIZE,const float SIGMA)
 {

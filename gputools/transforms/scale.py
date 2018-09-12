@@ -45,8 +45,8 @@ def scale(data, scale = (1.,1.,1.), interpolation = "linear"):
     if not (isinstance(data, np.ndarray) and data.ndim == 3):
         raise ValueError("input data has to be a 3d array!")
 
-    interpolation_defines = {"linear": ["-D", "SAMPLER_FILTER=CLK_FILTER_LINEAR"],
-                             "nearest": ["-D", "SAMPLER_FILTER=CLK_FILTER_NEAREST"]}
+    interpolation_defines = {"linear": ["-D", "SAMPLERFILTER=CLK_FILTER_LINEAR"],
+                             "nearest": ["-D", "SAMPLERFILTER=CLK_FILTER_NEAREST"]}
 
     if not interpolation in interpolation_defines:
         raise KeyError(
