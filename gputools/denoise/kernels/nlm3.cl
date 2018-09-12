@@ -101,7 +101,6 @@ __kernel void computeMinus(__read_only image3d_t input,__read_only image3d_t dis
   float pix  = read_imagef(input,sampler,(int4)(i0-dx,j0-dy,k0-dz,0)).x;
 
 
-
   float weight = exp(-1.f*dist/sigma/sigma);
 
   accBuf[i0+Nx*j0+Nx*Ny*k0] += (float)(weight*pix);

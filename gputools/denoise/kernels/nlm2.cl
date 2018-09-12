@@ -7,6 +7,7 @@
 #define BS 4
 #endif /* BS */
 
+#define NPATCH ((2*FS+1)*(2*FS+1))
 
 
 __kernel void dist(__read_only image2d_t input,__write_only image2d_t output, const int dx,const int dy){
@@ -68,9 +69,8 @@ __kernel void computePlus(__read_only image2d_t input,__read_only image2d_t dist
 
   float pix  = read_imagef(input,sampler,(int2)(i0+dx,j0+dy)).x;
 
-  float Npatch = (2.f*FS+1.f)*(2.f*FS+1.f);
   
-  float weight = exp(-1.f*dist/Npatch/sigma/sigma);
+  float weight = exp(-1.f*dist/NPATCH/sigma/sigma);
 
   accBuf[i0+Nx*j0] += (float)(weight*pix);
   weightBuf[i0+Nx*j0] += (float)(weight);
@@ -97,7 +97,7 @@ __kernel void computeMinus(__read_only image2d_t input,__read_only image2d_t dis
 
   float Npatch = (2.f*FS+1.f)*(2.f*FS+1.f);
   
-  float weight = exp(-1.f*dist/Npatch/sigma/sigma);
+  float weight = exp(-1.f*dist/NPATCH/sigma/sigma);
 
   accBuf[i0+Nx*j0] += (float)(weight*pix);
   weightBuf[i0+Nx*j0] += (float)(weight);
