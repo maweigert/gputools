@@ -25,7 +25,8 @@
 
 #endif
 
-
+ #pragma OPENCL EXTENSION cl_khr_3d_image_writes : enable
+ 
 __kernel void dist(__read_only image3d_t input,__write_only image3d_t output, const int dx,const int dy,const int dz){
 
 
