@@ -4,12 +4,11 @@ This package aims to provide GPU accelerated implementations of common volume pr
 
 * convolutions 
 * denoising
-* deconvolution
 * synthetic noise
 * ffts (simple wrapper around [reikna])
 * affine transforms
 
-For that, pputools mostly uses the excellent [pyopencl](https://documen.tician.de/pyopencl/) bindings.
+For that, gputools mostly uses the excellent [pyopencl](https://documen.tician.de/pyopencl/) bindings.
 
 ### Requirements 
 
@@ -72,16 +71,6 @@ d = d+np.random.normal(0,1,d.shape)
 res_nlm = gputools.denoise.nlm3(d,2.,2,3)
 res_bilat = gputools.denoise.bilateral3(d,3,4.)
 
-```
-
-
-#### Deconvolution
-
-richardson lucy deconvolution 
-
-```python
-...
-res = gputools.deconv.deconv_rl(d,h,2)
 ```
 
 #### Perlin noise
