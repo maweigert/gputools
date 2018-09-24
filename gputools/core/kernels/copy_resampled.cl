@@ -1,4 +1,5 @@
-    #include <pyopencl-complex.h>
+#include <pyopencl-complex.h>
+#pragma OPENCL EXTENSION cl_khr_3d_image_writes : enable
 
 ////////// IMAGE ----> BUFFER
 
