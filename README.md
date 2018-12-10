@@ -65,7 +65,7 @@ bilateral filter, non local means
 
 ```python
 ...
-d = np.zeros((128,128,128))
+d = np.zeros((128,128,128, np.float32))
 d[50:78,50:78,50:78:2] = 4.
 d = d+np.random.normal(0,1,d.shape)
 res_nlm = gputools.denoise.nlm3(d,2.,2,3)
