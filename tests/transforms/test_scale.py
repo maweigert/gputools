@@ -5,7 +5,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import numpy as np
 
 from gputools import scale
-from gputools.transforms.scale import scale_bicubic
+#from gputools.transforms.scale import scale_bicubic
 
 from scipy.ndimage.interpolation import zoom
 
@@ -14,18 +14,18 @@ np.random.seed(0)
 def create_shape(shape):
     d = np.ones(shape,np.float32)
     ss = tuple([slice(s//10,9*s//10) for s in shape])
-    d[ss] = np.random.uniform(0,1,d[ss].shape)
+    d[ss] = 2+np.random.uniform(0,1,d[ss].shape)
     return d
 
 def scale_func(x,zoom_factor):
-    res_gputools = scale(x,zoom_factor, interpolation="linear")
-    res_scipy = zoom(x,zoom_factor, order=1, prefilter=False)
+    res_gputools = scale(x,zoom_factor, interpolation="nearest")
+    res_scipy = zoom(x,zoom_factor, order=0, prefilter=False)
     return res_gputools, res_scipy
 
 
 def test_scale():
-    d = create_shape((21,23,44))
-    res_gputools, res_scipy = scale_func(d, (1.5,1,1))
+    d = create_shape((22,33,44))
+    res_gputools, res_scipy = scale_func(d, (2,2,2))
     return res_gputools, res_scipy
 
 # def test_scale_bicubic():

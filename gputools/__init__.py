@@ -22,7 +22,7 @@ from gputools.fft.fftshift import fftshift
 
 
 from gputools.convolve.convolve_sep import convolve_sep2, convolve_sep3
-from gputools.convolve.minmax_filter import min_filter, max_filter
+from gputools.convolve import min_filter, max_filter, uniform_filter
 from gputools.convolve.convolve import convolve
 from gputools.convolve.blur import blur
 from gputools.convolve import convolve_spatial2, convolve_spatial3
@@ -41,5 +41,5 @@ from gputools import transforms
 from gputools import noise
 
 from gputools.transforms import scale
-from gputools.transforms import affine, rotate, translate
+from gputools.transforms import affine, rotate, shift
 
