@@ -9,9 +9,8 @@ logger = logging.getLogger(__name__)
 
 import os
 import numpy as np
+import warnings
 from gputools import OCLArray, OCLImage, OCLProgram, get_device
-from gputools import OCLElementwiseKernel
-
 from gputools.utils import mat4_rotate, mat4_translate
 from ._abspath import abspath
 
@@ -46,6 +45,7 @@ def affine(data, mat=np.identity(4), mode="constant", interpolation="linear"):
         transformed array (same shape as input)
         
     """
+    warnings.warn("gputools.transform.affine: API change as of gputools>= 0.2.8: the inverse of the matrix is now used as in scipy.ndimage.affine_transform")
 
     if not (isinstance(data, np.ndarray) and data.ndim == 3):
         raise ValueError("input data has to be a 3d array!")
@@ -138,6 +138,7 @@ def rotate(data, axis=(1., 0, 0), angle=0., center=None, mode="constant", interp
     data: ndarray
         3d array
     axis: tuple
+        axis to rotate by angle about
         axis = (x,y,z)
     angle: float
     center: tuple or None
