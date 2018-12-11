@@ -45,7 +45,7 @@ def gaussian_filter(data, sigma=4., truncate = 4., normalize=True, res_g=None):
         raise TypeError("unknown type (%s)" % (type(data)))
 
 
-def _gaussian_buf(d_g, sigma=(4., 4.), truncate = 4.0, res_g=None, normalize=True):
+def _gaussian_buf(d_g, sigma=(4., 4.),  res_g=None, normalize=True,truncate = 4.0):
 
     radius = tuple(int(truncate*s +0.5) for s in sigma)
 
@@ -71,7 +71,7 @@ def _gaussian_buf(d_g, sigma=(4., 4.), truncate = 4.0, res_g=None, normalize=Tru
         pass
 
 
-def _gaussian_np(data, sigma, truncate = 4.0, normalize=True):
+def _gaussian_np(data, sigma,  normalize=True, truncate = 4.0):
     d_g = OCLArray.from_array(data.astype(np.float32, copy=False))
 
     return _gaussian_buf(d_g, sigma, truncate = truncate, normalize=normalize).get()
