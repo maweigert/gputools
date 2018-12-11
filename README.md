@@ -23,7 +23,7 @@ FFT (pow2) | (128, 1024, 1024) complex64 | 13831 ms | 615 ms | 69 ms
 
 	[1] Xeon(R) CPU E5-2630 v4 using numpy/scipy functions
 	[2] NVidia Titan X using gputools
-	[3] as [2] but without host->device transfer
+	[3] as [2] but without CPU->GPU->CPU transfer
 	
 ### Requirements 
 
