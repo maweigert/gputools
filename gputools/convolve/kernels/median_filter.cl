@@ -25,7 +25,7 @@ __kernel void median_2(__global ${DTYPE} * input,
 	  bool inside = ((x2>=0)&&(x2<Nx)&&(y2>=0)&&(y2<Ny));
 		
 
-	  a[n+${FSIZE_X}*m] = inside?input[x2+y2*Nx]:${DTYPE}(${CVAL});
+	  a[n+${FSIZE_X}*m] = inside?input[x2+y2*Nx]:(${DTYPE})(${CVAL});
 
 
 	}
@@ -94,7 +94,7 @@ __kernel void median_3(__global ${DTYPE} * input,
 		
 	  bool inside = ((x2>=0)&&(x2<Nx)&&(y2>=0)&&(y2<Ny)&&(z2>=0)&&(z2<Nz));
 
-	  a[n+${FSIZE_X}*m+${FSIZE_X}*${FSIZE_Y}*p] = inside?input[x2+y2*Nx+z2*Nx*Ny]:${CVAL};
+	  a[n+${FSIZE_X}*m+${FSIZE_X}*${FSIZE_Y}*p] = inside?input[x2+y2*Nx+z2*Nx*Ny]:(${DTYPE})(${CVAL});
 	  }
 	}
   }
