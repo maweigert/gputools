@@ -16,6 +16,23 @@ from gputools.core.oclprogram import OCLProgram
 import pyopencl.clmath as cl_math
 import collections
 
+cl_image_datatype_dict = {cl.channel_type.FLOAT: np.float32,
+                          cl.channel_type.UNSIGNED_INT8: np.uint8,
+                          cl.channel_type.UNSIGNED_INT16: np.uint16,
+                          cl.channel_type.SIGNED_INT8: np.int8,
+                          cl.channel_type.SIGNED_INT16: np.int16,
+                          cl.channel_type.SIGNED_INT32: np.int32}
+
+cl_image_datatype_dict.update({dtype: cltype for cltype, dtype in list(cl_image_datatype_dict.items())})
+
+cl_buffer_datatype_dict = {
+    np.bool: "bool",
+    np.uint8: "uchar",
+    np.uint16: "short",
+    np.int32: "int",
+    np.float32: "float",
+}
+
 
 def abspath(myPath):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -29,10 +46,10 @@ def abspath(myPath):
         return os.path.join(base_path, myPath)
 
 
-def assert_bufs_type(mytype,*bufs):
+def assert_bufs_type(mytype, *bufs):
     if not all([b.dtype.type == mytype for b in bufs]):
-        raise TypeError("all data type of buffer(s) should be %s! but are %s"%
-                        (mytype,str([b.dtype.type for b in bufs])))
+        raise TypeError("all data type of buffer(s) should be %s! but are %s" %
+                        (mytype, str([b.dtype.type for b in bufs])))
 
 
 def _wrap_OCLArray(cls):
@@ -41,50 +58,49 @@ def _wrap_OCLArray(cls):
     """
 
     def prepare(arr):
-        return np.require(arr,None,"C")
+        return np.require(arr, None, "C")
 
     @classmethod
-    def from_array(cls,arr,*args, **kwargs):
+    def from_array(cls, arr, *args, **kwargs):
         queue = get_device().queue
-        return cl_array.to_device(queue, prepare(arr),*args, **kwargs)
+        return cl_array.to_device(queue, prepare(arr), *args, **kwargs)
 
     @classmethod
-    def empty(cls, shape, dtype = np.float32):
+    def empty(cls, shape, dtype=np.float32):
         queue = get_device().queue
-        return cl_array.empty(queue, shape,dtype)
+        return cl_array.empty(queue, shape, dtype)
 
     @classmethod
     def empty_like(cls, arr):
-        return cls.empty(arr.shape,arr.dtype)
+        return cls.empty(arr.shape, arr.dtype)
 
     @classmethod
-    def zeros(cls, shape, dtype = np.float32):
+    def zeros(cls, shape, dtype=np.float32):
         queue = get_device().queue
-        return cl_array.zeros(queue, shape,dtype)
+        return cl_array.zeros(queue, shape, dtype)
 
     @classmethod
     def zeros_like(cls, arr):
         queue = get_device().queue
         return cl_array.zeros_like(queue, arr)
 
-    def copy_buffer(self,buf, **kwargs):
+    def copy_buffer(self, buf, **kwargs):
         queue = get_device().queue
         return cl.enqueue_copy(queue, self.data, buf.data,
-                                      **kwargs)
+                               **kwargs)
 
-    def write_array(self,data, **kwargs):
+    def write_array(self, data, **kwargs):
         queue = get_device().queue
         return cl.enqueue_write_buffer(queue, self.data, prepare(data),
-                                      **kwargs)
-    
-    def copy_image(self,img, **kwargs):
+                                       **kwargs)
+
+    def copy_image(self, img, **kwargs):
         queue = get_device().queue
-        return cl.enqueue_copy(queue, self.data, img, offset = 0,
-                                     origin = (0,0),region = img.shape,
-                                      **kwargs)
+        return cl.enqueue_copy(queue, self.data, img, offset=0,
+                               origin=(0, 0), region=img.shape,
+                               **kwargs)
 
-
-    def copy_image_resampled(self,img, **kwargs):
+    def copy_image_resampled(self, img, **kwargs):
         # if not self.dtype == img.dtype:
         #     raise NotImplementedError("images have different dtype!")
 
@@ -96,21 +112,18 @@ def _wrap_OCLArray(cls):
         else:
             raise NotImplementedError("only resampling of float32 and complex64 arrays possible ")
 
-        kern_str = "img%dd_to_buf_%s"%(len(img.shape),type_str)
-
+        kern_str = "img%dd_to_buf_%s" % (len(img.shape), type_str)
 
         OCLArray._resample_prog.run_kernel(kern_str,
-                                       self.shape[::-1],None,
-                                       img,self.data)
+                                           self.shape[::-1], None,
+                                           img, self.data)
 
+    def wrap_module_func(mod, f):
+        def func(self, *args, **kwargs):
+            return getattr(mod, f)(self, *args, **kwargs)
 
-
-    def wrap_module_func(mod,f):
-        def func(self,*args,**kwargs):
-            return getattr(mod,f)(self,*args,**kwargs)
         return func
 
-    
     cls.from_array = from_array
     cls.empty = empty
     cls.empty_like = empty_like
@@ -124,29 +137,28 @@ def _wrap_OCLArray(cls):
 
     cls._resample_prog = OCLProgram(abspath("kernels/copy_resampled.cl"))
 
-    for f in ["sum","max","min","dot","vdot"]:
-        setattr(cls,f,wrap_module_func(cl_array,f))
+    for f in ["sum", "max", "min", "dot", "vdot"]:
+        setattr(cls, f, wrap_module_func(cl_array, f))
 
     for f in dir(cl_math):
-        if isinstance(getattr(cl_math,f), collections.Callable):
-            setattr(cls,f,wrap_module_func(cl_math,f))
+        if isinstance(getattr(cl_math, f), collections.Callable):
+            setattr(cls, f, wrap_module_func(cl_math, f))
 
-    
     # cls.sum = sum
     cls.__name__ = str("OCLArray")
     return cls
 
+
 def _wrap_OCLImage(cls):
     def prepare(arr):
-        return np.require(arr,None,"C")
-
+        return np.require(arr, None, "C")
 
     @classmethod
-    def from_array(cls,arr, *args, **kwargs):
+    def from_array(cls, arr, *args, **kwargs):
 
         ctx = get_device().context
-        if not arr.ndim in [2,3,4]:
-            raise ValueError("dimension of array wrong, should be 1...4 but is %s"%arr.ndim)
+        if not arr.ndim in [2, 3, 4]:
+            raise ValueError("dimension of array wrong, should be 1...4 but is %s" % arr.ndim)
         elif arr.ndim == 4:
             num_channels = arr.shape[-1]
         else:
@@ -154,12 +166,12 @@ def _wrap_OCLImage(cls):
 
         if arr.dtype.type == np.complex64:
             num_channels = 2
-            res =  OCLImage.empty(arr.shape,dtype = np.float32, num_channels=num_channels)
+            res = OCLImage.empty(arr.shape, dtype=np.float32, num_channels=num_channels)
             res.write_array(arr)
             res.dtype = np.float32
         else:
-            res =  cl.image_from_array(ctx, prepare(arr),num_channels = num_channels,
-                                             *args, **kwargs)
+            res = cl.image_from_array(ctx, prepare(arr), num_channels=num_channels,
+                                      *args, **kwargs)
 
             res.dtype = arr.dtype
 
@@ -175,30 +187,32 @@ def _wrap_OCLImage(cls):
     #     return res
     #
     @classmethod
-    def empty(cls,shape,dtype, num_channels = 1, channel_order = None):
+    def empty(cls, shape, dtype, num_channels=1, channel_order=None):
         ctx = get_device().context
-        if not len(shape) in [2,3]:
-            raise ValueError("dimension of shape wrong, should be 2...3 but is %s"%len(shape))
+        if not len(shape) in [2, 3]:
+            raise ValueError("number of dimension = %s not supported (can be 2 or 3)" % len(shape))
+        if not num_channels in [1, 2, 3, 4]:
+            raise ValueError("number of channels = %s not supported (can be 1,2, 3 or 4)" % num_channels)
+
         mem_flags = cl.mem_flags.READ_WRITE
         channel_type = cl.DTYPE_TO_CHANNEL_TYPE[np.dtype(dtype)]
 
-
-        _dict_channel_order = {1:cl.channel_order.R,
-                               2:cl.channel_order.RG,
-                               3:cl.channel_order.RGB,
-                               4:cl.channel_order.RGBA}
+        _dict_channel_order = {1: cl.channel_order.R,
+                               2: cl.channel_order.RG,
+                               3: cl.channel_order.RGB,
+                               4: cl.channel_order.RGBA}
 
         if channel_order is None:
             channel_order = _dict_channel_order[num_channels]
-            
+
         fmt = cl.ImageFormat(channel_order, channel_type)
-            
-        res =  cls(ctx, mem_flags, fmt, shape = shape[::-1])
+
+        res = cls(ctx, mem_flags, fmt, shape=shape[::-1])
         res.dtype = dtype
         res.num_channels = num_channels
         return res
 
-    #@classmethod
+    # @classmethod
     # def empty(cls,shape,dtype):
     #     ctx = get_device().context
     #     if not len(shape) in [1,2,3,4]:
@@ -214,48 +228,46 @@ def _wrap_OCLImage(cls):
 
     #     mem_flags = cl.mem_flags.READ_WRITE
     #     channel_type = cl.DTYPE_TO_CHANNEL_TYPE[dtype]
-            
+
     #     fmt = cl.ImageFormat(channel_order, channel_type)
-            
+
     #     res =  cl.Image(ctx, mem_flags,fmt, shape = shape[::-1])            
     #     res.dtype = dtype
     #     return res
-       
+
     @classmethod
-    def empty_like(cls,arr):
-        return cls.empty(arr.shape,arr.dtype)
-        
-       
-    def copy_buffer(self,buf, **kwargs):
+    def empty_like(cls, arr):
+        return cls.empty(arr.shape, arr.dtype)
+
+    def copy_buffer(self, buf, **kwargs):
         queue = get_device().queue
         self.dtype = buf.dtype
         return cl.enqueue_copy(queue, self, buf.data, offset=0,
-                                     origin = (0,0),region = self.shape,  **kwargs)
+                               origin=(0, 0), region=self.shape, **kwargs)
 
-    def copy_image(self,img, **kwargs):
+    def copy_image(self, img, **kwargs):
         queue = get_device().queue
-        return cl.enqueue_copy(queue, self, img, 
-                                     src_origin = (0,0),
-                                     dest_origin = (0,0),
-                                     region = self.shape,
-                                      **kwargs)
+        return cl.enqueue_copy(queue, self, img,
+                               src_origin=(0, 0),
+                               dest_origin=(0, 0),
+                               region=self.shape,
+                               **kwargs)
 
-    def copy_image_resampled(self,img, **kwargs):
+    def copy_image_resampled(self, img, **kwargs):
         if not self.dtype == img.dtype:
             raise NotImplementedError("images have different dtype!")
 
-        kern_str = "img%dd_to_img"%len(img.shape)
-
+        kern_str = "img%dd_to_img" % len(img.shape)
 
         OCLArray._resample_prog.run_kernel(kern_str,
-                                       self.shape,None,
-                                       img,self)
+                                           self.shape, None,
+                                           img, self)
 
     def write_array(self, data):
-        queue = get_device().queue        
+        queue = get_device().queue
 
         # 1d images dont have a shape but only a width
-        if hasattr(self,"shape"):
+        if hasattr(self, "shape"):
             imshape = self.shape
         else:
             imshape = (self.width,)
@@ -267,24 +279,23 @@ def _wrap_OCLImage(cls):
         #     dshape = dshape[:-1]
 
         if dshape != imshape[::-1]:
-            raise ValueError("write_array: wrong shape!",data.shape[::-1],imshape)
+            raise ValueError("write_array: wrong shape!", data.shape[::-1], imshape)
         else:
-            #cl.enqueue_write_image(queue,self,[0]*ndim,imshape,data)
-            #FIXME data.copy() is a work around
-            cl.enqueue_copy(queue,self,data.copy(),
-                                  origin = (0,)*ndim,
-                                  region = imshape)
+            # cl.enqueue_write_image(queue,self,[0]*ndim,imshape,data)
+            # FIXME data.copy() is a work around
+            cl.enqueue_copy(queue, self, data.copy(),
+                            origin=(0,) * ndim,
+                            region=imshape)
             # cl.enqueue_fill_image(queue,self,data,
             #                       origin = (0,)*ndim,
             #                       region = imshape)
 
-
-    def copy_buffer(self,buf):
+    def copy_buffer(self, buf):
         """
         copy content of buf into im
         """
         queue = get_device().queue
-        if hasattr(self,"shape"):
+        if hasattr(self, "shape"):
             imshape = self.shape
         else:
             imshape = (self.width,)
@@ -292,32 +303,29 @@ def _wrap_OCLImage(cls):
         assert imshape == buf.shape[::-1]
         ndim = len(imshape)
 
-        cl.enqueue_copy(queue,self,buf.data,
-                            offset = 0,
-                            origin = (0,)*ndim,
-                            region = imshape)
-
-
+        cl.enqueue_copy(queue, self, buf.data,
+                        offset=0,
+                        origin=(0,) * ndim,
+                        region=imshape)
 
     def get(self, **kwargs):
         queue = get_device().queue
-        if hasattr(self,"shape"):
+        if hasattr(self, "shape"):
             imshape = self.shape
         else:
             imshape = (self.width,)
 
-
         dshape = imshape[::-1]
         ndim = len(imshape)
-        if self.num_channels>1:
+        if self.num_channels > 1:
             dshape += (self.num_channels,)
-            #dshape = (self.num_channels,) + dshape
-        out = np.empty(dshape,dtype=self.dtype)
-        cl.enqueue_read_image(queue,self,[0]*ndim,imshape,out)
+            # dshape = (self.num_channels,) + dshape
+        out = np.empty(dshape, dtype=self.dtype)
+        cl.enqueue_read_image(queue, self, [0] * ndim, imshape, out)
 
         return out
-        #return out.reshape(dshape)
-    
+        # return out.reshape(dshape)
+
     cls.from_array = from_array
     cls.empty = empty
     cls.empty_like = empty_like
@@ -340,7 +348,7 @@ OCLImage = _wrap_OCLImage(cl.Image)
 
 
 def test_types():
-    d = np.random.uniform(0,1,(40,50,60)).astype(np.float32)
+    d = np.random.uniform(0, 1, (40, 50, 60)).astype(np.float32)
 
     b0 = OCLArray.from_array(d)
 
@@ -358,17 +366,15 @@ def test_types():
     im1.copy_buffer(b0)
     im2.copy_image(im0)
 
-    for x in [b0,b1,b2,im0,im1,im2]:
-        if hasattr(x,"sum"):
-            print("sum: %s" %x.sum())
-        assert np.allclose(d,x.get())
+    for x in [b0, b1, b2, im0, im1, im2]:
+        if hasattr(x, "sum"):
+            print("sum: %s" % x.sum())
+        assert np.allclose(d, x.get())
 
-        
+
 if __name__ == '__main__':
-
     test_types()
 
-
-    d = np.linspace(0,1,100).astype(np.float32)
+    d = np.linspace(0, 1, 100).astype(np.float32)
 
     b = OCLArray.from_array(d)

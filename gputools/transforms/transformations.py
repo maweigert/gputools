@@ -9,23 +9,23 @@ logger = logging.getLogger(__name__)
 
 import os
 import numpy as np
+import warnings
 from gputools import OCLArray, OCLImage, OCLProgram, get_device
-from gputools import OCLElementwiseKernel
-
 from gputools.utils import mat4_rotate, mat4_translate
 from ._abspath import abspath
 
 
 def affine(data, mat=np.identity(4), mode="constant", interpolation="linear"):
     """
-    affine transform data with matrix mat
-    
+    affine transform data with matrix mat, which is the inverse coordinate transform matrix  
+    (similar to ndimage.affine_transform)
+     
     Parameters
     ----------
     data, ndarray
         3d array to be transformed
     mat, ndarray 
-        4x4 affine matrix 
+        3x3 or 4x4 inverse coordinate transform matrix 
     mode: string 
         boundary mode, one of the following:
         'constant'
@@ -45,6 +45,7 @@ def affine(data, mat=np.identity(4), mode="constant", interpolation="linear"):
         transformed array (same shape as input)
         
     """
+    warnings.warn("gputools.transform.affine: API change as of gputools>= 0.2.8: the inverse of the matrix is now used as in scipy.ndimage.affine_transform")
 
     if not (isinstance(data, np.ndarray) and data.ndim == 3):
         raise ValueError("input data has to be a 3d array!")
@@ -64,9 +65,18 @@ def affine(data, mat=np.identity(4), mode="constant", interpolation="linear"):
     if not mode in mode_defines:
         raise KeyError("mode = '%s' not defined ,valid: %s" % (mode, list(mode_defines.keys())))
 
+    # reorder matrix, such that x,y,z -> z,y,x (as the kernel is assuming that)
+
+    # inverse of the Matrix
+    # mat_inv = np.linalg.inv(mat)
+
+
+    # # reorder matrix, such that x,y,z -> x,y,z (as the kernel is assuming that)
+    # mat_inv_order_xyz = mat_inv[[2, 1, 0, 3]]
+
     d_im = OCLImage.from_array(data.astype(np.float32, copy = False))
     res_g = OCLArray.empty(data.shape, np.float32)
-    mat_g = OCLArray.from_array(np.linalg.inv(mat).astype(np.float32, copy=False))
+    mat_inv_g = OCLArray.from_array(mat.astype(np.float32, copy=False))
 
     prog = OCLProgram(abspath("kernels/transformations.cl")
                       , build_options=interpolation_defines[interpolation] +
@@ -74,12 +84,12 @@ def affine(data, mat=np.identity(4), mode="constant", interpolation="linear"):
 
     prog.run_kernel("affine",
                     data.shape[::-1], None,
-                    d_im, res_g.data, mat_g.data)
+                    d_im, res_g.data, mat_inv_g.data)
 
     return res_g.get()
 
 
-def translate(data, shift=(0, 0, 0), mode="constant", interpolation="linear"):
+def shift(data, shift=(0, 0, 0), mode="constant", interpolation="linear"):
     """
     translates 3d data by given amount
   
@@ -88,8 +98,9 @@ def translate(data, shift=(0, 0, 0), mode="constant", interpolation="linear"):
     ----------
     data: ndarray
         3d array
-    shift: tuple, ndarray
-        the shift in pixels (dx,dy,dz)
+    shift : float or sequence
+        The shift along the axes. If a float, `shift` is the same for each axis. 
+        If a sequence, `shift` should contain one value for each axis.    
     mode: string 
         boundary mode, one of the following:      
         'constant'
@@ -108,9 +119,13 @@ def translate(data, shift=(0, 0, 0), mode="constant", interpolation="linear"):
     res: ndarray
         shifted array (same shape as input)
     """
+    if np.isscalar(shift):
+        shift = (shift,)*3
+
     if len(shift) != 3:
         raise ValueError("shift (%s) should be of length 3!")
 
+    shift = -np.array(shift)
     return affine(data, mat4_translate(*shift), mode=mode, interpolation=interpolation)
 
 
@@ -123,6 +138,7 @@ def rotate(data, axis=(1., 0, 0), angle=0., center=None, mode="constant", interp
     data: ndarray
         3d array
     axis: tuple
+        axis to rotate by angle about
         axis = (x,y,z)
     angle: float
     center: tuple or None
@@ -151,10 +167,11 @@ def rotate(data, axis=(1., 0, 0), angle=0., center=None, mode="constant", interp
     if center is None:
         center = tuple([s // 2 for s in data.shape])
 
-    cz, cy, cx = center
+    cx, cy, cz = center
     m = np.dot(mat4_translate(cx, cy, cz),
                np.dot(mat4_rotate(angle, *axis),
                       mat4_translate(-cx, -cy, -cz)))
+    m = np.linalg.inv(m)
     return affine(data, m, mode=mode, interpolation=interpolation)
 
 

@@ -5,14 +5,14 @@ from itertools import product, combinations_with_replacement
 import scipy.ndimage.filters as spf
 import gputools
 
-from gputools.convolve.filters import  max_filter, min_filter, uniform_filter
+from gputools.convolve import  max_filter, min_filter, uniform_filter
 
 
 np.random.seed(0)
 
 
-def _test_single(filt1, filt2, dshape, size , cval = 0., skip_assert = False):
-    d = np.random.uniform(-1, 1., dshape).astype(np.float32)
+def _test_single(filt1, filt2, dshape, size , cval = 0., dtype = np.float32, skip_assert = False):
+    d = np.random.uniform(-1, 1., dshape).astype(dtype)
 
     out1 = filt1(d, size)
     out2 = filt2(d, size, mode = "constant", cval = cval)
@@ -24,9 +24,10 @@ def _test_single(filt1, filt2, dshape, size , cval = 0., skip_assert = False):
 
 def _test_some(filt1, filt2, cval = 0.):
     for ndim in [2,3]:
-        for dshape in combinations_with_replacement([40,50,60],ndim):
+        for dshape in combinations_with_replacement([32,44,53],ndim):
             for size in [3,7,13]:
-                _test_single(filt1, filt2, dshape,size, cval = cval)
+                for dtype in (np.uint8, np.uint16, np.float32):
+                    _test_single(filt1, filt2, dshape,size, cval = cval, dtype = dtype)
 
 def test_all():
     print("~"*40, " maximum filter")

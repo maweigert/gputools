@@ -45,7 +45,7 @@ def convolve_sep2(data, hx, hy, res_g=None, sub_blocks=None):
             raise NotImplementedError()
         return _convolve_sep2_gpu(data, hx, hy, res_g=res_g)
     else:
-        raise TypeError("array argument (1) has bad type: %s" % type(arr_obj))
+        raise TypeError("array argument (1) has bad type: %s" % type(data))
 
 
 def _convolve_sep2_numpy(data, hx, hy):
@@ -75,7 +75,7 @@ def _convolve_sep2_gpu(data_g, hx_g, hy_g, res_g=None):
     return res_g
 
 
-def convolve_sep3(data, hx, hy, hz, res_g=None, sub_blocks=(1, 1, 1)):
+def convolve_sep3(data, hx, hy, hz, res_g=None, sub_blocks=(1, 1, 1), tmp_g = None):
     """convolves 3d data with kernel h = outer(hx,hy, hz)
     boundary conditions are clamping to edge.
 
@@ -103,7 +103,7 @@ def convolve_sep3(data, hx, hy, hz, res_g=None, sub_blocks=(1, 1, 1)):
 
 
     elif isinstance(data, OCLArray):
-        return _convolve_sep3_gpu(data, hx, hy, hz, res_g=res_g)
+        return _convolve_sep3_gpu(data, hx, hy, hz, res_g=res_g, tmp_g = tmp_g)
     else:
         raise TypeError("array argument (1) has bad type: %s" % type(data))
 
@@ -118,14 +118,15 @@ def _convolve_sep3_numpy(data, hx, hy, hz):
     return _convolve_sep3_gpu(data_g, hx_g, hy_g, hz_g).get()
 
 
-def _convolve_sep3_gpu(data_g, hx_g, hy_g, hz_g, res_g=None, dev=None):
+def _convolve_sep3_gpu(data_g, hx_g, hy_g, hz_g, res_g=None, tmp_g = None):
     assert_bufs_type(np.float32, data_g, hx_g, hy_g)
 
     prog = OCLProgram(abspath("kernels/convolve_sep.cl"))
 
     Nz, Ny, Nx = hz_g.shape[0], hy_g.shape[0], hx_g.shape[0]
 
-    tmp_g = OCLArray.empty_like(data_g)
+    if tmp_g is None:
+        tmp_g = OCLArray.empty_like(data_g)
 
     if res_g is None:
         res_g = OCLArray.empty_like(data_g)

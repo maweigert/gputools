@@ -1,6 +1,5 @@
+#pragma OPENCL EXTENSION cl_khr_3d_image_writes : enable
 
- #pragma OPENCL EXTENSION cl_khr_3d_image_writes : enable
- 
 __kernel void div_step(__read_only image3d_t input,__read_only image3d_t pDeriv,__write_only image3d_t output){
 
   

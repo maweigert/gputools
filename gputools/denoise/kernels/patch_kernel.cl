@@ -1,3 +1,5 @@
+#pragma OPENCL EXTENSION cl_khr_3d_image_writes : enable
+
 __kernel void project4(__read_only image2d_t input, __write_only image2d_t output, const int Nx, const int Ny, const int FSIZE)
 {
   const sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE |	CLK_ADDRESS_CLAMP_TO_EDGE |	CLK_FILTER_NEAREST ;
