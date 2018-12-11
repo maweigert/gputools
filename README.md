@@ -44,7 +44,7 @@ Most of the methods work on both numpy arrays or GPU memory objects (gputools.OC
 
 import gputools
 
-d = np.zeros((128,128))
+d = np.zeros((128,128), np.float32)
 d[64,64] = 1.
 h = np.ones((17,17))
 res = gputools.convolve(d,h)
@@ -52,7 +52,7 @@ res = gputools.convolve(d,h)
 ```
 
 ```python
-d = np.zeros((128,128,128))
+d = np.zeros((128,128,128), np.float32)
 d[64,64,64] = 1.
 hx,hy,hz = np.ones(7),np.ones(9),np.ones(11)
 res = gputools.convolve_sep3(d,hx,hy,hz)
@@ -65,7 +65,7 @@ bilateral filter, non local means
 
 ```python
 ...
-d = np.zeros((128,128,128))
+d = np.zeros((128,128,128, np.float32))
 d[50:78,50:78,50:78:2] = 4.
 d = d+np.random.normal(0,1,d.shape)
 res_nlm = gputools.denoise.nlm3(d,2.,2,3)
@@ -88,8 +88,8 @@ scaling, translate, rotate, affine...
 
 ```python
 gputools.transforms.scale(d,.2)
-gputools.transforms.rotate(d,(64,64,64),(1,0,0),pi/4)
-gputools.transforms.translate(d,10,20,30)
+gputools.transforms.rotate(d,axis = (64,64,64),angle = .3)
+gputools.transforms.shift(d,(10,20,30))
 ...
 ```
 
