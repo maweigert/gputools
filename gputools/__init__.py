@@ -15,6 +15,9 @@ from gputools.utils.tile_iterator import tile_iterator
 
 from gputools.core.ocltypes import OCLArray, OCLImage
 from gputools.core.oclprogram import OCLProgram
+from gputools.core.oclalgos import OCLReductionKernel, OCLElementwiseKernel
+from gputools.core.oclmultireduction import OCLMultiReductionKernel
+
 
 from gputools.fft.oclfft_convolve import fft_convolve
 from gputools.fft.oclfft import fft, fft_plan
@@ -27,8 +30,6 @@ from gputools.convolve.convolve import convolve
 from gputools.convolve.blur import blur
 from gputools.convolve import convolve_spatial2, convolve_spatial3
 
-from gputools.core.oclalgos import OCLReductionKernel, OCLElementwiseKernel
-from gputools.core.oclmultireduction import OCLMultiReductionKernel
 
 
 from gputools.noise import perlin2, perlin3
