@@ -10,6 +10,18 @@ This package aims to provide GPU accelerated implementations of common volume pr
 
 For that, gputools mostly uses the excellent [pyopencl](https://documen.tician.de/pyopencl/) bindings.
 
+Task | Image Size | CPU[1] | GPU[2] | GPU (w/o transfer)[3]
+----|----| ----| ---- | ----
+Median filter 3x3x3| (128, 1024, 1024)| 59147 ms | 333 ms | 252 ms
+Gaussian filter 5x5x5| (128, 1024, 1024)| 9341 ms | 415 ms | 108 ms
+Zoom/Scale 2x2x2| (128, 1024, 1024)| 62586 ms | 1722 ms | -
+NLM denoising| (64, 256, 256)| 52486 ms | 739 ms | -
+FFT| (128, 1024, 1024)| 21050 ms | 1547 ms | 69 ms
+
+	[1] Xeon(R) CPU E5-2630 v4 using numpy/scipy functions
+	[2] NVidia Titan X using gputools
+	[3] as [2] but without host->device transfer
+	
 ### Requirements 
 
 - python 2.7 / 3.5+
