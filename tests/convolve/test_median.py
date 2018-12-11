@@ -2,7 +2,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import numpy as np
 import numpy.testing as npt
 import scipy.ndimage.filters as spf
-from itertools import product, combinations
+from itertools import combinations, combinations_with_replacement
 from gputools.convolve import  median_filter
 
 
@@ -21,7 +21,7 @@ def _test_single(dshape, size , cval = 0., dtype = np.float32, skip_assert = Fal
 def test_all():
     for ndim in [2,3]:
         for dshape in combinations([19,31,43],ndim):
-            for size in [3,5,7]:
+            for size in combinations_with_replacement([3, 7], ndim):
                 for cval in (0,55):
                     for dtype in (np.uint8, np.uint16, np.float32):
                         _test_single(dshape,size, cval = cval, dtype = dtype)

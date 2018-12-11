@@ -1,6 +1,8 @@
 
 
-from .blur import blur
+from .gaussian_filter import gaussian_filter
+from .gaussian_filter import gaussian_filter as blur
+
 
 from .convolve_sep import convolve_sep2, convolve_sep3, convolve_sep_approx
 from .convolve import convolve
