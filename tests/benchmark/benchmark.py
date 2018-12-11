@@ -12,38 +12,46 @@ from gputools import OCLArray, get_device
 from time import time
 
 
-def bench(description, dshape, dtype, func1, func2, func3=None, niter=2):
+type_name_dict = {
+    np.uint8:"uint8",
+    np.uint16:"uint16",
+    np.float32:"float32",
+    np.complex64:"complex64",
+}
+    
+
+def bench(description, dshape, dtype, func_cpu, func_gpu, func_gpu_notransfer=None, niter=2):
     x = np.random.randint(0,100,dshape).astype(dtype)
 
-    func1(x)
+    func_cpu(x)
     t1 = time()
     for _ in range(niter):
-        y = func1(x);
-    t1 = (time()-t1)/niter
+        y = func_cpu(x);
+    t_cpu = (time()-t_cpu)/niter
 
-    func2(x)
-    t2 = time()
+    func_gpu(x)
+    t_gpu = time()
     for _ in range(niter):
-        y = func2(x);
-    t2 = (time() - t2)/niter
+        y = func_gpu(x);
+    t_gpu = (time() - t_gpu)/niter
 
-    if func3 is not None:
+    if func_gpu_notransfer is not None:
         x_g  = OCLArray.from_array(x)
         tmp_g  = OCLArray.empty_like(x)
-        func3(x_g, tmp_g);
+        func_gpu_notransfer(x_g, tmp_g);
         get_device().queue.finish()
-        t3 = time()
+        t_gpu_notransfer = time()
         for _ in range(niter):
-            func3(x_g, tmp_g);
+            func_gpu_notransfer(x_g, tmp_g);
         get_device().queue.finish()
-        t3 = (time() - t3)/niter
+        t_gpu_notransfer = (time() - t_gpu_notransfer)/niter
     else:
-        t3 = None
+        t_gpu_notransfer = None
     # print("%s\t\t %s\t%d ms \t %d ms"%(description,dshape, 1000*t1,1000*t2))
 
-    print("%s| %s| %d ms | %d ms | %s"%(description,dshape, 1000*t1,1000*t2, "%d ms"%(1000*t3) if func3 is not None else "-"))
+    print("%s| %s %s | %d ms | %d ms | %s"%(description,dshape, type_name_dict[dtype],1000*t_cpu,1000*t_gpu, "%d ms"%(1000*t_gpu_notransfer) if t_gpu_notransfer is not None else "-"))
     
-    return t1, t2
+    return t_cpu, t_gpu, t_gpu_notransfer
 
 
 
@@ -53,23 +61,29 @@ if __name__ == '__main__':
     cut = lambda s: tuple(_s//factor for _s in s)
 
     dshape = (128,1024,1024)
-    
-    # bench("Median filter 3x3x3",cut(dshape),np.uint8,
-    #       lambda x: spf.median_filter(x,size = 3),
-    #       lambda x: median_filter(x, size=3),
-    #       lambda x_g, res_g: median_filter(x_g, size=3, res_g = res_g)
-    #       )
 
-    # bench("Gaussian filter 5x5x5",cut(dshape),np.float32,
-    #       lambda x: spf.gaussian_filter(x, 5),
-    #       lambda x: gaussian_filter(x, 5),
-    #       lambda x_g, res_g: gaussian_filter(x_g, 5, res_g = res_g)
-    #       )
+    bench("Mean filter 7x7x7",cut(dshape),np.uint8,
+          lambda x: spf.uniform_filter(x, 7),
+          lambda x: uniform_filter(x, 7),
+          lambda x_g, res_g: uniform_filter(x_g, 7, res_g = res_g)
+          )
 
-    # bench("Zoom/Scale 2x2x2",cut(dshape),np.uint8,
-    #       lambda x: ndimage.zoom(x,(2,)*3, order=1, prefilter=False),
-    #       lambda x: scale(x, (2,)*3, interpolation="linear")
-    #       )
+    bench("Median filter 3x3x3",cut(dshape),np.uint8,
+          lambda x: spf.median_filter(x,size = 3),
+          lambda x: median_filter(x, size=3),
+          lambda x_g, res_g: median_filter(x_g, size=3, res_g = res_g)
+          )
+
+    bench("Gaussian filter 5x5x5",cut(dshape),np.float32,
+          lambda x: spf.gaussian_filter(x, 5),
+          lambda x: gaussian_filter(x, 5),
+          lambda x_g, res_g: gaussian_filter(x_g, 5, res_g = res_g)
+          )
+
+    bench("Zoom/Scale 2x2x2",cut(dshape),np.uint16,
+          lambda x: ndimage.zoom(x,(2,)*3, order=1, prefilter=False),
+          lambda x: scale(x, (2,)*3, interpolation="linear")
+          )
 
 
     bench("NLM denoising",cut((64,256,256,)),np.float32,
