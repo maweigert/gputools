@@ -189,39 +189,61 @@ def uniform_filter(data, size=7, res_g=None, sub_blocks=(1, 1, 1), normalized = 
         filtered image or None (if OCLArray)
     """
 
-
-
-    if data.ndim == 2:
-        _filt = make_filter(_generic_filter_gpu_2d(FUNC="res+val" , DEFAULT="0"))
-    elif data.ndim == 3:
-        _filt = make_filter(_generic_filter_gpu_3d(FUNC="res+val", DEFAULT="0"))
-
-    res =  _filt(data=data, size=size, res_g=res_g, sub_blocks=sub_blocks)
-
     if normalized:
         if np.isscalar(size):
-            normed = size**len(data.shape)
+            norm = size
         else:
-            normed = np.prod(size)
+            norm = np.int32(np.prod(size))**(1./len(size))
+        FUNC = "res+val/%s"%norm
+    else:
+        FUNC = "res+val"
 
-        if isinstance(res, OCLArray):
-            DTYPE = cl_buffer_datatype_dict[data.dtype.type]
-            _divide_inplace = OCLElementwiseKernel(
-                "{DTYPE} *a, float b".format(DTYPE= DTYPE),
-                "a[i] = ({DTYPE})a[i]/b".format(DTYPE= DTYPE),
-                "divide_inplace")
+    if data.ndim == 2:
+        _filt = make_filter(_generic_filter_gpu_2d(FUNC=FUNC, DEFAULT="0"))
+    elif data.ndim == 3:
+        _filt = make_filter(_generic_filter_gpu_3d(FUNC=FUNC, DEFAULT="0"))
 
-            _divide_inplace(res,np.float32(normed))
-        else:
-            res = (res/normed).astype(res.dtype)
-
+    res =  _filt(data=data, size=size, res_g=res_g, sub_blocks=sub_blocks)
 
     return res
 
 
 
 
-if __name__ == '__main__':
+# FIXME: only to compare aganst gputools.gaussian_flter (which uses convolve_sep)
+def _gauss_filter(data, sigma=4, res_g=None, sub_blocks=(1, 1, 1)):
+    """
+        gaussian filter of given size
 
-    x = np.random.uniform(-1,1,(100,100))
-    x_g = OCLArray.from_array(x.astype(np.float32))
+    Parameters
+    ----------
+    data: 2 or 3 dimensional ndarray or OCLArray of type float32
+        input data
+    size: scalar, tuple
+        the size of the patch to consider
+    res_g: OCLArray
+        store result in buffer if given
+    sub_blocks:
+        perform over subblock tiling (only if data is ndarray)
+
+    Returns
+    -------
+        filtered image or None (if OCLArray)
+    """
+    truncate = 4.
+    radius = tuple(int(truncate*s +0.5) for s in sigma)
+    size = tuple(2*r+1 for r in radius)
+
+    s = sigma[0]
+
+    if data.ndim == 2:
+        _filt = make_filter(_generic_filter_gpu_2d(FUNC="res+(val*native_exp((float)(-(ht-%s)*(ht-%s)/2/%s/%s)))"%(size[0]//2,size[0]//2,s,s), DEFAULT="0.f"))
+    elif data.ndim == 3:
+        _filt = make_filter(_generic_filter_gpu_3d(FUNC="res+(val*native_exp((float)(-(ht-%s)*(ht-%s)/2/%s/%s)))"%(size[0]//2,size[0]//2,s,s), DEFAULT="0.f"))
+
+    else:
+        raise ValueError("currently only 2 or 3 dimensional data is supported")
+    return _filt(data=data, size=size, res_g=res_g, sub_blocks=sub_blocks)
+
+
+

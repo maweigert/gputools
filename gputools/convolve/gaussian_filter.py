@@ -37,15 +37,15 @@ def gaussian_filter(data, sigma=4., truncate = 4., normalize=True, res_g=None):
         raise ValueError("sigma = %s : all sigmas have to be positive!" % str(sigma))
 
     if isinstance(data, OCLArray):
-        return _gaussian_buf(data, sigma, res_g, truncate = truncate, normalize=normalize)
+        return _gaussian_buf(data, sigma, res_g, normalize=normalize,truncate = truncate)
     elif isinstance(data, np.ndarray):
-        return _gaussian_np(data, sigma, truncate = truncate, normalize=normalize)
+        return _gaussian_np(data, sigma,  normalize=normalize,truncate = truncate)
 
     else:
         raise TypeError("unknown type (%s)" % (type(data)))
 
 
-def _gaussian_buf(d_g, sigma=(4., 4.), truncate = 4.0, res_g=None, normalize=True):
+def _gaussian_buf(d_g, sigma=(4., 4.), res_g=None, normalize=True,truncate = 4.0):
 
     radius = tuple(int(truncate*s +0.5) for s in sigma)
 
@@ -59,6 +59,7 @@ def _gaussian_buf(d_g, sigma=(4., 4.), truncate = 4.0, res_g=None, normalize=Tru
         hs = tuple(1. * h / np.sum(h) for h in hs)
 
     h_gs = tuple(OCLArray.from_array(h.astype(np.float32)) for h in hs)
+
 
     if len(d_g.shape) == 1:
         return convolve(d_g, *h_gs, res_g=res_g)
