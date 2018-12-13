@@ -33,12 +33,12 @@ FFT (pow2) | (128, 1024, 1024) complex64 | 13831 ms | 615 ms | 69 ms
 ### Installation
 
 ```
-pip3 install gputools
+pip install gputools
 ```
 check if basic stuff is working:
 
 ```
-python3 -m gputools
+python -m gputools
 ```
 
 
