@@ -5,7 +5,7 @@ This package aims to provide GPU accelerated implementations of common volume pr
 * convolutions 
 * denoising
 * synthetic noise
-* ffts (simple wrapper around [reikna])
+* ffts (simple wrapper around [reikna](https://github.com/fjarri/reikna))
 * affine transforms
 
 via OpenCL and the excellent [pyopencl](https://documen.tician.de/pyopencl/) bindings.
