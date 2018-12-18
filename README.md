@@ -10,7 +10,7 @@ This package aims to provide GPU accelerated implementations of common volume pr
 
 via OpenCL and the excellent [pyopencl](https://documen.tician.de/pyopencl/) bindings.
 
-Some examples of processing tasks and their respective runtime:
+Some examples of processing tasks and their respective runtime (`tests/benchmark/benchmark.py`):
 
 Task | Image Size/type | CPU[1] | GPU[2] | GPU (w/o transfer)[3]
 ----|----| ----| ---- | ----
