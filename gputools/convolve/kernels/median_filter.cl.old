@@ -1,0 +1,69 @@
+
+#define FETCH_SIZE_X (${LOCAL_X}+${FSIZE_X})
+#define FETCH_SIZE_Y (${LOCAL_Y}+${FSIZE_Y})
+
+//2D
+
+__kernel void median_2(__global float * input,
+						__global float * output){
+
+  int i = get_global_id(0);
+  int j = get_global_id(1);
+
+  int Nx = get_global_size(0);
+  int Ny = get_global_size(1);
+
+  int iloc = get_local_id(0);
+  int jloc = get_local_id(1);
+
+  int Nxloc = get_local_size(0);
+  int Nyloc = get_local_size(1);
+
+
+  __local float localArray[FETCH_SIZE_Y*FETCH_SIZE_X];
+
+  // prefetch values into local memory
+
+  if ((iloc==0)&&(jloc==0)){
+	
+	for (int m = 0; m < FETCH_SIZE_Y; ++m) {
+	  for (int n = 0; n < FETCH_SIZE_X; ++n) {
+		
+		int i2 = i+n-${FSIZE_X}/2;
+		int j2 = j+m-${FSIZE_Y}/2;
+		
+		bool inside = ((i2>=0)&&(i2<Nx)&&(j2>=0)&&(j2<Ny));
+
+		localArray[n+FETCH_SIZE_X*m] = inside?input[i2+j2*Nx]:0;
+	  }
+	  
+  	}
+  }
+
+  barrier(CLK_LOCAL_MEM_FENCE);
+
+  // now find median
+
+  float res = 0;
+  // int start = i-${FSIZE_X}/2;
+
+
+  // const int hx_start = max(0,${FSIZE_X}/2-i);
+  // const int hx_end = min(${FSIZE_X},Nx-i+${FSIZE_X}/2);
+  // const int hy_start = max(0,${FSIZE_Y}/2-j);
+  // const int hy_end = min(${FSIZE_Y},Ny-j+${FSIZE_Y}/2);
+
+  // for (int ht = h_start; ht< h_end; ++ht){
+  //     float val = input[start+ht+j*Nx];
+  // 	  }
+
+  output[i+j*Nx] = localArray[iloc+${FSIZE_X}/2+(jloc+${FSIZE_Y}/2)*FETCH_SIZE_X];
+}
+
+
+// __kernel void foo(__global float * inp){
+//   ${FSIZE_Z};
+//   ${FSIZE_X};
+//   ${FSIZE_Y};
+
+// }
