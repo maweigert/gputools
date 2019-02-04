@@ -27,7 +27,7 @@ def check_error(func):
             x = create_shape(shape)
             out1, out2 = func(x)
             if check:
-                np.testing.assert_allclose(out1, out2, atol=1e-3, rtol = 1.e-3)
+                np.testing.assert_allclose(out1, out2, atol=1e-2, rtol = 1.e-2)
         return x, out1, out2
     return test_func
 

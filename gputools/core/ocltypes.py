@@ -91,13 +91,13 @@ def _wrap_OCLArray(cls):
 
     def write_array(self, data, **kwargs):
         queue = get_device().queue
-        return cl.enqueue_write_buffer(queue, self.data, prepare(data),
+        return cl.enqueue_copy(queue, self.data, prepare(data),
                                        **kwargs)
 
     def copy_image(self, img, **kwargs):
         queue = get_device().queue
         return cl.enqueue_copy(queue, self.data, img, offset=0,
-                               origin=(0, 0), region=img.shape,
+                               origin=(0,)*len(img.shape), region=img.shape,
                                **kwargs)
 
     def copy_image_resampled(self, img, **kwargs):
@@ -152,6 +152,16 @@ def _wrap_OCLArray(cls):
 def _wrap_OCLImage(cls):
     def prepare(arr):
         return np.require(arr, None, "C")
+
+
+    def imshape(self):
+        # 1d images dont have a shape but only a width
+        if hasattr(self, "shape"):
+            imshape = self.shape
+        else:
+            imshape = (self.width,)
+        return imshape
+
 
     @classmethod
     def from_array(cls, arr, *args, **kwargs):
@@ -243,13 +253,13 @@ def _wrap_OCLImage(cls):
         queue = get_device().queue
         self.dtype = buf.dtype
         return cl.enqueue_copy(queue, self, buf.data, offset=0,
-                               origin=(0, 0), region=self.shape, **kwargs)
+                               origin=(0,)*len(self.imshape()), region=self.imshape(), **kwargs)
 
     def copy_image(self, img, **kwargs):
         queue = get_device().queue
         return cl.enqueue_copy(queue, self, img,
-                               src_origin=(0, 0),
-                               dest_origin=(0, 0),
+                               src_origin=(0,)*len(self.imshape()),
+                               dest_origin=(0,)*len(self.imshape()),
                                region=self.shape,
                                **kwargs)
 
@@ -260,18 +270,13 @@ def _wrap_OCLImage(cls):
         kern_str = "img%dd_to_img" % len(img.shape)
 
         OCLArray._resample_prog.run_kernel(kern_str,
-                                           self.shape, None,
+                                           self.imshape(), None,
                                            img, self)
 
     def write_array(self, data):
         queue = get_device().queue
 
-        # 1d images dont have a shape but only a width
-        if hasattr(self, "shape"):
-            imshape = self.shape
-        else:
-            imshape = (self.width,)
-
+        imshape = self.imshape()
         ndim = len(imshape)
         dshape = data.shape
         # if clImg.format.channel_order in [cl.channel_order.RGBA,
@@ -290,15 +295,13 @@ def _wrap_OCLImage(cls):
             #                       origin = (0,)*ndim,
             #                       region = imshape)
 
+
     def copy_buffer(self, buf):
         """
         copy content of buf into im
         """
         queue = get_device().queue
-        if hasattr(self, "shape"):
-            imshape = self.shape
-        else:
-            imshape = (self.width,)
+        imshape = self.imshape()
 
         assert imshape == buf.shape[::-1]
         ndim = len(imshape)
@@ -310,18 +313,16 @@ def _wrap_OCLImage(cls):
 
     def get(self, **kwargs):
         queue = get_device().queue
-        if hasattr(self, "shape"):
-            imshape = self.shape
-        else:
-            imshape = (self.width,)
 
+        imshape = self.imshape()
         dshape = imshape[::-1]
         ndim = len(imshape)
         if self.num_channels > 1:
             dshape += (self.num_channels,)
             # dshape = (self.num_channels,) + dshape
         out = np.empty(dshape, dtype=self.dtype)
-        cl.enqueue_read_image(queue, self, [0] * ndim, imshape, out)
+        #cl.enqueue_read_image(queue, self, [0] * ndim, imshape, out)
+        cl.enqueue_copy(queue, out, self, origin  = (0,)*ndim, region = imshape)
 
         return out
         # return out.reshape(dshape)
@@ -329,6 +330,7 @@ def _wrap_OCLImage(cls):
     cls.from_array = from_array
     cls.empty = empty
     cls.empty_like = empty_like
+    cls.imshape = imshape
 
     cls.copy_buffer = copy_buffer
     cls.copy_image = copy_image

@@ -40,5 +40,5 @@ from gputools import transforms
 from gputools import noise
 
 from gputools.transforms import scale
-from gputools.transforms import affine, rotate, shift
+from gputools.transforms import affine, rotate, shift, map_coordinates, geometric_transform
 
