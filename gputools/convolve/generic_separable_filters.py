@@ -54,7 +54,9 @@ def _generic_filter_gpu_3d(FUNC = "fmax(res,val)", DEFAULT = "-INFINITY"):
         rendered = tpl.render(FSIZE_X=size[-1], FSIZE_Y=size[-2], FSIZE_Z=size[-3],
                               FUNC=FUNC, DEFAULT=DEFAULT, DTYPE = DTYPE)
 
-        prog = OCLProgram(src_str=rendered)
+        prog = OCLProgram(src_str=rendered,
+                          build_options = ["-cl-unsafe-math-optimizations"]
+        )                       
 
         tmp_g = OCLArray.empty_like(data_g)
 
