@@ -25,7 +25,7 @@ setup(name='gputools',
       keywords='science image-processing ',
 
       install_requires=["numpy>=1.11.0",
-                        "pyopencl>=2016.1,<=2018.1",  # as enqueue_write_buffer is not supported later
+                        "pyopencl>=2016.1",  # as enqueue_write_buffer is not supported later
                         "configparser",
                         "reikna>=0.6.7"],
 
