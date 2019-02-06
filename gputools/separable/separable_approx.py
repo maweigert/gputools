@@ -139,7 +139,7 @@ def separable_approx(h, N=1):
 
     Returns
     -------
-        res[i], the i-th approximation
+        all N apprxoimations res[i], the i-th approximation
 
     """
     if h.ndim == 2:

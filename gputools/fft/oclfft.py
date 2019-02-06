@@ -92,6 +92,9 @@ def fft(arr_obj, res_g=None,
             _ocl_fft_gpu_inplace(plan, arr_obj, inverse=inverse,
                                  )
         else:
+            #FIXME
+            raise NotImplementedError("currently only inplace fft is supported (FIXME)")
+
             return _ocl_fft_gpu(plan, arr_obj,
                                 res_arr=res_g,
                                 inverse=inverse,

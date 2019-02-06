@@ -1,3 +1,5 @@
+#pragma OPENCL EXTENSION cl_khr_3d_image_writes : enable
+
 __kernel void mean_var_2d_float(__read_only image2d_t input,const int xStride,const int Nx,const int Ny,
 								__global float * output_mean,__global float *  output_var){
 

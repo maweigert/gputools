@@ -2,8 +2,8 @@
 
 //2D
 
-__kernel void filter_2_x(__global float * input,
-						__global float * output){
+__kernel void filter_2_x(__global ${DTYPE} * input,
+						__global ${DTYPE} * output){
 
   int i = get_global_id(0);
   int j = get_global_id(1);
@@ -11,7 +11,7 @@ __kernel void filter_2_x(__global float * input,
   int Nx = get_global_size(0);
 
 
-  float res = ${DEFAULT};
+  ${DTYPE} res = ${DEFAULT};
   int start = i-${FSIZE_X}/2;
 
 
@@ -19,15 +19,15 @@ __kernel void filter_2_x(__global float * input,
   const int h_end = min(${FSIZE_X},Nx-i+${FSIZE_X}/2);
 
   for (int ht = h_start; ht< h_end; ++ht){
-      float val = input[start+ht+j*Nx];
+      ${DTYPE} val = input[start+ht+j*Nx];
 	  res = ${FUNC};
 	  }
 
   output[i+j*Nx] = res;
 }
 
-__kernel void filter_2_y(__global float * input,
-						__global float * output){
+__kernel void filter_2_y(__global ${DTYPE} * input,
+						__global ${DTYPE} * output){
 
   int i = get_global_id(0);
   int j = get_global_id(1);
@@ -35,7 +35,7 @@ __kernel void filter_2_y(__global float * input,
   int Nx = get_global_size(0);
   int Ny = get_global_size(1);
 
-  float res = ${DEFAULT};
+  ${DTYPE} res = ${DEFAULT};
 
   int start = j-${FSIZE_Y}/2;
 
@@ -43,7 +43,7 @@ __kernel void filter_2_y(__global float * input,
   const int h_end = min(${FSIZE_Y},Ny-j+${FSIZE_Y}/2);
 
   for (int ht = h_start; ht< h_end; ++ht){
-    float val = input[i+(start+ht)*Nx];
+    ${DTYPE} val = input[i+(start+ht)*Nx];
 	res = ${FUNC};
 	}
 
@@ -52,8 +52,8 @@ __kernel void filter_2_y(__global float * input,
 
 //3D
 
-__kernel void filter_3_x(__global float * input,
-				    __global float * output){
+__kernel void filter_3_x(__global ${DTYPE} * input,
+				    __global ${DTYPE} * output){
 
 					 int i = get_global_id(0);
   int j = get_global_id(1);
@@ -62,7 +62,7 @@ __kernel void filter_3_x(__global float * input,
   int Nx = get_global_size(0);
   int Ny = get_global_size(1);
 
-  float res = ${DEFAULT};
+  ${DTYPE} res = ${DEFAULT};
 
   int start = i-${FSIZE_X}/2;
 
@@ -70,15 +70,15 @@ __kernel void filter_3_x(__global float * input,
   const int h_end = min(${FSIZE_X},Nx-i+${FSIZE_X}/2);
 
   for (int ht = h_start; ht< h_end; ++ht){
-    float val = input[start+ht+j*Nx+k*Nx*Ny];
+    ${DTYPE} val = input[start+ht+j*Nx+k*Nx*Ny];
     res = ${FUNC};
 	  }
 
   output[i+j*Nx+k*Nx*Ny] = res;
 }
 
-__kernel void filter_3_y(__global float * input,
-				    __global float * output){
+__kernel void filter_3_y(__global ${DTYPE} * input,
+				    __global ${DTYPE} * output){
 
   int i = get_global_id(0);
   int j = get_global_id(1);
@@ -89,7 +89,7 @@ __kernel void filter_3_y(__global float * input,
 
 
 
-  float res = ${DEFAULT};
+  ${DTYPE} res = ${DEFAULT};
 
   int start = j-${FSIZE_Y}/2;
 
@@ -97,7 +97,7 @@ __kernel void filter_3_y(__global float * input,
   const int h_end = min(${FSIZE_Y},Ny-j+${FSIZE_Y}/2);
 
   for (int ht = h_start; ht< h_end; ++ht){
-    float val = input[i+(start+ht)*Nx+k*Nx*Ny];
+    ${DTYPE} val = input[i+(start+ht)*Nx+k*Nx*Ny];
 	res = ${FUNC};
 	}
 
@@ -105,8 +105,8 @@ __kernel void filter_3_y(__global float * input,
   output[i+j*Nx+k*Nx*Ny] = res;
 }
 
-__kernel void filter_3_z(__global float * input,
-				    __global float * output){
+__kernel void filter_3_z(__global ${DTYPE} * input,
+				    __global ${DTYPE} * output){
 
   int i = get_global_id(0);
   int j = get_global_id(1);
@@ -118,7 +118,7 @@ __kernel void filter_3_z(__global float * input,
 
 
 
-  float res = ${DEFAULT};
+  ${DTYPE} res = ${DEFAULT};
 
   int start = k-${FSIZE_Z}/2;
 
@@ -126,7 +126,7 @@ __kernel void filter_3_z(__global float * input,
   const int h_end = min(${FSIZE_Z},Nz-k+${FSIZE_Z}/2);
 
   for (int ht = h_start; ht< h_end; ++ht){
-    float val = input[i+j*Nx+(start+ht)*Nx*Ny];
+    ${DTYPE} val = input[i+j*Nx+(start+ht)*Nx*Ny];
 	res = ${FUNC};
 	}
 

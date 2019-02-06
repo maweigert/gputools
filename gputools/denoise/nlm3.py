@@ -94,16 +94,20 @@ def nlm3(data,sigma, size_filter = 2, size_search = 3):
                                     np.int32(dx),np.int32(dy),np.int32(dz),
                                     np.float32(sigma))
 
-    acc  = accBuf.get()
-    weights  = weightBuf.get()
-
-    return acc/weights
+    accBuf /= weightBuf
+    return accBuf.get()
 
 
 
 if __name__ == '__main__':
-    d = 10*np.linspace(0,1,31*32*33).reshape((31,32,33))
+    from time import time
+    
+    d = 10*np.linspace(0,1,128*129*130).reshape((128,129,130))
 
     d += np.random.normal(0,1,d.shape)
 
+    t = time()
     res = nlm3(d,100,2,3)
+    t = time() -t 
+
+    print("took %.2f ms"%(1000.*t))
