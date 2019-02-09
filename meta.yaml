@@ -3,16 +3,16 @@
 
 package:
   name: {{ name }}
-  {% if environ.get('BRANCH') == "master" %}
-  version: {{ setupdata.get('version') }}
-  {% else %}
+  {% if environ.get('BRANCH') == "develop" %}
   version: "{{ GIT_DESCRIBE_TAG }}_{{ GIT_BUILD_STR }}"
+  {% else %}
+  version: {{ setupdata.get('version') }}
   {% endif %}
 
 source:
-  path: .
-  # git_url: git://github.com/tlambert03/gputools
-  # git_rev: "{{ environ.get('BRANCH') }}"
+  # path: .
+  git_url: git://github.com/tlambert03/gputools
+  git_rev: "{{ environ.get('BRANCH') }}"
 
 build:
   number: 0
