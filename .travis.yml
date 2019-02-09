@@ -1,10 +1,9 @@
-# os: osx
-
 language: generic
-python:
-  - 3.6
-  - 3.5
-  - 2.7
+
+env:
+    matrix:
+        - python=2.7 CONDA_PY=27
+        - python=3.6 CONDA_PY=36
 
 branches:
   only:
@@ -18,11 +17,6 @@ branches:
 #       - libopenblas-dev
 #       - liblapack-dev
 
-before_install:
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update          ; fi
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew upgrade python; fi
-    - python --version
-
 install:
   - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
   - if [[ "$BRANCH" == "master" ]]; then
@@ -34,18 +28,11 @@ install:
 #  - sudo apt-get update
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
-  # - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-  #     wget https://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh -O miniconda.sh;
-  #   else
-  #     wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;
-  #   fi
-
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+      wget https://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh -O miniconda.sh;
     else
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+      wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;
     fi
-
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - export USER=talley
@@ -53,7 +40,7 @@ install:
 
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
-  - conda install conda-build anaconda-client=1.7.2
+  - conda install conda-build anaconda-client
   - conda update -q conda
   - conda config --add channels conda-forge
   - conda config --set show_channel_urls true
@@ -61,8 +48,8 @@ install:
   - conda info -a
 
 script:
-  - conda build --python=$TRAVIS_PYTHON_VERSION .
-  - OUTPUT=$(conda build --python=$TRAVIS_PYTHON_VERSION --output .)
+  - conda build --py=$CONDA_PY .
+  - OUTPUT=$(conda build --py=$CONDA_PY --output .)
   - echo $OUTPUT
 
 after_success:
