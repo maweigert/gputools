@@ -11,8 +11,8 @@ env:
   - BUILD_TARGET=2.7
 
 os:
-  - linux
-#  - osx
+  - osx
+#  - linux
 
 
 branches:
