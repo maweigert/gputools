@@ -1,9 +1,19 @@
-language: generic
+
+# Don't use language: python; this gives us an unnecessary virtualenv
+language: c
+# Seems to be needed to prevent hanging in Python 2.7
+# https://github.com/travis-ci/travis-ci/issues/6861
+sudo: required
 
 env:
-    matrix:
-        - python=2.7 CONDA_PY=27
-        - python=3.6 CONDA_PY=36
+  # Build and test package on all supported python version
+  - BUILD_TARGET=3.6
+  - BUILD_TARGET=2.7
+
+os:
+  - linux
+#  - osx
+
 
 branches:
   only:
@@ -17,6 +27,11 @@ branches:
 #       - libopenblas-dev
 #       - liblapack-dev
 
+before_install:
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update          ; fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew upgrade python; fi
+    - python --version
+
 install:
   - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
   - if [[ "$BRANCH" == "master" ]]; then
@@ -28,28 +43,33 @@ install:
 #  - sudo apt-get update
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh -O miniconda.sh;
-    else
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;
-    fi
+  # - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+  #     wget https://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh -O miniconda.sh;
+  #   else
+  #     wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;
+  #   fi
+
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then MINICONDA_OS=Linux; else MINICONDA_OS=MacOSX; fi
+  - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-$MINICONDA_OS-x86_64.sh -O miniconda.sh
   - bash miniconda.sh -b -p $HOME/miniconda
+  - source "$HOME"/miniconda/etc/profile.d/conda.sh
+  - conda config --set always_yes yes --set changeps1 no --set auto_update_conda false
+  - hash -r
+  
   - export PATH="$HOME/miniconda/bin:$PATH"
   - export USER=talley
   - export CONDA_BLD_PATH=~/conda-bld
 
-  - hash -r
-  - conda config --set always_yes yes --set changeps1 no
   - conda install conda-build anaconda-client
-  - conda update -q conda
+#  - conda update -q conda
   - conda config --add channels conda-forge
   - conda config --set show_channel_urls true
   # Useful for debugging any issues with conda
   - conda info -a
 
 script:
-  - conda build --py=$CONDA_PY .
-  - OUTPUT=$(conda build --py=$CONDA_PY --output .)
+  - conda build --python=$BUILD_TARGET .
+  - OUTPUT=$(conda build --python=$BUILD_TARGET --output .)
   - echo $OUTPUT
 
 after_success:
@@ -62,5 +82,3 @@ after_success:
   - anaconda -v -t $CONDA_UPLOAD_TOKEN upload $CONDA_BLD_PATH/linux-64/*.tar.bz2 --user $USER --force --label $LABEL 
   - anaconda -v -t $CONDA_UPLOAD_TOKEN upload $CONDA_BLD_PATH/win-64/*.tar.bz2 --user $USER --force --label $LABEL 
 #  - test $TRAVIS_BRANCH = "master" && bash conda.recipe/conda_upload.sh
-
-
