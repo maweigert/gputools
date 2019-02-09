@@ -63,8 +63,8 @@ after_success:
 #  - anaconda -t $CONDA_UPLOAD_TOKEN -v upload --all -u $USER --force -s "Lattice Light Sheet Processing Tools" $OUTPUT
   - conda convert -p osx-64 -o $CONDA_BLD_PATH $OUTPUT
 #  - ls $CONDA_BLD_PATH/*
-  - anaconda -v -t $CONDA_UPLOAD_TOKEN upload -u $USER --force $CONDA_BLD_PATH/osx-64/*.tar.bz2 --label $LABEL
-  - anaconda -v -t $CONDA_UPLOAD_TOKEN upload -u $USER --force $CONDA_BLD_PATH/linux-64/*.tar.bz2 --label $LABEL
+  - anaconda -v -t $CONDA_UPLOAD_TOKEN upload $CONDA_BLD_PATH/osx-64/*.tar.bz2 --user $USER --force --label $LABEL 
+  - anaconda -v -t $CONDA_UPLOAD_TOKEN upload $CONDA_BLD_PATH/linux-64/*.tar.bz2 --user $USER --force --label $LABEL 
 #  - anaconda -v -t $CONDA_UPLOAD_TOKEN upload $CONDA_BLD_PATH/win-64/*.tar.bz2 -u $USER --force
 #  - test $TRAVIS_BRANCH = "master" && bash conda.recipe/conda_upload.sh
 
