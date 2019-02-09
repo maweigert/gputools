@@ -45,7 +45,7 @@ install:
     else
       wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
     fi
-    
+
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - export USER=talley
@@ -61,8 +61,8 @@ install:
   - conda info -a
 
 script:
-  - conda build --py $CONDA_PY .
-  - OUTPUT=$(conda build --py $CONDA_PY --output .)
+  - conda build --python $TRAVIS_PYTHON_VERSION .
+  - OUTPUT=$(conda build --python $TRAVIS_PYTHON_VERSION --output .)
   - echo $OUTPUT
 
 after_success:
