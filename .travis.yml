@@ -1,4 +1,4 @@
-os: osx
+# os: osx
 
 language: generic
 python:
@@ -34,11 +34,18 @@ install:
 #  - sudo apt-get update
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
+  # - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+  #     wget https://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh -O miniconda.sh;
+  #   else
+  #     wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;
+  #   fi
+
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh -O miniconda.sh;
+      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
     else
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;
+      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
     fi
+    
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - export USER=talley
@@ -46,7 +53,7 @@ install:
 
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
-  - conda install conda-build anaconda-client
+  - conda install conda-build anaconda-client=1.7.2
   - conda update -q conda
   - conda config --add channels conda-forge
   - conda config --set show_channel_urls true
@@ -54,18 +61,19 @@ install:
   - conda info -a
 
 script:
-  - conda build --py 36 .
-  - OUTPUT=$(conda build --py 36 --output .)
+  - conda build --py $CONDA_PY .
+  - OUTPUT=$(conda build --py $CONDA_PY --output .)
   - echo $OUTPUT
 
 after_success:
   - echo $TRAVIS_TEST_RESULT
-#  - anaconda -t $CONDA_UPLOAD_TOKEN -v upload --all -u $USER --force -s "Lattice Light Sheet Processing Tools" $OUTPUT
   - conda convert -p osx-64 -o $CONDA_BLD_PATH $OUTPUT
-#  - ls $CONDA_BLD_PATH/*
+  - conda convert -p linux-64 -o $CONDA_BLD_PATH $OUTPUT
+  - conda convert -p win-64 -o $CONDA_BLD_PATH $OUTPUT
+  - ls $CONDA_BLD_PATH/*
   - anaconda -v -t $CONDA_UPLOAD_TOKEN upload $CONDA_BLD_PATH/osx-64/*.tar.bz2 --user $USER --force --label $LABEL 
   - anaconda -v -t $CONDA_UPLOAD_TOKEN upload $CONDA_BLD_PATH/linux-64/*.tar.bz2 --user $USER --force --label $LABEL 
-#  - anaconda -v -t $CONDA_UPLOAD_TOKEN upload $CONDA_BLD_PATH/win-64/*.tar.bz2 -u $USER --force
+  - anaconda -v -t $CONDA_UPLOAD_TOKEN upload $CONDA_BLD_PATH/win-64/*.tar.bz2 --user $USER --force --label $LABEL 
 #  - test $TRAVIS_BRANCH = "master" && bash conda.recipe/conda_upload.sh
 
 
