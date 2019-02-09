@@ -1,13 +1,11 @@
 
 # Don't use language: python; this gives us an unnecessary virtualenv
-language: c
-# Seems to be needed to prevent hanging in Python 2.7
-# https://github.com/travis-ci/travis-ci/issues/6861
-sudo: required
+language: generic
 
 env:
   # Build and test package on all supported python version
   - BUILD_TARGET=3.6
+  - BUILD_TARGET=3.5
   - BUILD_TARGET=2.7
 
 os:
@@ -74,9 +72,7 @@ script:
 
 after_success:
   - echo $TRAVIS_TEST_RESULT
-  - conda convert -p osx-64 -o $CONDA_BLD_PATH $OUTPUT
-  - conda convert -p linux-64 -o $CONDA_BLD_PATH $OUTPUT
-  - conda convert -p win-64 -o $CONDA_BLD_PATH $OUTPUT
+  - conda convert -p linux-64 -p win-64 -p osx-64 -o $CONDA_BLD_PATH $OUTPUT
   - ls $CONDA_BLD_PATH/*
   - anaconda -v -t $CONDA_UPLOAD_TOKEN upload $CONDA_BLD_PATH/osx-64/*.tar.bz2 --user $USER --force --label $LABEL 
   - anaconda -v -t $CONDA_UPLOAD_TOKEN upload $CONDA_BLD_PATH/linux-64/*.tar.bz2 --user $USER --force --label $LABEL 
