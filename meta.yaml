@@ -25,26 +25,28 @@ requirements:
     - setuptools
   run:
     - python {{ python }}
-    - numpy >=1.15.0
-    - scipy
+    - numpy >=1.15.4
+    - scipy >=1.2.0
 #    - pyopencl ==2017.2+cl12 # [win64]
     - pyopencl
-    - pyopencl # [not win64]
+#    - pyopencl # [not win64]
     - configparser # [py2k]
     - reikna >=0.6.7
 #    - ocl-icd ==1.2.0 # [linux]
 #    - scikit-tensor
 
 test:
-  requires:
-    - pytest
-    - pocl # [linux]
-    - scikit-image
-    - termcolor
-    - funcsigs ==0.4 # [py35]
-    - funcsigs ==0.4 # [py34]
-  commands:
-    - pytest -v tests
+  imports:
+    - gputools # [not py2k]
+  # requires:
+  #   - pytest
+  #   - pocl # [linux]
+  #   - scikit-image
+  #   - termcolor
+  #   - funcsigs ==0.4 # [py35]
+  #   - funcsigs ==0.4 # [py34]
+  # commands:
+  #   - pytest -v tests
 
 
 about:
