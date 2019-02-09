@@ -17,8 +17,8 @@ config_parser = MyConfigParser(__CONFIGFILE__)
 #in a multi GPU environnement.
 #Simply changing the device with init_device keeps the first device in the process. And that takes some memory on the gpu
 defaults = {
-    "id_device": os.getenv('gputools_device',0),
-    "id_platform": os.getenv('gputools_platform',0),
+    "id_device": os.getenv('gputools_id_device',0),
+    "id_platform": os.getenv('gputools_id_platform',0),
     "use_gpu": os.getenv('gputools_use_gpu',1)
 }
 
