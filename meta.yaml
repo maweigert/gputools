@@ -31,7 +31,7 @@ requirements:
     - pyopencl
 #    - pyopencl # [not win64]
     - configparser # [py2k]
-    - reikna >=0.6.7
+    - reikna ==0.6.8
 #    - ocl-icd ==1.2.0 # [linux]
 #    - scikit-tensor
 

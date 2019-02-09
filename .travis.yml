@@ -55,7 +55,7 @@ install:
 
 script:
   - conda build --py 36 .
-  - OUTPUT=$(conda build --py 36 --output conda.recipe)
+  - OUTPUT=$(conda build --py 36 --output .)
   - echo $OUTPUT
 
 after_success:
