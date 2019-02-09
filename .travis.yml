@@ -1,20 +1,10 @@
+# os: osx
 
-# Don't use language: python; this gives us an unnecessary virtualenv
-language: c
-# Seems to be needed to prevent hanging in Python 2.7
-# https://github.com/travis-ci/travis-ci/issues/6861
-sudo: required
-
-env:
-  # Build and test package on all supported python version
-  - BUILD_TARGET=3.7
-  - BUILD_TARGET=3.6
-  - BUILD_TARGET=2.7
-
-os:
-  - linux
-#  - osx
-
+language: generic
+python:
+  - 3.6
+  - 3.5
+  - 2.7
 
 branches:
   only:
@@ -50,27 +40,29 @@ install:
   #     wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;
   #   fi
 
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then MINICONDA_OS=Linux; else MINICONDA_OS=MacOSX; fi
-  - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-$MINICONDA_OS-x86_64.sh -O miniconda.sh
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+    else
+      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+    fi
+
   - bash miniconda.sh -b -p $HOME/miniconda
-  - source "$HOME"/miniconda/etc/profile.d/conda.sh
-  - conda config --set always_yes yes --set changeps1 no --set auto_update_conda false
-  - hash -r
-  
   - export PATH="$HOME/miniconda/bin:$PATH"
   - export USER=talley
   - export CONDA_BLD_PATH=~/conda-bld
 
-  - conda install conda-build anaconda-client
-#  - conda update -q conda
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda install conda-build anaconda-client=1.7.2
+  - conda update -q conda
   - conda config --add channels conda-forge
   - conda config --set show_channel_urls true
   # Useful for debugging any issues with conda
   - conda info -a
 
 script:
-  - conda build --python=$BUILD_TARGET .
-  - OUTPUT=$(conda build --python=$BUILD_TARGET --output .)
+  - conda build --python=$TRAVIS_PYTHON_VERSION .
+  - OUTPUT=$(conda build --python=$TRAVIS_PYTHON_VERSION --output .)
   - echo $OUTPUT
 
 after_success:
