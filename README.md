@@ -131,6 +131,9 @@ gputools.config.defaults
 ```
 for available keys and their defaults.
 
+Alternatively, the used OpenCL Device can be set via the environment variables `gputools_id_device`,  `gputools_id_platform`, and `gputools_use_gpu` (variables present in the config file will take precendence, however).
+
+
 ### Troubleshooting
 
 #### pyopencl: _cffi.so ImportError
