@@ -27,12 +27,12 @@ requirements:
     - python {{ python }}
     - numpy
     - scipy
-#    - pyopencl ==2017.2+cl12 # [win64]
-    - pyopencl
-#    - pyopencl # [not win64]
+    - pyopencl ==2017.2+cl12 # [win64]
+#    - pyopencl
+    - pyopencl # [not win64]
     - configparser # [py2k]
     - reikna
-#    - ocl-icd ==1.2.0 # [linux]
+    - ocl-icd ==1.2.0 # [linux]
 #    - scikit-tensor
 
 test:
