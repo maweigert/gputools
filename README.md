@@ -35,11 +35,18 @@ FFT (pow2) | (128, 1024, 1024) complex64 | 13831 ms | 615 ms | 69 ms
 ```
 pip install gputools
 ```
-check if basic stuff is working:
+Or the developmental version:
+
+```
+pip install git+https://github.com/maweigert/gputools@develop
+```
+
+Check if basic stuff is working:
 
 ```
 python -m gputools
 ```
+
 
 
 ### Usage
