@@ -1,6 +1,7 @@
 
-__kernel void scan2d(__global float *input,__global float *output,__global float *sums,
-					 __local float * shared,const int n,
+__kernel void scan2d(__global DTYPE *input,__global DTYPE *output,
+					 __global DTYPE *sums,
+					 __local DTYPE * shared,const int n,
 					 const int stride_i, const int stride_j, const int offset_i, const int block_i,const int nblocks, const int nx_real)
 {
 
@@ -16,8 +17,8 @@ __kernel void scan2d(__global float *input,__global float *output,__global float
   const int idx_buf2 = (2*(i + offset_i)+1)*stride_i+stride_j*j;
 
   int off = 1;
-  float initial_val1 = valid_index1?input[idx_buf1]:0;
-  float initial_val2 = valid_index2?input[idx_buf2]:0;
+  DTYPE initial_val1 = (DTYPE)valid_index1?input[idx_buf1]:(DTYPE)0;
+  DTYPE initial_val2 = (DTYPE)valid_index2?input[idx_buf2]:(DTYPE)0;
 
   shared[2*i] = initial_val1;
   shared[2*i+1] = initial_val2;
@@ -43,7 +44,7 @@ __kernel void scan2d(__global float *input,__global float *output,__global float
 	if(i < d){
 	  int ai = off*(2*i+1)-1;
 	  int bi = off*(2*i+2)-1;
-	  float t  = shared[ai];
+	  DTYPE t  = shared[ai];
 	  shared[ai] = shared[bi];
 	  shared[bi] += t;
 	}
@@ -60,7 +61,7 @@ __kernel void scan2d(__global float *input,__global float *output,__global float
 	sums[block_i+nblocks*j] = shared[n-1]+ initial_val2;
 }
 
-__kernel void add_sums2d(__global float *input,__global float *output,
+__kernel void add_sums2d(__global DTYPE *input,__global DTYPE *output,
 						 const int stride_i, const int stride_j,const int nblocks, const int nx_real)
 {
 
@@ -73,15 +74,16 @@ __kernel void add_sums2d(__global float *input,__global float *output,
 
   const int idx_buf = i*stride_i + j*stride_j;
 
-  const float val = igroup>0?input[(igroup-1)+nblocks*j]:0;
+  const DTYPE val = igroup>0?(DTYPE)input[(igroup-1)+nblocks*j]:(DTYPE)0;
 
   if (valid_index)
 	output[idx_buf] += val;
 
 }
 
-__kernel void scan3d(__global float *input,__global float *output,__global float *sums,
-					 __local float * shared,const int n,
+__kernel void scan3d(__global DTYPE *input,__global DTYPE *output,
+					 __global DTYPE *sums,
+					 __local DTYPE * shared,const int n,
 					 const int stride_i, const int stride_j, const int stride_k,
 					 const int offset_i, const int block_i,const int nblocks, const int ny,const int nx_real)
 {
@@ -100,8 +102,8 @@ __kernel void scan3d(__global float *input,__global float *output,__global float
   const int idx_buf2 = (2*(i + offset_i)+1)*stride_i+stride_j*j+stride_k*k;
 
   int off = 1;
-  float initial_val1 = valid_index1?input[idx_buf1]:0;
-  float initial_val2 = valid_index2?input[idx_buf2]:0;
+  DTYPE initial_val1 = valid_index1?(DTYPE)input[idx_buf1]:(DTYPE)0;
+  DTYPE initial_val2 = valid_index2?(DTYPE)input[idx_buf2]:(DTYPE)0;
 
   shared[2*i] = initial_val1;
   shared[2*i+1] = initial_val2;
@@ -127,7 +129,7 @@ __kernel void scan3d(__global float *input,__global float *output,__global float
 	if(i < d){
 	  int ai = off*(2*i+1)-1;
 	  int bi = off*(2*i+2)-1;
-	  float t  = shared[ai];
+	  DTYPE t  = shared[ai];
 	  shared[ai] = shared[bi];
 	  shared[bi] += t;
 	}
@@ -144,7 +146,7 @@ __kernel void scan3d(__global float *input,__global float *output,__global float
 	sums[block_i+nblocks*j+nblocks*ny*k] = shared[n-1]+ initial_val2;
 }
 
-__kernel void add_sums3d(__global float *input,__global float *output,
+__kernel void add_sums3d(__global DTYPE *input,__global DTYPE *output,
 						 const int stride_i, const int stride_j,const int stride_k,const int nblocks, const int ny, const int nx_real)
 {
 
@@ -158,7 +160,7 @@ __kernel void add_sums3d(__global float *input,__global float *output,
 
   const int idx_buf = i*stride_i + j*stride_j +k*stride_k;
 
-  const float val = igroup>0?input[(igroup-1)+nblocks*j+nblocks*ny*k]:0;
+  const DTYPE val = igroup>0?(DTYPE)input[(igroup-1)+nblocks*j+nblocks*ny*k]:(DTYPE)0;
 
   if (valid_index)
 	output[idx_buf] += val;

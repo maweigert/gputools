@@ -28,9 +28,15 @@ cl_image_datatype_dict.update({dtype: cltype for cltype, dtype in list(cl_image_
 cl_buffer_datatype_dict = {
     np.bool: "bool",
     np.uint8: "uchar",
-    np.uint16: "short",
+    np.uint16: "ushort",
+    np.uint32: "uint",
+    np.uint64: "ulong",
+    np.int8: "char",
+    np.int16: "sjort",
     np.int32: "int",
+    np.int64: "long",
     np.float32: "float",
+    np.float64: "double",
 }
 
 
