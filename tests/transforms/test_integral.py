@@ -7,10 +7,9 @@ from itertools import product, combinations, permutations
 type_name_dict = {
     np.uint8: "uint8",
     np.uint16: "uint16",
+    np.int32: "int32",
     np.float32: "float32",
-    np.complex64: "complex64",
 }
-
 
 
 def single_test(shape, dtype = np.float32, check = True):
@@ -27,13 +26,14 @@ def single_test(shape, dtype = np.float32, check = True):
 def test_integral():
     max_size = get_device().get_info("GLOBAL_MEM_SIZE") // 32
     ndims = (2,3)
-    ns = (33, 197, 4197)
-    dtypes = (np.uint8, np.uint16, np.int32, np.float64)
+    ns = (33, 197, 2183)
+    dtypes = (np.uint8, np.uint16, np.int32, np.float32)
     for dtype, ndim in product(dtypes, ndims):
-        for shape in combinations(ns, ndim):
-            if np.prod(shape) > max_size:
-                continue
-            single_test(shape, check = True)
+        for shape0 in combinations(ns, ndim):
+            for shape in permutations(shape0):
+                if np.prod(shape) > max_size:
+                    continue
+                single_test(shape, dtype, check = True)
 
 if __name__ == '__main__':
     # test_integral()

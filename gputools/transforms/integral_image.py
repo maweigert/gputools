@@ -108,7 +108,6 @@ def _integral2_buf(x_g, res_g = None, tmp_g=None):
         sum_blocks = OCLArray.empty((ny, nblocks), dst.dtype)
         shared = cl.LocalMemory(2 * dtype_itemsize * loc)
         for b in range(nblocks):
-
             offset = b * loc
             prog.run_kernel("scan2d", (loc, ny), (loc, 1),
                             src.data, dst.data, sum_blocks.data, shared,

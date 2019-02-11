@@ -2,8 +2,9 @@ import numpy as np
 import scipy.ndimage.filters as spf
 from scipy import ndimage
 from skimage.restoration import denoise_nl_means
+from skimage.transform import integral_image as sk_integral_image
 from gputools.convolve import median_filter, uniform_filter, gaussian_filter
-from gputools.transforms import scale
+from gputools.transforms import scale, integral_image
 from gputools.denoise import nlm3
 from gputools import fft
 from gputools import OCLArray, get_device
@@ -24,7 +25,7 @@ def bench(description, dshape, dtype, func_cpu, func_gpu, func_gpu_notransfer=No
     x = np.random.randint(0,100,dshape).astype(dtype)
 
     func_cpu(x)
-    t1 = time()
+    t_cpu = time()
     for _ in range(niter):
         y = func_cpu(x);
     t_cpu = (time()-t_cpu)/niter
@@ -62,39 +63,48 @@ if __name__ == '__main__':
 
     dshape = (128,1024,1024)
 
-    bench("Mean filter 7x7x7",cut(dshape),np.uint8,
-          lambda x: spf.uniform_filter(x, 7),
-          lambda x: uniform_filter(x, 7),
-          lambda x_g, res_g: uniform_filter(x_g, 7, res_g = res_g)
-          )
+    print("description  | dshape |  dtype | t_cpu (ms) | t_gpu (ms) | t_gpu_notrans (ms) ")
 
-    bench("Median filter 3x3x3",cut(dshape),np.uint8,
-          lambda x: spf.median_filter(x,size = 3),
-          lambda x: median_filter(x, size=3),
-          lambda x_g, res_g: median_filter(x_g, size=3, res_g = res_g)
-          )
+    # bench("Mean filter 7x7x7",cut(dshape),np.uint8,
+    #       lambda x: spf.uniform_filter(x, 7),
+    #       lambda x: uniform_filter(x, 7),
+    #       lambda x_g, res_g: uniform_filter(x_g, 7, res_g = res_g)
+    #       )
+    #
+    # bench("Median filter 3x3x3",cut(dshape),np.uint8,
+    #       lambda x: spf.median_filter(x,size = 3),
+    #       lambda x: median_filter(x, size=3),
+    #       lambda x_g, res_g: median_filter(x_g, size=3, res_g = res_g)
+    #       )
+    #
+    # bench("Gaussian filter 5x5x5",cut(dshape),np.float32,
+    #       lambda x: spf.gaussian_filter(x, 5),
+    #       lambda x: gaussian_filter(x, 5),
+    #       lambda x_g, res_g: gaussian_filter(x_g, 5, res_g = res_g)
+    #       )
+    #
+    # bench("Zoom/Scale 2x2x2",cut(dshape),np.uint16,
+    #       lambda x: ndimage.zoom(x,(2,)*3, order=1, prefilter=False),
+    #       lambda x: scale(x, (2,)*3, interpolation="linear")
+    #       )
+    #
+    #
+    # bench("NLM denoising",cut((64,256,256,)),np.float32,
+    #       lambda x: denoise_nl_means(x,5,5,multichannel=False),
+    #       lambda x: nlm3(x,.1,2,5),
+    #       )
+    #
+    # bench("FFT",cut(dshape),np.complex64,
+    #       lambda x: np.fft.fftn(x),
+    #       lambda x: fft(x),
+    #       lambda x_g, res_g: fft(x_g, inplace = True)
+    #       )
+    #
 
-    bench("Gaussian filter 5x5x5",cut(dshape),np.float32,
-          lambda x: spf.gaussian_filter(x, 5),
-          lambda x: gaussian_filter(x, 5),
-          lambda x_g, res_g: gaussian_filter(x_g, 5, res_g = res_g)
-          )
-
-    bench("Zoom/Scale 2x2x2",cut(dshape),np.uint16,
-          lambda x: ndimage.zoom(x,(2,)*3, order=1, prefilter=False),
-          lambda x: scale(x, (2,)*3, interpolation="linear")
-          )
-
-
-    bench("NLM denoising",cut((64,256,256,)),np.float32,
-          lambda x: denoise_nl_means(x,5,5,multichannel=False),
-          lambda x: nlm3(x,.1,2,5),
-          )
-
-    bench("FFT",cut(dshape),np.complex64,
-          lambda x: np.fft.fftn(x),
-          lambda x: fft(x),
-          lambda x_g, res_g: fft(x_g, inplace = True)
+    bench("Integral Image",cut((512,512,256,)),np.float32,
+          lambda x: sk_integral_image(x),
+          lambda x: integral_image(x),
+          lambda x_g, res_g: integral_image(x_g, res_g = res_g)
           )
 
 
