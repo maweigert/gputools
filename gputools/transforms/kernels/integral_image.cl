@@ -1,3 +1,5 @@
+// adapted from NVIDIAs CUDA prefix scan implementation 
+// https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch39.html
 
 __kernel void scan2d(__global DTYPE *input,__global DTYPE *output,
 					 __global DTYPE *sums,

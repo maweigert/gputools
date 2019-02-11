@@ -106,7 +106,6 @@ if __name__ == '__main__':
     #       )
     #
     #
->>>>>>> 64259ba341210ed4d741138c2c6dbfe925c4061f
     # bench("NLM denoising",cut((64,256,256,)),np.float32,
     #       lambda x: denoise_nl_means(x,5,5,multichannel=False),
     #       lambda x: nlm3(x,.1,2,5),
@@ -134,10 +133,10 @@ if __name__ == '__main__':
     #       )
 
 
-    bench("Integral Image",cut((512,512,256,)),np.float32,
+    bench("Integral Image",cut((512,1024,1024,)),np.float32,
           lambda x: sk_integral_image(x),
           lambda x: integral_image(x),
-          lambda x_g, res_g: integral_image(x_g, res_g = res_g)
+          lambda x_g, res_g: integral_image(x_g, res_g = res_g.astype(np.float32))
           )
 
 
