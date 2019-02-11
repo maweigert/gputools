@@ -1,5 +1,6 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import numpy as np
+import math
 
 def pad_to_shape(d, dshape, mode = "constant"):
     """
@@ -19,10 +20,10 @@ def pad_to_shape(d, dshape, mode = "constant"):
 
 
 def _is_power2(n):
-    return _next_power_of_2(n) == n
+    return next_power_of_2(n) == n
 
-def _next_power_of_2(n):
-    return int(2**np.ceil(np.log2(n)))
+def next_power_of_2(n):
+    return 1 if n == 0 else 2**math.ceil(math.log2(n))
 
 def pad_to_power2(data, axis = None, mode="constant"):
     """
@@ -35,7 +36,7 @@ def pad_to_power2(data, axis = None, mode="constant"):
     if np.all([_is_power2(n) for i, n in enumerate(data.shape) if i in axis]):
         return data
     else:
-        return pad_to_shape(data,[(_next_power_of_2(n) if i in axis else n) for i,n in enumerate(data.shape)], mode)
+        return pad_to_shape(data, [(next_power_of_2(n) if i in axis else n) for i, n in enumerate(data.shape)], mode)
 
 
 

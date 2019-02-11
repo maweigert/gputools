@@ -10,7 +10,7 @@ import numpy as np
 from gputools import fft_plan, OCLArray, OCLImage, \
     fft, get_device, OCLProgram, pad_to_shape, tile_iterator
 
-from gputools.utils.utils import _is_power2, _next_power_of_2
+from gputools.utils.utils import _is_power2, next_power_of_2
 from gputools.utils.tile_iterator import tile_iterator
 
 from ._abspath import abspath
@@ -215,7 +215,7 @@ def _convolve_spatial2(im, hs,
 
 
     # the size of the overlapping patches with safety padding
-    Npatch_x, Npatch_y = _next_power_of_2(pad_factor*Nblock_x), _next_power_of_2(pad_factor*Nblock_y)
+    Npatch_x, Npatch_y = next_power_of_2(pad_factor * Nblock_x), next_power_of_2(pad_factor * Nblock_y)
 
 
     prog = OCLProgram(abspath("kernels/conv_spatial2.cl"),

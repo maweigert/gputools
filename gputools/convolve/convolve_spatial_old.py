@@ -9,7 +9,7 @@ mweigert@mpi-cbg.de
 from __future__ import print_function, unicode_literals, absolute_import, division
 import numpy as np
 from gputools import fft_plan, OCLArray, OCLImage, fft, get_device, OCLProgram, pad_to_shape
-from gputools.utils.utils import _is_power2, _next_power_of_2
+from gputools.utils.utils import _is_power2, next_power_of_2
 from ._abspath import abspath
 from itertools import product
 
@@ -143,7 +143,7 @@ def convolve_spatial2(im, hs,
 
 
     # the size of the overlapping patches with safety padding
-    Npatch_x, Npatch_y = _next_power_of_2(3*Nblock_x), _next_power_of_2(3*Nblock_y)
+    Npatch_x, Npatch_y = next_power_of_2(3 * Nblock_x), next_power_of_2(3 * Nblock_y)
     #Npatch_x, Npatch_y = _next_power_of_2(2*Nblock_x), _next_power_of_2(2*Nblock_y)
 
     print(Nblock_x, Npatch_x)
@@ -255,7 +255,7 @@ def convolve_spatial3(im, hs,
 
 
     # the size of the overlapping patches with safety padding
-    Npatchs = tuple([_next_power_of_2(pad_factor*nb) for nb in Nblocks])
+    Npatchs = tuple([next_power_of_2(pad_factor * nb) for nb in Nblocks])
 
     print(hs.shape)
     hs = np.fft.fftshift(pad_to_shape(hs,Gs+Npatchs),axes=(3,4,5))

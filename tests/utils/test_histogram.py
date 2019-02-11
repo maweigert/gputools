@@ -1,7 +1,9 @@
 import numpy as np
 from gputools.utils.histogram import histogram
 from time import time
+import pytest
 
+@pytest.mark.skip(reason="WIP")
 def test_histograms(return_if_fail=False):
     np.random.seed(0)
 
