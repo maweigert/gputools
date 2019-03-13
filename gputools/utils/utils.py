@@ -10,7 +10,7 @@ def pad_to_shape(d, dshape, mode = "constant"):
 
     diff = np.array(dshape)- np.array(d.shape)
     #first shrink
-    slices  = [slice(-x//2,x//2) if x<0 else slice(None,None) for x in diff]
+    slices  = tuple(slice(-x//2,x//2) if x<0 else slice(None,None) for x in diff)
     res = d[slices]
     #then pad
     # return np.pad(res,[(n/2,n-n/2) if n>0 else (0,0) for n in diff],mode=mode)
