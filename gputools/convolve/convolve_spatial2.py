@@ -79,7 +79,7 @@ def convolve_spatial2(im, psfs,
         the (Gx,Gy) psf grid, either of shape (Gx,Gy, Hy, Hx) or im.shape
 
     mode: string, optional
-        padding mode, either "constant" or "wrap"
+        Padding mode. Can be "constant", "wrap", "edge", or "reflect".
     grid_dim: tuple, optional
         the (Gy,Gx) grid dimension, has to be provided if psfs.shape = im.shape
 
@@ -204,7 +204,9 @@ def _convolve_spatial2(im, hs,
 
 
     mode_str = {"constant":"CLK_ADDRESS_CLAMP",
-                "wrap":"CLK_ADDRESS_REPEAT"}
+                "wrap":"CLK_ADDRESS_REPEAT",
+                "nearest":"CLK_ADDRESS_CLAMP_TO_EDGE",
+                "reflect":"CLK_ADDRESS_MIRRORED_REPEAT"}
 
     Ny, Nx = im.shape
     Gy, Gx = Gs
