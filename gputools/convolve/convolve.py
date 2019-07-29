@@ -15,7 +15,7 @@ import pyopencl as cl
 from ._abspath import abspath
 
 
-def convolve(data, h, res_g=None, sub_blocks=None):
+def convolve(data, h, res_g=None, sub_blocks=None, mode='constant'):
     """
     convolves 1d-3d data with kernel h 
 
@@ -45,7 +45,7 @@ def convolve(data, h, res_g=None, sub_blocks=None):
             for data_tile, data_s_src, data_s_dest \
                     in tile_iterator(data, blocksize=N_sub,
                                      padsize=Npads,
-                                     mode="constant"):
+                                     mode=mode):
                 res_tile = _convolve_np(data_tile.copy(),
                                         h)
                 res[data_s_src] = res_tile[data_s_dest]
