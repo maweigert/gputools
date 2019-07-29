@@ -3,13 +3,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-import os
 import numpy as np
 
 from gputools import OCLProgram, OCLArray, OCLImage, get_device
 from gputools.core.ocltypes import assert_bufs_type
 from gputools.utils.tile_iterator import tile_iterator
-import sys
 
 import pyopencl as cl
 from ._abspath import abspath
