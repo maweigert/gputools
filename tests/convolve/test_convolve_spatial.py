@@ -9,7 +9,7 @@ import numpy as np
 from time import time
 from functools import reduce
 from gputools import convolve_spatial2, convolve_spatial3
-import numpy.testing as npt
+
 
 def create_psf(sig=(.1,.1), xy_angle = 0., N = 10):
     x = np.linspace(-1,1,N+1)[:-1]
@@ -146,11 +146,16 @@ def test_conv3():
     Gz = 2
     hs = psf_grid_linear3(Gx,Gy,Gz,10)
     out = convolve_spatial3(im, hs)
-    return im,out, hs
+    return im, out, hs
+
+def test_conv3_reflect():
+    im = np.zeros((128, 64, 32))
+    Gx, Gy, Gz = 8, 4, 2
+    hs = psf_grid_linear3(Gx, Gy, Gz, 10)
+    out = convolve_spatial3(im, hs, mode='reflect')
+    return im, out, hs
 
 def test_conv3_psfs():
-
-    im = np.zeros((128,64,32))
     im = np.zeros((128, 128,128))
     im[::16,::16,::16] = 1.
     Gx = 16
