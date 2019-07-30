@@ -191,10 +191,11 @@ def _convolve_spatial2(im, hs,
     Nx % Gx == 0
     Ny % Gy == 0
 
-
     mode can be:
     "constant" - assumed values to be zero
     "wrap" - periodic boundary condition
+    "nearest" - values repeat the value at the edge of the image
+    "reflect" - values are reflected around the edge of the image
     """
 
     if grid_dim:
