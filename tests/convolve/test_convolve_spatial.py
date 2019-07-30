@@ -123,6 +123,14 @@ def test_conv2():
     return im, out, hs
 
 
+def test_conv2_reflect():
+    im = np.zeros((128, 128))
+    Gx, Gy = 4, 8
+    hs = psf_grid_motion(Gx, Gy, 100)
+    out = convolve_spatial2(im, hs, mode='reflect')
+    return im, out, hs
+
+
 def test_conv2_psfs():
     im = np.zeros((384,512))
     im[::32, ::32] = 1.
