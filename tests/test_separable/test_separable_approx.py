@@ -3,13 +3,12 @@
 mweigert@mpi-cbg.de
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
-
 import numpy as np
+import pytest
 from gputools.separable import separable_approx, separable_series
-
-
 from gputools.separable.separable_approx import _separable_series2
 
+@pytest.mark.skip
 def test_2d():
     x = np.linspace(-1, 1, 61)
     y = np.linspace(-1, 1, 101)
@@ -18,12 +17,8 @@ def test_2d():
     u = np.exp(-3*(2.*X-np.sin(4*Y))**2)
     u += .05 * np.random.uniform(-1, 1, u.shape)
 
-    try:
-        hs = separable_approx(u, 50)
-    except (NameError, ImportError):
-        from nose.plugins.skip import SkipTest
-        raise SkipTest("Skipping test_separable_approx.test_2d due to ImportError")
-
+    hs = separable_approx(u, 50)
+    
     print("########" * 5, "separable approximation dim = %s " % u.ndim)
     print("reconstruction error:")
     for i, h in enumerate(hs):
@@ -31,6 +26,7 @@ def test_2d():
 
     return u, hs
 
+@pytest.mark.skip
 def test_3d():
     x = np.linspace(-1, 1, 31)
     y = np.linspace(-1, 1, 60)
@@ -40,12 +36,7 @@ def test_3d():
     u = np.exp(-3*(2.*X-np.sin(4*Y)+3.*np.abs(Z))**2)
     u += .08 * np.random.uniform(-1, 1, u.shape)
 
-    try:
-        hs = separable_approx(u, 100)
-    except (NameError, ImportError):
-        from nose.plugins.skip import SkipTest
-        raise SkipTest("Skipping test_separable_approx.test_3d, check scikit-tensor import")
-
+    hs = separable_approx(u, 100)
 
     print("########"*5,"separable approximation dim = %s "%u.ndim)
     print("reconstruction error:")
