@@ -1,34 +1,30 @@
+# As a general rule, the latest release of Keras is compatible with the latest
+# release of TensorFlow as well as the previous release of TensorFlow (in most
+# cases, it is actually compatible with several prior TF releases, but that is
+# not guaranteed).
+#
+# -- https://github.com/keras-team/keras/issues/10440#issuecomment-397428200
+
 language: python
-python:
-  - "2.7"
 
-before_install:
-  - gcc -v
-  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq g++-4.8 gcc-4.8
-  - alias gcc=gcc-4.8
-  - alias g++=g++-4.8
-  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
-  - sudo update-alternatives --install /usr/bin/gcc g++ /usr/bin/gcc-4.8 90
-  - gcc -v
+branches:
+  only:
+    # - master
+	- develop
 
-  - sudo apt-get install -qq opencl-headers;
-  - bash .travis/amd_sdk.sh;
-  - tar -xjf AMD-SDK.tar.bz2;
-  - AMDAPPSDKROOT=${HOME}/AMDAPPSDK;
-  - export OPENCL_VENDOR_PATH=${AMDAPPSDKROOT}/etc/OpenCL/vendors;
-  - mkdir -p ${OPENCL_VENDOR_PATH};
-  - sh AMD-APP-SDK*.sh --tar -xf -C ${AMDAPPSDKROOT};
-  - echo libamdocl64.so > ${OPENCL_VENDOR_PATH}/amdocl64.icd;
-  - export LD_LIBRARY_PATH=${AMDAPPSDKROOT}/lib/x86_64:${LD_LIBRARY_PATH};
-  - export CMAKE_LIBRARY_PATH=${AMDAPPSDKROOT}/lib/x86_64;
-  - chmod +x ${AMDAPPSDKROOT}/bin/x86_64/clinfo;
-  - ${AMDAPPSDKROOT}/bin/x86_64/clinfo;
-  - echo "HUHU"
-  - ls ${AMDAPPSDKROOT}/lib/x86_64/*
-  - echo ${LD_LIBRARY_PATH}
 
-install:
+matrix:
+  include:
+    - os: linux
+      python: 3.7
+      dist: xenial
+    # - os: linux
+    #   python: 3.5
+    # - os: linux
+    #   python: 3.6
+
+install: 
   - pip install .
 
+script:
+  - pytest -v -s --durations=50 
