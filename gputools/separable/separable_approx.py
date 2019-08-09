@@ -48,7 +48,7 @@ def _splitrank3(h, verbose=False):
     if np.sum(np.abs(h))<1.e-30:
         return tuple(np.zeros(s) for s in h.shape)+(np.zeros_like(h),)
 
-    P, fit, itr, exectimes = cp_als(dtensor(h.copy()), 1)
+    P, fit, itr = cp_als(dtensor(h.copy()), 1)[:3]  # ensure backwards compat
     hx, hy, hz = [(P.lmbda[0]) ** (1. / 3) * np.array(P.U[i])[:, 0] for i in range(3)]
     if verbose:
         print("lambdas= %s \nfit = %s \niterations= %s " % (P.lmbda, fit, itr))

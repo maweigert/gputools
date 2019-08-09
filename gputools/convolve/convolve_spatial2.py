@@ -79,7 +79,7 @@ def convolve_spatial2(im, psfs,
         the (Gx,Gy) psf grid, either of shape (Gx,Gy, Hy, Hx) or im.shape
 
     mode: string, optional
-        padding mode, either "constant" or "wrap"
+        Padding mode. Can be "constant", "wrap", "edge", or "reflect".
     grid_dim: tuple, optional
         the (Gy,Gx) grid dimension, has to be provided if psfs.shape = im.shape
 
@@ -191,10 +191,11 @@ def _convolve_spatial2(im, hs,
     Nx % Gx == 0
     Ny % Gy == 0
 
-
     mode can be:
     "constant" - assumed values to be zero
     "wrap" - periodic boundary condition
+    "nearest" - values repeat the value at the edge of the image
+    "reflect" - values are reflected around the edge of the image
     """
 
     if grid_dim:
@@ -202,21 +203,19 @@ def _convolve_spatial2(im, hs,
     else:
         Gs = hs.shape[:2]
 
-
     mode_str = {"constant":"CLK_ADDRESS_CLAMP",
-                "wrap":"CLK_ADDRESS_REPEAT"}
+                "wrap":"CLK_ADDRESS_REPEAT",
+                "nearest":"CLK_ADDRESS_CLAMP_TO_EDGE",
+                "reflect":"CLK_ADDRESS_MIRRORED_REPEAT"}
 
     Ny, Nx = im.shape
     Gy, Gx = Gs
 
-
     # the size of each block within the grid
     Nblock_y, Nblock_x = Ny // Gy, Nx // Gx
 
-
     # the size of the overlapping patches with safety padding
     Npatch_x, Npatch_y = next_power_of_2(pad_factor * Nblock_x), next_power_of_2(pad_factor * Nblock_y)
-
 
     prog = OCLProgram(abspath("kernels/conv_spatial2.cl"),
                       build_options=["-D","ADDRESSMODE=%s"%mode_str[mode]])
@@ -226,7 +225,6 @@ def _convolve_spatial2(im, hs,
 
     x0s = Nblock_x*np.arange(Gx)
     y0s = Nblock_y*np.arange(Gy)
-
 
     patches_g = OCLArray.empty((Gy,Gx,Npatch_y,Npatch_x),np.complex64)
 
@@ -253,7 +251,6 @@ def _convolve_spatial2(im, hs,
         hs = np.fft.fftshift(pad_to_shape(hs,(Gy,Gx,Npatch_y,Npatch_x)),axes=(2,3))
         h_g = OCLArray.from_array(hs.astype(np.complex64))
 
-
     #prepare image
     im_g = OCLImage.from_array(im.astype(np.float32,copy=False))
 
@@ -266,7 +263,6 @@ def _convolve_spatial2(im, hs,
                     patches_g.data,
                     np.int32(i*Npatch_x*Npatch_y+j*Gx*Npatch_x*Npatch_y))
 
-
     #return np.abs(patches_g.get())
     # convolution
     fft(patches_g,inplace=True,  plan = plan)
@@ -274,7 +270,6 @@ def _convolve_spatial2(im, hs,
     prog.run_kernel("mult_inplace",(Npatch_x*Npatch_y*Gx*Gy,),None,
                     patches_g.data, h_g.data)
     fft(patches_g,inplace=True, inverse = True, plan = plan)
-
 
     logger.debug("Nblock_x: {}, Npatch_x: {}".format(Nblock_x, Npatch_x))
     #return np.abs(patches_g.get())

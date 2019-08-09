@@ -3,19 +3,17 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-import os
 import numpy as np
 
 from gputools import OCLProgram, OCLArray, OCLImage, get_device
 from gputools.core.ocltypes import assert_bufs_type
 from gputools.utils.tile_iterator import tile_iterator
-import sys
 
 import pyopencl as cl
 from ._abspath import abspath
 
 
-def convolve(data, h, res_g=None, sub_blocks=None):
+def convolve(data, h, res_g=None, sub_blocks=None, mode='constant'):
     """
     convolves 1d-3d data with kernel h 
 
@@ -25,6 +23,7 @@ def convolve(data, h, res_g=None, sub_blocks=None):
     boundary conditions are clamping to zero at edge.
     
     """
+    sub_blocks = sub_blocks or (1,) * data.ndim
 
     if not len(data.shape) in [1, 2, 3]:
         raise ValueError("dim = %s not supported" % (len(data.shape)))
@@ -35,8 +34,8 @@ def convolve(data, h, res_g=None, sub_blocks=None):
     if isinstance(data, OCLArray) and isinstance(h, OCLArray):
         return _convolve_buf(data, h, res_g)
     elif isinstance(data, np.ndarray) and isinstance(h, np.ndarray):
-        if sub_blocks == (1,) * len(data.shape) or sub_blocks is None:
-            return _convolve_np(data, h)
+        if sub_blocks == (1,) * data.ndim and mode == 'constant':
+            res = _convolve_np(data, h)
         else:
             # cut the image into tile and operate on every of them
             N_sub = [int(np.ceil(1. * n / s)) for n, s in zip(data.shape, sub_blocks)]
@@ -45,11 +44,11 @@ def convolve(data, h, res_g=None, sub_blocks=None):
             for data_tile, data_s_src, data_s_dest \
                     in tile_iterator(data, blocksize=N_sub,
                                      padsize=Npads,
-                                     mode="constant"):
+                                     mode=mode):
                 res_tile = _convolve_np(data_tile.copy(),
                                         h)
                 res[data_s_src] = res_tile[data_s_dest]
-            return res
+        return res
     else:
         raise TypeError("unknown types (%s, %s)" % (type(data), type(h)))
 

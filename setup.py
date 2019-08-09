@@ -35,6 +35,7 @@ setup(name='gputools',
                                     "ConfigParser",
                                     ],
           ':python_version>="3.0"': ["configparser",
+                                     "scikit-tensor-py3",
                                      ],
       },
 

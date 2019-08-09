@@ -39,6 +39,15 @@ def test_convolve():
                 _convolve_rand(dshape, hshape)
 
 
+def test_reflect():
+    image = np.ones((5, 5))
+    image[2, 2] = 0
+    h = np.array([[-1, -2, -1], [0, 0, 0], [1, 2, 1]])
+    out = gputools.convolve(image, h, mode='reflect')
+    npt.assert_allclose(out[0], [0,] * 5)
+    npt.assert_allclose(out[1], [0, 1, 2, 1, 0])
+
+
 def test_small():
     # for N1 in range(10, 40, 7):  # <-- out of resources on macbook pro
     for N1 in range(10, 25, 5):
