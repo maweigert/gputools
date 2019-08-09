@@ -15,7 +15,9 @@ matrix:
     # - os: linux
     #   python: 3.6
 
-install: 
+install:
+  - conda install -c conda-forge pybind11 
+  - conda install -c conda-forge pyopencl 
   - pip install .
 
 script:
