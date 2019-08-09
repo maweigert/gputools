@@ -2,9 +2,10 @@ import numpy as np
 import scipy.ndimage.filters as spf
 from scipy import ndimage
 from skimage.restoration import denoise_nl_means
+from skimage.transform import integral_image as sk_integral_image
 from gputools.convolve import median_filter, uniform_filter, gaussian_filter
-
 from gputools.transforms import scale, map_coordinates, geometric_transform, affine
+from gputools.transforms import scale, integral_image
 from gputools.denoise import nlm3
 from gputools import fft
 from gputools import OCLArray, get_device
@@ -62,18 +63,17 @@ if __name__ == '__main__':
 
     dshape = (128,1024,1024)
 
+    print("description  | dshape |  dtype | t_cpu (ms) | t_gpu (ms) | t_gpu_notrans (ms) ")
     # bench("Mean filter 7x7x7",cut(dshape),np.uint8,
     #       lambda x: spf.uniform_filter(x, 7),
     #       lambda x: uniform_filter(x, 7),
     #       lambda x_g, res_g: uniform_filter(x_g, 7, res_g = res_g)
     #       )
-
     # bench("Median filter 3x3x3",cut(dshape),np.uint8,
     #       lambda x: spf.median_filter(x,size = 3),
     #       lambda x: median_filter(x, size=3),
     #       lambda x_g, res_g: median_filter(x_g, size=3, res_g = res_g)
     #       )
-
     # bench("Gaussian filter 5x5x5",cut(dshape),np.float32,
     #       lambda x: spf.gaussian_filter(x, 5),
     #       lambda x: gaussian_filter(x, 5),
@@ -81,18 +81,31 @@ if __name__ == '__main__':
     #       )
 
     
-    bench("Zoom/Scale 2x2x2",cut(dshape),np.uint16,
-          lambda x: ndimage.zoom(x,(2,)*3, order=1, prefilter=False),
-          lambda x: scale(x, (2,)*3, interpolation="linear")
-          )
+    # bench("Zoom/Scale 2x2x2",cut(dshape),np.uint16,
+    #       lambda x: ndimage.zoom(x,(2,)*3, order=1, prefilter=False),
+    #       lambda x: scale(x, (2,)*3, interpolation="linear")
+    #       )
 
-    bench("Affine ",cut(dshape),np.float32,
-          lambda x: ndimage.affine_transform(x, np.random.randn(3,3)),
-          lambda x: affine(x, np.random.randn(3,3)),
-          # lambda x_g, res_g: uniform_filter(x_g, 7, res_g = res_g)
-          )
+    # bench("Affine ",cut(dshape),np.float32,
+    #       lambda x: ndimage.affine_transform(x, np.random.randn(3,3)),
+    #       lambda x: affine(x, np.random.randn(3,3)),
+    #       # lambda x_g, res_g: uniform_filter(x_g, 7, res_g = res_g)
+    #       )
 
 
+    #
+    # bench("Gaussian filter 5x5x5",cut(dshape),np.float32,
+    #       lambda x: spf.gaussian_filter(x, 5),
+    #       lambda x: gaussian_filter(x, 5),
+    #       lambda x_g, res_g: gaussian_filter(x_g, 5, res_g = res_g)
+    #       )
+    #
+    # bench("Zoom/Scale 2x2x2",cut(dshape),np.uint16,
+    #       lambda x: ndimage.zoom(x,(2,)*3, order=1, prefilter=False),
+    #       lambda x: scale(x, (2,)*3, interpolation="linear")
+    #       )
+    #
+    #
     # bench("NLM denoising",cut((64,256,256,)),np.float32,
     #       lambda x: denoise_nl_means(x,5,5,multichannel=False),
     #       lambda x: nlm3(x,.1,2,5),
@@ -105,8 +118,6 @@ if __name__ == '__main__':
     #       )
 
 
-
-    
     # from gputools.convolve.generic_separable_filters import _gauss_filter    
 
     # bench("Gaussian filter 5x5x5",cut(dshape),np.uint16,
@@ -121,5 +132,11 @@ if __name__ == '__main__':
     #       lambda x: geometric_transform(x, "c0,c1,c2",output_shape = x.shape)
     #       )
 
+
+    bench("Integral Image",cut((512,1024,1024,)),np.float32,
+          lambda x: sk_integral_image(x),
+          lambda x: integral_image(x),
+          lambda x_g, res_g: integral_image(x_g, res_g = res_g.astype(np.float32))
+          )
 
 
