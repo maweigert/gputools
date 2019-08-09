@@ -202,7 +202,7 @@ def _convolve_spatial3(im, hs,
 
     mode_str = {"constant":"CLK_ADDRESS_CLAMP",
                 "wrap":"CLK_ADDRESS_REPEAT",
-                "nearest":"CLK_ADDRESS_CLAMP_TO_EDGE",
+                "edge":"CLK_ADDRESS_CLAMP_TO_EDGE",
                 "reflect":"CLK_ADDRESS_MIRRORED_REPEAT"}
 
     Ns = im.shape

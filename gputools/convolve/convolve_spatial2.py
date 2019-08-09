@@ -194,7 +194,7 @@ def _convolve_spatial2(im, hs,
     mode can be:
     "constant" - assumed values to be zero
     "wrap" - periodic boundary condition
-    "nearest" - values repeat the value at the edge of the image
+    "edge" - values repeat the value at the edge of the image
     "reflect" - values are reflected around the edge of the image
     """
 
@@ -205,9 +205,10 @@ def _convolve_spatial2(im, hs,
 
     mode_str = {"constant":"CLK_ADDRESS_CLAMP",
                 "wrap":"CLK_ADDRESS_REPEAT",
-                "nearest":"CLK_ADDRESS_CLAMP_TO_EDGE",
+                "edge":"CLK_ADDRESS_CLAMP_TO_EDGE",
                 "reflect":"CLK_ADDRESS_MIRRORED_REPEAT"}
 
+    print(mode_str[mode])
     Ny, Nx = im.shape
     Gy, Gx = Gs
 
@@ -262,7 +263,6 @@ def _convolve_spatial2(im, hs,
                     np.int32(_y0+Nblock_y//2-Npatch_y//2),
                     patches_g.data,
                     np.int32(i*Npatch_x*Npatch_y+j*Gx*Npatch_x*Npatch_y))
-
     #return np.abs(patches_g.get())
     # convolution
     fft(patches_g,inplace=True,  plan = plan)
