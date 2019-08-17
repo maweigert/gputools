@@ -10,7 +10,7 @@ import numpy as np
 from gputools import fft_plan, OCLArray, OCLImage, fft, \
     get_device, OCLProgram, pad_to_shape, tile_iterator
 from itertools import product
-from gputools.utils.utils import _is_power2, _next_power_of_2
+from gputools.utils.utils import _is_power2, next_power_of_2
 from ._abspath import abspath
 
 
@@ -81,7 +81,7 @@ def convolve_spatial3(im, psfs,
         the (Gx,Gy) psf grid, either of shape (Gx,Gy, Hy, Hx) or im.shape
 
     mode: string, optional
-        padding mode, either "constant" or "wrap"
+        Padding mode. Can be "constant", "wrap", "edge", or "reflect".
     grid_dim: tuple, optional
         the (Gy,Gx) grid dimension, has to be provided if psfs.shape = im.shape
 
@@ -200,8 +200,10 @@ def _convolve_spatial3(im, hs,
         raise NotImplementedError(
             "shape of image has to be divisible by Gx Gy  = %s shape mismatch" % (str(hs.shape[:2])))
 
-    mode_str = {"constant": "CLK_ADDRESS_CLAMP",
-                "wrap": "CLK_ADDRESS_REPEAT"}
+    mode_str = {"constant":"CLK_ADDRESS_CLAMP",
+                "wrap":"CLK_ADDRESS_REPEAT",
+                "edge":"CLK_ADDRESS_CLAMP_TO_EDGE",
+                "reflect":"CLK_ADDRESS_MIRRORED_REPEAT"}
 
     Ns = im.shape
 
@@ -209,7 +211,7 @@ def _convolve_spatial3(im, hs,
     Nblocks = [n // g for n, g in zip(Ns, Gs)]
 
     # the size of the overlapping patches with safety padding
-    Npatchs = tuple([_next_power_of_2(pad_factor * nb) for nb in Nblocks])
+    Npatchs = tuple([next_power_of_2(pad_factor * nb) for nb in Nblocks])
 
     prog = OCLProgram(abspath("kernels/conv_spatial3.cl"),
                       build_options=["-D", "ADDRESSMODE=%s" % mode_str[mode]])

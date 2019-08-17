@@ -24,8 +24,9 @@ setup(name='gputools',
       ],
       keywords='science image-processing ',
 
-      install_requires=["numpy>=1.11.0",
-                        "pyopencl>=2016.1",  # as enqueue_write_buffer is not supported later
+      install_requires=["scipy",
+                        "numpy>=1.11.0",
+                        "pyopencl>=2016.1",
                         "configparser",
                         "reikna>=0.6.7"],
 
@@ -34,6 +35,7 @@ setup(name='gputools',
                                     "ConfigParser",
                                     ],
           ':python_version>="3.0"': ["configparser",
+                                     "scikit-tensor-py3",
                                      ],
       },
 
