@@ -90,7 +90,7 @@ def _convolve_buf(data_g, h_g, res_g=None):
                         data_g.data, h_g.data, res_g.data,
                         *Nhs)
 
-    except cl.cffi_cl.LogicError as e:
+    except LogicError as e:
         # this catches the logic error if the kernel is to big for constant memory
         if e.code == -52:
             kernel_name = "convolve%sd_buf_global" % (len(data_g.shape))
@@ -100,7 +100,7 @@ def _convolve_buf(data_g, h_g, res_g=None):
 
         else:
             raise e
-    except cl.cffi_cl.RuntimeError as e:
+    except RuntimeError as e:
         # this catches the runtime error if the kernel is to big for constant memory
         if e.code == -5:
             kernel_name = "convolve%sd_buf_global" % (len(data_g.shape))
