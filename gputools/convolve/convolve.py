@@ -12,9 +12,9 @@ from gputools.utils.tile_iterator import tile_iterator
 import pyopencl as cl
 try:
     # pyopencl.cffi_cl was removed in version 2018.2
-    from pyopencl.cffi_cl import LogicError, RuntimeError
+    from pyopencl.cffi_cl import LogicError, RuntimeError as OCLRuntimeError
 except ImportError:
-    from pyopencl import LogicError, RuntimeError
+    from pyopencl import LogicError, RuntimeError as OCLRuntimeError
 from ._abspath import abspath
 
 
@@ -100,7 +100,7 @@ def _convolve_buf(data_g, h_g, res_g=None):
 
         else:
             raise e
-    except RuntimeError as e:
+    except OCLRuntimeError as e:
         # this catches the runtime error if the kernel is to big for constant memory
         if e.code == -5:
             kernel_name = "convolve%sd_buf_global" % (len(data_g.shape))
