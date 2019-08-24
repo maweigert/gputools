@@ -10,6 +10,11 @@ from gputools.core.ocltypes import assert_bufs_type
 from gputools.utils.tile_iterator import tile_iterator
 
 import pyopencl as cl
+try:
+    # pyopencl.cffi_cl was removed in version 2018.2
+    from pyopencl.cffi_cl import LogicError, RuntimeError
+except ImportError:
+    from pyopencl import LogicError, RuntimeError
 from ._abspath import abspath
 
 
