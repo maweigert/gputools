@@ -17,8 +17,7 @@ __kernel void affine3(__read_only image3d_t input,
 				 __constant float * mat)
 {
 
-  const sampler_t sampler = CLK_NORMALIZED_COORDS_TRUE|
-      SAMPLER_ADDRESS |	SAMPLER_FILTER;
+  const sampler_t sampler = SAMPLER_ADDRESS | SAMPLER_FILTER;
 
   uint i = get_global_id(0);
   uint j = get_global_id(1);
@@ -45,7 +44,7 @@ __kernel void affine3(__read_only image3d_t input,
   float z2 = (mat[0]*z+mat[1]*y+mat[2]*x+mat[3]);
 
 
-  float4 coord_norm = (float4)(x2/Nx,y2/Ny,z2/Nz,0.f);
+  float4 coord_norm = (float4)(x2,y2,z2,0.f);
 
   float pix = read_imagef(input,sampler,coord_norm).x;
 
