@@ -175,6 +175,7 @@ def _wrap_OCLArray(cls):
 
 
 def _wrap_OCLImage(cls):
+
     def prepare(arr):
         return np.require(arr, None, "C")
 
@@ -211,6 +212,7 @@ def _wrap_OCLImage(cls):
             res.dtype = arr.dtype
 
         res.num_channels = num_channels
+        res.ndim = arr.ndim
 
         return res
 
