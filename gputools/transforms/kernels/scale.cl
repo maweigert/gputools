@@ -10,7 +10,7 @@ __kernel void scale(__read_only image3d_t input, __global TYPENAME* output)
 {
 
     const sampler_t sampler = CLK_NORMALIZED_COORDS_TRUE |
-      CLK_ADDRESS_CLAMP_TO_EDGE |	SAMPLER_FILTER;
+      CLK_ADDRESS_CLAMP |	SAMPLER_FILTER;
 
   uint i = get_global_id(0);
   uint j = get_global_id(1);
@@ -21,19 +21,22 @@ __kernel void scale(__read_only image3d_t input, __global TYPENAME* output)
   uint Nz = get_global_size(2);
 
   //ensure correct sampling, see opencl 1.2 specification pg. 329
+
   float x = i + 0.5f;
   float y = j + 0.5f;
   float z = k + 0.5f;
 
+  TYPENAME pix = READ_IMAGE(input,sampler,(float4)(1.f*x/(Nx),
+    					 1.f*y/(Ny),
+    					 1.f*z/(Nz),0)).x;
 
-  /*TYPENAME pix = READ_IMAGE(input,sampler,(float4)(1.f*x/(Nx-1.f),
-						 1.f*y/(Ny-1.f),
-						 1.f*z/(Nz-1.f),0)).x;
-    */
-
-  TYPENAME pix = READ_IMAGE(input,sampler,(float4)(1.f*x/Nx,
-						 1.f*y/Ny,
-						 1.f*z/Nz,0)).x;
+  // float x = i + 0.5f;
+  // float y = j + 0.5f;
+  // float z = k + 0.5f;
+  
+  // TYPENAME pix = READ_IMAGE(input,sampler,(float4)(1.f*x/Nx,
+  //   					 1.f*y/Ny,
+  //   					 1.f*z/Nz,0)).x;
 
   output[i+Nx*j+Nx*Ny*k] = pix;
   
