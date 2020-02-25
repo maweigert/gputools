@@ -158,8 +158,9 @@ def _wrap_OCLArray(cls):
     cls.copy_image = copy_image
     cls.copy_image_resampled = copy_image_resampled
     cls.write_array = write_array
-
     cls._resample_prog = OCLProgram(abspath("kernels/copy_resampled.cl"))
+
+    cls.__array__ = cls.get
 
     for f in ["sum", "max", "min", "dot", "vdot"]:
         setattr(cls, f, wrap_module_func(cl_array, f))
@@ -352,7 +353,6 @@ def _wrap_OCLImage(cls):
         cl.enqueue_copy(queue, out, self, origin  = (0,)*ndim, region = imshape)
 
         return out
-        # return out.reshape(dshape)
 
     cls.from_array = from_array
     cls.empty = empty
@@ -367,6 +367,7 @@ def _wrap_OCLImage(cls):
     cls._resample_prog = OCLProgram(abspath("kernels/copy_resampled.cl"))
 
     cls.get = get
+    cls.__array__ = get
 
     cls.__name__ = str("OCLImage")
     return cls
