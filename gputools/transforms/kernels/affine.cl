@@ -27,22 +27,19 @@ __kernel void affine3(__read_only image3d_t input,
   uint Ny = get_global_size(1);
   uint Nz = get_global_size(2);
 
-  //float x = (mat[0]*i+mat[1]*j+mat[2]*k+mat[3]);
-  //float y = (mat[4]*i+mat[5]*j+mat[6]*k+mat[7]);
-  //float z = (mat[8]*i+mat[9]*j+mat[10]*k+mat[11]);
-  ////ensure correct sampling, see opencl 1.2 specification pg. 329
-  //x += 0.5f;
-  //y += 0.5f;
-  //z += 0.5f;
-
-  float x = i+0.5f;
-  float y = j+0.5f;
-  float z = k+0.5f;
-
+  float x = i;
+  float y = j;
+  float z = k;
+  
   float x2 = (mat[8]*z+mat[9]*y+mat[10]*x+mat[11]);
   float y2 = (mat[4]*z+mat[5]*y+mat[6]*x+mat[7]);
   float z2 = (mat[0]*z+mat[1]*y+mat[2]*x+mat[3]);
 
+  //ensure correct sampling of image, see opencl 1.2 specification pg. 329
+  x2 += 0.5f;
+  y2 += 0.5f;
+  z2 += 0.5f;
+  
 
   float4 coord_norm = (float4)(x2,y2,z2,0.f);
 
