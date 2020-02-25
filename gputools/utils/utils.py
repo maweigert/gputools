@@ -1,5 +1,6 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import numpy as np
+import math
 
 def pad_to_shape(d, dshape, mode = "constant"):
     """
@@ -13,16 +14,15 @@ def pad_to_shape(d, dshape, mode = "constant"):
     slices  = tuple(slice(-x//2,x//2) if x<0 else slice(None,None) for x in diff)
     res = d[slices]
     #then pad
-    # return np.pad(res,[(n/2,n-n/2) if n>0 else (0,0) for n in diff],mode=mode)
-    return np.pad(res,[(int(np.ceil(d/2.)),d-int(np.ceil(d/2.))) if d>0 else (0,0) for d in diff],mode=mode)
+    return np.pad(res,tuple((int(np.ceil(d/2.)),d-int(np.ceil(d/2.))) if d>0 else (0,0) for d in diff),mode=mode)
 
 
 
 def _is_power2(n):
-    return _next_power_of_2(n) == n
+    return next_power_of_2(n) == n
 
-def _next_power_of_2(n):
-    return int(2**np.ceil(np.log2(n)))
+def next_power_of_2(n):
+    return 1 if n == 0 else 2**math.ceil(math.log2(n))
 
 def pad_to_power2(data, axis = None, mode="constant"):
     """
@@ -35,7 +35,7 @@ def pad_to_power2(data, axis = None, mode="constant"):
     if np.all([_is_power2(n) for i, n in enumerate(data.shape) if i in axis]):
         return data
     else:
-        return pad_to_shape(data,[(_next_power_of_2(n) if i in axis else n) for i,n in enumerate(data.shape)], mode)
+        return pad_to_shape(data, [(next_power_of_2(n) if i in axis else n) for i, n in enumerate(data.shape)], mode)
 
 
 

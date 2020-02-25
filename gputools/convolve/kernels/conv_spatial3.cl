@@ -20,7 +20,7 @@ void kernel fill_patch3(read_only image3d_t src,
 							 const int offset_z,
 							 __global cfloat_t *dest, const int offset_dest){
 
-  const sampler_t sampler = CLK_ADDRESS_CLAMP|  CLK_FILTER_NEAREST;
+  const sampler_t sampler = ADDRESS_MODE |  CLK_FILTER_NEAREST;
 
   uint i = get_global_id(0);
   uint j = get_global_id(1);
@@ -56,8 +56,6 @@ void kernel fill_psf_grid3(__global float * src,
 							 const int offset_z_dest,
 							 const int offset_dest){
 
-
-  const sampler_t sampler = ADDRESSMODE |  CLK_FILTER_NEAREST;
 
   uint i = get_global_id(0);
   uint j = get_global_id(1);
@@ -110,7 +108,7 @@ void kernel interpolate3( __global cfloat_t * src,
 						  const int Npatch_y,
 						  const int Npatch_z){
 
-  const sampler_t sampler = CLK_ADDRESS_CLAMP|  CLK_FILTER_NEAREST;
+  const sampler_t sampler = ADDRESS_MODE |  CLK_FILTER_NEAREST;
 
   int i = get_global_id(0);
   int j = get_global_id(1);

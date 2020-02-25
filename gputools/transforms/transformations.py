@@ -17,7 +17,8 @@ from ._abspath import abspath
 from mako.template import Template
 
 
-def affine(data, mat=np.identity(4), mode="constant", interpolation="linear", res_g=None):
+
+def affine(data, mat=np.identity(4), output_shape=None, mode="constant", interpolation="linear", res_g=None):
     """
     affine transform data with matrix mat, which is the inverse coordinate transform matrix  
     (similar to ndimage.affine_transform)
@@ -28,6 +29,8 @@ def affine(data, mat=np.identity(4), mode="constant", interpolation="linear", re
         3d array to be transformed
     mat, ndarray or OCLArray
         3x3 or 4x4 inverse coordinate transform matrix 
+    output_shape: tuple of ints
+        shape of transformed array
     mode: string 
         boundary mode, one of the following:
         'constant'
@@ -70,12 +73,16 @@ def affine(data, mat=np.identity(4), mode="constant", interpolation="linear", re
 
     # reorder matrix, such that x,y,z -> z,y,x (as the kernel is assuming that)
 
+   if output_shape is None:
+        output_shape = data.shape
+
     if isinstance(data, OCLImage):
         d_im = data
     else:
         d_im = OCLImage.from_array(data.astype(np.float32, copy=False))
     if res_g is None:
-        res_g = OCLArray.empty(data.shape, np.float32)
+        res_g = OCLArray.empty(output_shape, np.float32)
+        
     mat_inv_g = OCLArray.from_array(mat.astype(np.float32, copy=False))
 
     prog = OCLProgram(abspath("kernels/affine.cl")
@@ -83,7 +90,7 @@ def affine(data, mat=np.identity(4), mode="constant", interpolation="linear", re
                                       mode_defines[mode])
 
     prog.run_kernel("affine3",
-                    data.shape[::-1], None,
+                    output_shape[::-1], None,
                     d_im, res_g.data, mat_inv_g.data)
 
     if isinstance(data, OCLImage):

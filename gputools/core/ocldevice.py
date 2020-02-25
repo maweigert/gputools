@@ -140,6 +140,8 @@ class OCLDevice:
     def get_info(self, info_str="MAX_MEM_ALLOC_SIZE"):
         return self.device.get_info(getattr(pyopencl.device_info, info_str))
 
+    def get_extensions(self):
+        return self.device.extensions.strip().split(' ')
     def __repr__(self):
         return self.get_all_info()
 

@@ -9,7 +9,7 @@ import numpy as np
 from time import time
 from functools import reduce
 from gputools import convolve_spatial2, convolve_spatial3
-import numpy.testing as npt
+
 
 def create_psf(sig=(.1,.1), xy_angle = 0., N = 10):
     x = np.linspace(-1,1,N+1)[:-1]
@@ -35,8 +35,6 @@ def psf_grid_const(Gx,Gy,N=21, sx = 0.01, sy = 0.01):
                              for _y in np.linspace(-1,1,Gy)])  for _x in np.linspace(-1,1,Gx)])
 
 
-
-
 def create_psf3(sig = (.3,.3,.3), N = 10, xy_angle = 0.):
     x = np.linspace(-1,1,N+1)[:-1]
     Z,Y,X = np.meshgrid(x,x,x,indexing="ij")
@@ -45,8 +43,6 @@ def create_psf3(sig = (.3,.3,.3), N = 10, xy_angle = 0.):
     h = np.exp(-reduce(np.add,[_X**2/_s**2/2. for _X,_s in zip([Z,Y2,X2],sig)]))
     h *= 1./np.sum(h)
     return h
-
-
 
 
 def make_grid2(hs):
@@ -67,6 +63,7 @@ def psf_grid_const3(Gx,Gy,Gz, N=21, sig = (0.01,0.01,0.01)):
                 for _ in range(Gy)])
                 for _ in range(Gz)])
 
+
 def psf_grid_linear3(Gx,Gy,Gz, N=16):
         return np.stack([np.stack([np.stack([create_psf3(N = N,
                     sig = (0.1+.4*x**2,0.001+.2*x**2,0.001+.2*x**2))
@@ -81,8 +78,6 @@ def psf_grid_const3(Gx,Gy,Gz, N=21, sig = (0.01,0.01,0.01)):
                 for _ in range(Gx)])
                 for _ in range(Gy)])
                 for _ in range(Gz)])
-
-
 
 
 def create_prolate_psf3(N = 21, w = (0,1,0), s1=.4, s2 = .1):
@@ -119,14 +114,20 @@ def make_grid3(hs):
     return im
 
 
-
-
 def test_conv2():
     im = np.zeros((128,128))
     Gx = 4
     Gy = 8
     hs = psf_grid_motion(Gx,Gy,100)
     out = convolve_spatial2(im, hs)
+    return im, out, hs
+
+
+def test_conv2_reflect():
+    im = np.zeros((128, 128))
+    Gx, Gy = 4, 8
+    hs = psf_grid_motion(Gx, Gy, 100)
+    out = convolve_spatial2(im, hs, mode='reflect')
     return im, out, hs
 
 
@@ -139,6 +140,7 @@ def test_conv2_psfs():
     out = convolve_spatial2(im, hs)
     return im, out, hs
 
+
 def test_conv3():
     im = np.zeros((128,64,32))
     Gx = 8
@@ -146,11 +148,18 @@ def test_conv3():
     Gz = 2
     hs = psf_grid_linear3(Gx,Gy,Gz,10)
     out = convolve_spatial3(im, hs)
-    return im,out, hs
+    return im, out, hs
+
+
+def test_conv3_reflect():
+    im = np.zeros((128, 64, 32))
+    Gx, Gy, Gz = 8, 4, 2
+    hs = psf_grid_linear3(Gx, Gy, Gz, 10)
+    out = convolve_spatial3(im, hs, mode='reflect')
+    return im, out, hs
+
 
 def test_conv3_psfs():
-
-    im = np.zeros((128,64,32))
     im = np.zeros((128, 128,128))
     im[::16,::16,::16] = 1.
     Gx = 16
@@ -183,7 +192,6 @@ def test_single_z():
     im[4:-4, 4::16, 4::16] = 1.
     hs = np.zeros((16, Nx, Nx))
 
-
     for i in range(Ng):
         for j in range(Ng):
             si = slice(i*(Nx//Ng)-Nh+(Nx//Ng)//2,i*(Nx//Ng)+Nh+1+(Nx//Ng)//2)
@@ -191,7 +199,6 @@ def test_single_z():
             hs[:,sj,si] = np.ones((16,2*Nh+1,2*Nh+1))
 
     hs[:,Nx//Ng//2::Nx//Ng,Nx//Ng//2::Nx//Ng] = 1.
-
 
     out = convolve_spatial3(im, hs, grid_dim = (1, Ng,Ng), pad_factor=2)
     return im, out, hs
@@ -208,7 +215,6 @@ def test_identity2():
 
     h = np.zeros_like(im)
     h[Ny//Ng//2::Ny//Ng,Nx//Ng//2::Nx//Ng] = 1.
-
 
     out = convolve_spatial2(im, h, grid_dim = (Ng,Ng), pad_factor=3)
 

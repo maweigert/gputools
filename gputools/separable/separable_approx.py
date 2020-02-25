@@ -3,15 +3,7 @@ import numpy as np
 from scipy import linalg
 from six.moves import range
 from six.moves import zip
-
-try:
-    from sktensor import dtensor, cp_als
-except ImportError:
-    print("no scikit-tensor detected, so separable functions wont work")
-    print("This is a python3 issue and can be resolved by:\n")
-    print("git clone https://github.com/mnick/scikit-tensor.git")
-    print("pip3 install scikit-tensor")
-
+from sktensor import dtensor, cp_als
 
 def _separable_series2(h, N=1):
     """ finds separable approximations to the 2d function 2d h
@@ -56,7 +48,7 @@ def _splitrank3(h, verbose=False):
     if np.sum(np.abs(h))<1.e-30:
         return tuple(np.zeros(s) for s in h.shape)+(np.zeros_like(h),)
 
-    P, fit, itr, exectimes = cp_als(dtensor(h.copy()), 1)
+    P, fit, itr = cp_als(dtensor(h.copy()), 1)[:3]  # ensure backwards compat
     hx, hy, hz = [(P.lmbda[0]) ** (1. / 3) * np.array(P.U[i])[:, 0] for i in range(3)]
     if verbose:
         print("lambdas= %s \nfit = %s \niterations= %s " % (P.lmbda, fit, itr))

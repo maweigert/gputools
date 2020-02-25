@@ -8,6 +8,7 @@ from __future__ import absolute_import, print_function
 import numpy as np
 import pyopencl.array as cl_array
 import pyopencl as cl
+from pyopencl.characterize import has_double_support
 
 from gputools import get_device
 
@@ -28,10 +29,20 @@ cl_image_datatype_dict.update({dtype: cltype for cltype, dtype in list(cl_image_
 cl_buffer_datatype_dict = {
     np.bool: "bool",
     np.uint8: "uchar",
-    np.uint16: "short",
+    np.uint16: "ushort",
+    np.uint32: "uint",
+    np.uint64: "ulong",
+    np.int8: "char",
+    np.int16: "short",
     np.int32: "int",
+    np.int64: "long",
     np.float32: "float",
+    np.complex64: "cfloat_t"
 }
+
+#if "cl_khr_fp64" in get_device().get_extensions():
+if has_double_support(get_device().device):
+    cl_buffer_datatype_dict[np.float64] = "double"
 
 
 def abspath(myPath):
@@ -45,6 +56,12 @@ def abspath(myPath):
         base_path = os.path.abspath(os.path.dirname(__file__))
         return os.path.join(base_path, myPath)
 
+
+def assert_supported_ndarray_type(dtype):
+    # make sure it works for e.g. np.float32 and np.dtype(np.float32)
+    dtype = getattr(dtype,"type", dtype)
+    if not dtype in cl_buffer_datatype_dict:
+        raise KeyError("dtype %s not supported "%dtype)
 
 def assert_bufs_type(mytype, *bufs):
     if not all([b.dtype.type == mytype for b in bufs]):
@@ -60,38 +77,45 @@ def _wrap_OCLArray(cls):
     def prepare(arr):
         return np.require(arr, None, "C")
 
+
     @classmethod
     def from_array(cls, arr, *args, **kwargs):
+        assert_supported_ndarray_type(arr.dtype.type)
         queue = get_device().queue
         return cl_array.to_device(queue, prepare(arr), *args, **kwargs)
 
     @classmethod
     def empty(cls, shape, dtype=np.float32):
+        assert_supported_ndarray_type(dtype)
         queue = get_device().queue
         return cl_array.empty(queue, shape, dtype)
 
     @classmethod
     def empty_like(cls, arr):
-        return cls.empty(arr.shape, arr.dtype)
+        assert_supported_ndarray_type(arr.dtype.type)
+        return cls.empty(arr.shape, arr.dtype.type)
 
     @classmethod
     def zeros(cls, shape, dtype=np.float32):
+        assert_supported_ndarray_type(dtype)
         queue = get_device().queue
         return cl_array.zeros(queue, shape, dtype)
 
     @classmethod
     def zeros_like(cls, arr):
+        assert_supported_ndarray_type(arr.dtype.type)
         queue = get_device().queue
-        return cl_array.zeros_like(queue, arr)
+        return cl_array.zeros(queue, arr.shape, arr.dtype.type)
 
     def copy_buffer(self, buf, **kwargs):
         queue = get_device().queue
         return cl.enqueue_copy(queue, self.data, buf.data,
                                **kwargs)
 
-    def write_array(self, data, **kwargs):
+    def write_array(self, arr, **kwargs):
+        assert_supported_ndarray_type(arr.dtype.type)
         queue = get_device().queue
-        return cl.enqueue_copy(queue, self.data, prepare(data),
+        return cl.enqueue_copy(queue, self.data, prepare(arr),
                                        **kwargs)
 
     def copy_image(self, img, **kwargs):
@@ -134,8 +158,9 @@ def _wrap_OCLArray(cls):
     cls.copy_image = copy_image
     cls.copy_image_resampled = copy_image_resampled
     cls.write_array = write_array
-
     cls._resample_prog = OCLProgram(abspath("kernels/copy_resampled.cl"))
+
+    cls.__array__ = cls.get
 
     for f in ["sum", "max", "min", "dot", "vdot"]:
         setattr(cls, f, wrap_module_func(cl_array, f))
@@ -166,7 +191,7 @@ def _wrap_OCLImage(cls):
 
     @classmethod
     def from_array(cls, arr, *args, **kwargs):
-
+        assert_supported_ndarray_type(arr.dtype.type)
         ctx = get_device().context
         if not arr.ndim in [2, 3, 4]:
             raise ValueError("dimension of array wrong, should be 1...4 but is %s" % arr.ndim)
@@ -200,6 +225,7 @@ def _wrap_OCLImage(cls):
     #
     @classmethod
     def empty(cls, shape, dtype, num_channels=1, channel_order=None):
+        assert_supported_ndarray_type(dtype)
         ctx = get_device().context
         if not len(shape) in [2, 3]:
             raise ValueError("number of dimension = %s not supported (can be 2 or 3)" % len(shape))
@@ -249,6 +275,7 @@ def _wrap_OCLImage(cls):
 
     @classmethod
     def empty_like(cls, arr):
+        assert_supported_ndarray_type(arr.dtype.type)
         return cls.empty(arr.shape, arr.dtype)
 
     def copy_buffer(self, buf, **kwargs):
@@ -275,22 +302,23 @@ def _wrap_OCLImage(cls):
                                            self.imshape(), None,
                                            img, self)
 
-    def write_array(self, data):
+    def write_array(self, arr):
+        assert_supported_ndarray_type(arr.dtype.type)
         queue = get_device().queue
 
         imshape = self.imshape()
         ndim = len(imshape)
-        dshape = data.shape
+        dshape = arr.shape
         # if clImg.format.channel_order in [cl.channel_order.RGBA,
         #                                   cl.channel_order.BGRA]:
         #     dshape = dshape[:-1]
 
         if dshape != imshape[::-1]:
-            raise ValueError("write_array: wrong shape!", data.shape[::-1], imshape)
+            raise ValueError("write_array: wrong shape!", arr.shape[::-1], imshape)
         else:
             # cl.enqueue_write_image(queue,self,[0]*ndim,imshape,data)
             # FIXME data.copy() is a work around
-            cl.enqueue_copy(queue, self, data.copy(),
+            cl.enqueue_copy(queue, self, arr.copy(),
                             origin=(0,) * ndim,
                             region=imshape)
             # cl.enqueue_fill_image(queue,self,data,
@@ -327,7 +355,6 @@ def _wrap_OCLImage(cls):
         cl.enqueue_copy(queue, out, self, origin  = (0,)*ndim, region = imshape)
 
         return out
-        # return out.reshape(dshape)
 
     cls.from_array = from_array
     cls.empty = empty
@@ -342,6 +369,7 @@ def _wrap_OCLImage(cls):
     cls._resample_prog = OCLProgram(abspath("kernels/copy_resampled.cl"))
 
     cls.get = get
+    cls.__array__ = get
 
     cls.__name__ = str("OCLImage")
     return cls

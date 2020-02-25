@@ -74,25 +74,13 @@ def tile_iterator(im,
 
     # iterates over cartesian product of subgrids
     for i,index in enumerate(product(*[range(sg) for sg in subgrids])):
-        # the slices
-        # if verbose:
-        #     print("tile %s/%s"%(i+1,np.prod(subgrids)))
-
         # dest[s_output] is where we will write to
         s_input = tuple([slice(i*b,(i+1)*b) for i,b in zip(index, blocksize)])
 
-
-
-        s_output = tuple([slice(p,-p-pm*(i==s-1)) for pm,p,i,s in zip(pad_mismatch,padsize, index, subgrids)])
-
-
         s_output = tuple([slice(p,b+p-pm*(i==s-1)) for b,pm,p,i,s in zip(blocksize,pad_mismatch,padsize, index, subgrids)])
-
 
         s_padinput = tuple([slice(i*b,(i+1)*b+2*p) for i,b,p in zip(index, blocksize, padsize)])
         padded_block = im_pad[s_padinput]
-
-        # print im.shape, padded_block.shape, s_output
 
         yield padded_block, s_input, s_output
 

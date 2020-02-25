@@ -59,16 +59,14 @@ def _gaussian_buf(d_g, sigma=(4., 4.),  res_g=None, normalize=True,truncate = 4.
 
     h_gs = tuple(OCLArray.from_array(h.astype(np.float32)) for h in hs)
 
-
     if len(d_g.shape) == 1:
         return convolve(d_g, *h_gs, res_g=res_g)
     elif len(d_g.shape) == 2:
         return convolve_sep2(d_g, *h_gs, res_g=res_g)
     elif len(d_g.shape) == 3:
         return convolve_sep3(d_g, *h_gs, res_g=res_g)
-
     else:
-        pass
+        raise NotImplentedError("only 1D, 2D, or 3D images supported yet")
 
 
 def _gaussian_np(data, sigma,  normalize=True, truncate = 4.0):
