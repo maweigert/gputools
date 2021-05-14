@@ -24,18 +24,20 @@ setup(name='gputools',
       ],
       keywords='science image-processing ',
 
-      install_requires=["scipy",
-                        "numpy>=1.11.0",
-                        "pyopencl>=2016.1",
-                        "configparser",
-                        "reikna>=0.6.7"],
+      install_requires=[
+          "six",
+          "scipy",
+          "numpy>=1.11.0",
+          "pyopencl>=2016.1",
+          "configparser",
+          "reikna>=0.6.7"],
 
       extras_require={
           ':python_version<"3.0"': ["scikit-tensor",
                                     "ConfigParser",
                                     ],
           ':python_version>="3.0"': ["configparser",
-                                     "scikit-tensor-py3",
+                                    # "scikit-tensor-py3",
                                      ],
       },
 

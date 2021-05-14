@@ -3,7 +3,11 @@ import numpy as np
 from scipy import linalg
 from six.moves import range
 from six.moves import zip
-from sktensor import dtensor, cp_als
+try:
+    from sktensor import dtensor, cp_als
+except ImportError:
+    print("Error: Could not find scikit-tensor which is needed separable approximations...")
+    print("pip install scikit-tensor-py3")
 
 def _separable_series2(h, N=1):
     """ finds separable approximations to the 2d function 2d h
