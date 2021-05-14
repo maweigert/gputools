@@ -28,7 +28,7 @@ def affine(data, mat=np.identity(4), output_shape=None, mode="constant", interpo
     data, ndarray or OCLImage
         3d array to be transformed
     mat, ndarray or OCLArray
-        3x3 or 4x4 inverse coordinate transform matrix 
+        the 4x4 inverse coordinate transform matrix (has to have type float32 if OCLArray)
     output_shape: tuple of ints
         shape of transformed array
     mode: string 
@@ -50,9 +50,6 @@ def affine(data, mat=np.identity(4), output_shape=None, mode="constant", interpo
         transformed array (same shape as input)
         
     """
-    warnings.warn(
-        "gputools.transform.affine: API change as of gputools>= 0.2.8: the inverse of the matrix is now used as in scipy.ndimage.affine_transform")
-
     if data.ndim != 3:
         raise ValueError("input data has to be a 3d array!")
 
@@ -71,20 +68,25 @@ def affine(data, mat=np.identity(4), output_shape=None, mode="constant", interpo
     if not mode in mode_defines:
         raise KeyError("mode = '%s' not defined ,valid: %s" % (mode, list(mode_defines.keys())))
 
-    # reorder matrix, such that x,y,z -> z,y,x (as the kernel is assuming that)
-
-   if output_shape is None:
+    if output_shape is None:
         output_shape = data.shape
 
     if isinstance(data, OCLImage):
         d_im = data
     else:
         d_im = OCLImage.from_array(data.astype(np.float32, copy=False))
+        
     if res_g is None:
         res_g = OCLArray.empty(output_shape, np.float32)
-        
-    mat_inv_g = OCLArray.from_array(mat.astype(np.float32, copy=False))
 
+    if isinstance(mat, OCLArray):
+        mat_inv_g = mat
+    else:
+        mat_inv_g = OCLArray.from_array(mat.astype(np.float32, copy=False))
+
+    if not (mat_inv_g.shape == (4,4) and mat_inv_g.dtype.type == np.float32):
+        raise ValueError("affine transformation matrix should be a (4,4) float32 matrix!")
+    
     prog = OCLProgram(abspath("kernels/affine.cl")
                       , build_options=interpolation_defines[interpolation] +
                                       mode_defines[mode])
