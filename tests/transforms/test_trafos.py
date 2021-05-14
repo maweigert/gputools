@@ -48,7 +48,7 @@ def test_shift(x):
     return out1, out2
 
 # @pytest.mark.skip(reason="still some minor difference to scipy.ndimage, have to check more")
-@check_error(atol=1e-2, rtol=1e-2)
+@check_error(atol=5e-2, rtol=5e-2)
 def test_affine(x):
     M = np.eye(4)
     np.random.seed(42)
@@ -57,7 +57,7 @@ def test_affine(x):
     out2 = ndimage.affine_transform(x, M, order=0, prefilter=False)
     return out1,out2
 
-@check_error(atol=1e-2, rtol=1e-2)
+@check_error(atol=5e-2, rtol=5e-2)
 def test_affine_reshape(x):
     M = np.eye(4)
     np.random.seed(42)
