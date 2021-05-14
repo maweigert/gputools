@@ -47,7 +47,12 @@ Check if basic stuff is working:
 python -m gputools
 ```
 
+#### Troubleshooting 
 
+If you experience installation issues in Windows, this might be due to `pyopencl` not  
+being properly installed. 
+1. Download the correct [pyopencl wheel](https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyopencl) for your platform
+2. Install it via `pip install pyopencl‑2020.2.2+cl21‑cp38‑cp38‑win_amd64.whl` 
 
 ### Usage
 
