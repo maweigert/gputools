@@ -19,8 +19,8 @@ __kernel void scan2d(__global DTYPE *input,__global DTYPE *output,
   const int idx_buf2 = (2*(i + offset_i)+1)*stride_i+stride_j*j;
 
   int off = 1;
-  DTYPE initial_val1 = (DTYPE)valid_index1?input[idx_buf1]:(DTYPE)0;
-  DTYPE initial_val2 = (DTYPE)valid_index2?input[idx_buf2]:(DTYPE)0;
+  DTYPE initial_val1 = (DTYPE)(valid_index1?input[idx_buf1]:0);
+  DTYPE initial_val2 = (DTYPE)(valid_index2?input[idx_buf2]:0);
 
   shared[2*i] = initial_val1;
   shared[2*i+1] = initial_val2;
