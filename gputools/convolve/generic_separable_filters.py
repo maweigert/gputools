@@ -30,7 +30,6 @@ def _generic_filter_gpu_2d(FUNC = "fmax(res,val)", DEFAULT = "-INFINITY"):
             tpl = Template(f.read())
 
         rendered = tpl.render(FSIZE_X=size[-1], FSIZE_Y=size[-2], FSIZE_Z=1,
-                              STRIDE_X=strides[-1], STRIDE_Y=strides[-2], STRIDE_Z=1, 
                               FUNC=FUNC, DEFAULT=DEFAULT, DTYPE = DTYPE)
 
         prog = OCLProgram(src_str=rendered)
@@ -46,8 +45,10 @@ def _generic_filter_gpu_2d(FUNC = "fmax(res,val)", DEFAULT = "-INFINITY"):
             assert res_g.shape==out_shape_y
 
         Ny,Nx = data_g.shape 
-        prog.run_kernel("filter_2_x", out_shape_x[::-1], None, data_g.data, tmp_g.data, np.int32(Nx))
-        prog.run_kernel("filter_2_y", out_shape_y[::-1], None, tmp_g.data, res_g.data, np.int32(Ny))
+        prog.run_kernel("filter_2_x", out_shape_x[::-1], None, data_g.data, tmp_g.data,
+                        np.int32(Nx), np.int32(strides[1]))
+        prog.run_kernel("filter_2_y", out_shape_y[::-1], None, tmp_g.data, res_g.data,
+                        np.int32(Ny), np.int32(strides[0]))
         return res_g
     return _filt
 
@@ -66,7 +67,6 @@ def _generic_filter_gpu_3d(FUNC = "fmax(res,val)", DEFAULT = "-INFINITY"):
             tpl = Template(f.read())
 
         rendered = tpl.render(FSIZE_X=size[-1], FSIZE_Y=size[-2], FSIZE_Z=size[-3],
-                              STRIDE_X=strides[-1], STRIDE_Y=strides[-2], STRIDE_Z=strides[-3], 
                               FUNC=FUNC, DEFAULT=DEFAULT, DTYPE = DTYPE)
 
         prog = OCLProgram(src_str=rendered,
@@ -91,9 +91,12 @@ def _generic_filter_gpu_3d(FUNC = "fmax(res,val)", DEFAULT = "-INFINITY"):
         tmp2_g = OCLArray.empty(out_shape_y, data_g.dtype)
             
         Nz, Ny, Nx = data_g.shape 
-        prog.run_kernel("filter_3_x", out_shape_x[::-1], None, data_g.data, tmp_g.data, np.int32(Nx))
-        prog.run_kernel("filter_3_y", out_shape_y[::-1], None, tmp_g.data, tmp2_g.data, np.int32(Ny))
-        prog.run_kernel("filter_3_z", out_shape_z[::-1], None, tmp2_g.data, res_g.data, np.int32(Nz))
+        prog.run_kernel("filter_3_x", out_shape_x[::-1], None, data_g.data, tmp_g.data,
+                        np.int32(Nx), np.int32(strides[2]))
+        prog.run_kernel("filter_3_y", out_shape_y[::-1], None, tmp_g.data, tmp2_g.data,
+                        np.int32(Ny), np.int32(strides[1]))
+        prog.run_kernel("filter_3_z", out_shape_z[::-1], None, tmp2_g.data, res_g.data,
+                        np.int32(Nz), np.int32(strides[0]))
         return res_g
     return _filt
 

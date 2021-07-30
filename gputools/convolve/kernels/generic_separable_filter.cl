@@ -3,7 +3,7 @@
 //2D
 
 __kernel void filter_2_x(__global ${DTYPE} * input,
-                         __global ${DTYPE} * output, const int Nx0){
+                         __global ${DTYPE} * output, const int Nx0, const int stride){
 
   const int i = get_global_id(0);
   const int j = get_global_id(1);
@@ -12,11 +12,11 @@ __kernel void filter_2_x(__global ${DTYPE} * input,
 
 
   ${DTYPE} res = ${DEFAULT};
-  int start = i*${STRIDE_X}-${FSIZE_X}/2;
+  int start = i*stride-${FSIZE_X}/2;
 
 
-  const int h_start = max(0,${FSIZE_X}/2-i*${STRIDE_X});
-  const int h_end = min(${FSIZE_X},Nx0-i*${STRIDE_X}+${FSIZE_X}/2);
+  const int h_start = max(0,${FSIZE_X}/2-i*stride);
+  const int h_end = min(${FSIZE_X},Nx0-i*stride+${FSIZE_X}/2);
 
   for (int ht = h_start; ht< h_end; ++ht){
     ${DTYPE} val = input[start+ht+j*Nx0];
@@ -27,20 +27,19 @@ __kernel void filter_2_x(__global ${DTYPE} * input,
 }
 
 __kernel void filter_2_y(__global ${DTYPE} * input,
-						__global ${DTYPE} * output, const int Ny0){
+						__global ${DTYPE} * output, const int Ny0, const int stride){
 
   const int i = get_global_id(0);
   const int j = get_global_id(1);
   
   const int Nx = get_global_size(0);
-  const int Ny = get_global_size(1);
 
   ${DTYPE} res = ${DEFAULT};
 
-  int start = j*${STRIDE_Y}-${FSIZE_Y}/2;
+  int start = j*stride-${FSIZE_Y}/2;
 
-  const int h_start = max(0,${FSIZE_Y}/2-j*${STRIDE_Y});
-  const int h_end = min(${FSIZE_Y},Ny0-j*${STRIDE_Y}+${FSIZE_Y}/2);
+  const int h_start = max(0,${FSIZE_Y}/2-j*stride);
+  const int h_end = min(${FSIZE_Y},Ny0-j*stride+${FSIZE_Y}/2);
 
   for (int ht = h_start; ht< h_end; ++ht){
     ${DTYPE} val = input[i+(start+ht)*Nx];
@@ -53,24 +52,24 @@ __kernel void filter_2_y(__global ${DTYPE} * input,
 //3D
 
 __kernel void filter_3_x(__global ${DTYPE} * input,
-				    __global ${DTYPE} * output, const int Nx0, const int Ny0){
+				    __global ${DTYPE} * output, const int Nx0, const int stride){
 
-					 int i = get_global_id(0);
-  int j = get_global_id(1);
-  int k = get_global_id(2);
+  const int i = get_global_id(0);
+  const int j = get_global_id(1);
+  const int k = get_global_id(2);
 
-  int Nx = get_global_size(0);
-  int Ny = get_global_size(1);
+  const int Nx = get_global_size(0);
+  const int Ny = get_global_size(1);
 
   ${DTYPE} res = ${DEFAULT};
 
-  int start = i-${FSIZE_X}/2;
+  int start = i*stride-${FSIZE_X}/2;
 
-  const int h_start = max(0,${FSIZE_X}/2-i*${STRIDE_X});
-  const int h_end = min(${FSIZE_X},Nx0-i*${STRIDE_X}+${FSIZE_X}/2);
+  const int h_start = max(0,${FSIZE_X}/2-i*stride);
+  const int h_end = min(${FSIZE_X},Nx0-i*stride+${FSIZE_X}/2);
 
   for (int ht = h_start; ht< h_end; ++ht){
-    ${DTYPE} val = input[start+ht+j*Nx0+k*Nx0*Ny0];
+    ${DTYPE} val = input[start+ht+j*Nx0+k*Nx0*Ny];
     res = ${FUNC};
 	  }
 
@@ -78,26 +77,25 @@ __kernel void filter_3_x(__global ${DTYPE} * input,
 }
 
 __kernel void filter_3_y(__global ${DTYPE} * input,
-                         __global ${DTYPE} * output, const int Nx0, const int Ny0){
+                         __global ${DTYPE} * output, const int Ny0, const int stride){
 
-  int i = get_global_id(0);
-  int j = get_global_id(1);
-  int k = get_global_id(2);
+  const int i = get_global_id(0);
+  const int j = get_global_id(1);
+  const int k = get_global_id(2);
 
-  int Nx = get_global_size(0);
-  int Ny = get_global_size(1);
-
+  const int Nx = get_global_size(0);
+  const int Ny = get_global_size(1);
 
 
   ${DTYPE} res = ${DEFAULT};
 
-  int start = j-${FSIZE_Y}/2;
+  int start = j*stride-${FSIZE_Y}/2;
 
-  const int h_start = max(0,${FSIZE_Y}/2-j*${STRIDE_Y});
-  const int h_end = min(${FSIZE_Y},Ny0-j*${STRIDE_Y}+${FSIZE_Y}/2);
+  const int h_start = max(0,${FSIZE_Y}/2-j*stride);
+  const int h_end = min(${FSIZE_Y},Ny0-j*stride+${FSIZE_Y}/2);
 
   for (int ht = h_start; ht< h_end; ++ht){
-    ${DTYPE} val = input[i+(start+ht)*Nx0*+k*Nx0*Ny0];
+    ${DTYPE} val = input[i+(start+ht)*Nx+k*Nx*Ny0];
 	res = ${FUNC};
 	}
 
@@ -106,24 +104,21 @@ __kernel void filter_3_y(__global ${DTYPE} * input,
 }
 
 __kernel void filter_3_z(__global ${DTYPE} * input,
-				    __global ${DTYPE} * output, const int Nz0){
+                         __global ${DTYPE} * output, const int Nz0, const int stride){
 
-  int i = get_global_id(0);
-  int j = get_global_id(1);
-  int k = get_global_id(2);
+  const int i = get_global_id(0);
+  const int j = get_global_id(1);
+  const int k = get_global_id(2);
 
-  int Nx = get_global_size(0);
-  int Ny = get_global_size(1);
-  int Nz = get_global_size(2);
-
-
+  const int Nx = get_global_size(0);
+  const int Ny = get_global_size(1);
 
   ${DTYPE} res = ${DEFAULT};
 
-  int start = k-${FSIZE_Z}/2;
+  int start = k*stride-${FSIZE_Z}/2;
 
-  const int h_start = max(0,${FSIZE_Z}/2-k);
-  const int h_end = min(${FSIZE_Z},Nz-k+${FSIZE_Z}/2);
+  const int h_start = max(0,${FSIZE_Z}/2-k*stride);
+  const int h_end = min(${FSIZE_Z},Nz0-k*stride+${FSIZE_Z}/2);
 
   for (int ht = h_start; ht< h_end; ++ht){
     ${DTYPE} val = input[i+j*Nx+(start+ht)*Nx*Ny];
