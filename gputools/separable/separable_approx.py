@@ -6,7 +6,8 @@ from six.moves import zip
 try:
     from sktensor import dtensor, cp_als
 except ImportError:
-    print("Error: Could not find scikit-tensor which is needed separable approximations...")
+    print("Warning: Could not find scikit-tensor which is needed for separable approximations...")
+    print("If you want to compute separable approximations, please install it with")
     print("pip install scikit-tensor-py3")
 
 def _separable_series2(h, N=1):
