@@ -19,7 +19,7 @@ def _time_me(func, dshape, niter = 2):
     return (time()-t)/niter
 
 def time_cpu(dshape, niter=2):
-    return _time_me(compare_ssim, dshape, niter)
+    return _time_me(structural_similarity, dshape, niter)
 
 def time_gpu(dshape, niter=2):
     return _time_me(ssim, dshape, niter)

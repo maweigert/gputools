@@ -15,7 +15,6 @@ from gputools import get_device
 from gputools.core.oclprogram import OCLProgram
 
 import pyopencl.clmath as cl_math
-import collections
 
 cl_image_datatype_dict = {cl.channel_type.FLOAT: np.float32,
                           cl.channel_type.UNSIGNED_INT8: np.uint8,
@@ -166,7 +165,7 @@ def _wrap_OCLArray(cls):
         setattr(cls, f, wrap_module_func(cl_array, f))
 
     for f in dir(cl_math):
-        if isinstance(getattr(cl_math, f), collections.Callable):
+        if callable(getattr(cl_math, f)):
             setattr(cls, f, wrap_module_func(cl_math, f))
 
     # cls.sum = sum
