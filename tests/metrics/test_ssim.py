@@ -5,7 +5,7 @@ mweigert@mpi-cbg.de
 from __future__ import print_function, unicode_literals, absolute_import, division
 import numpy as np
 import numpy.testing as npt
-from skimage.measure import compare_ssim
+from skimage.metrics import structural_similarity
 from itertools import combinations_with_replacement
 from time import time
 from gputools.metrics import ssim
@@ -36,7 +36,7 @@ def _test_single(dshape):
     drange = np.amax(d0) - np.amin(d0)
     print(drange)
 
-    m1, m2 = compare_ssim(d0,d1, data_range = drange), ssim(d0,d1)
+    m1, m2 = structural_similarity(d0,d1, data_range = drange), ssim(d0,d1)
 
     print("shape: %s \t\tSSIM = %.2f\t\tdifference: %s" % (dshape, m1, np.abs(m1-m2)))
     npt.assert_almost_equal(m1,m2, decimal = 5)

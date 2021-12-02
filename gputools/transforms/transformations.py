@@ -17,17 +17,20 @@ from ._abspath import abspath
 from mako.template import Template
 
 
-def affine(data, mat=np.identity(4), mode="constant", interpolation="linear"):
+
+def affine(data, mat=np.identity(4), output_shape=None, mode="constant", interpolation="linear", res_g=None):
     """
     affine transform data with matrix mat, which is the inverse coordinate transform matrix  
     (similar to ndimage.affine_transform)
      
     Parameters
     ----------
-    data, ndarray
+    data, ndarray or OCLImage
         3d array to be transformed
-    mat, ndarray 
-        3x3 or 4x4 inverse coordinate transform matrix 
+    mat, ndarray or OCLArray
+        the 4x4 inverse coordinate transform matrix (has to have type float32 if OCLArray)
+    output_shape: tuple of ints
+        shape of transformed array
     mode: string 
         boundary mode, one of the following:
         'constant'
@@ -43,14 +46,11 @@ def affine(data, mat=np.identity(4), mode="constant", interpolation="linear"):
         
     Returns
     -------
-    res: ndarray
+    res: ndarray or openCL array
         transformed array (same shape as input)
         
     """
-    warnings.warn(
-        "gputools.transform.affine: API change as of gputools>= 0.2.8: the inverse of the matrix is now used as in scipy.ndimage.affine_transform")
-
-    if not (isinstance(data, np.ndarray) and data.ndim == 3):
+    if data.ndim != 3:
         raise ValueError("input data has to be a 3d array!")
 
     interpolation_defines = {"linear": ["-D", "SAMPLER_FILTER=CLK_FILTER_LINEAR"],
@@ -68,21 +68,37 @@ def affine(data, mat=np.identity(4), mode="constant", interpolation="linear"):
     if not mode in mode_defines:
         raise KeyError("mode = '%s' not defined ,valid: %s" % (mode, list(mode_defines.keys())))
 
-    # reorder matrix, such that x,y,z -> z,y,x (as the kernel is assuming that)
+    if output_shape is None:
+        output_shape = data.shape
 
-    d_im = OCLImage.from_array(data.astype(np.float32, copy=False))
-    res_g = OCLArray.empty(data.shape, np.float32)
-    mat_inv_g = OCLArray.from_array(mat.astype(np.float32, copy=False))
+    if isinstance(data, OCLImage):
+        d_im = data
+    else:
+        d_im = OCLImage.from_array(data.astype(np.float32, copy=False))
+        
+    if res_g is None:
+        res_g = OCLArray.empty(output_shape, np.float32)
 
+    if isinstance(mat, OCLArray):
+        mat_inv_g = mat
+    else:
+        mat_inv_g = OCLArray.from_array(mat.astype(np.float32, copy=False))
+
+    if not (mat_inv_g.shape == (4,4) and mat_inv_g.dtype.type == np.float32):
+        raise ValueError("affine transformation matrix should be a (4,4) float32 matrix!")
+    
     prog = OCLProgram(abspath("kernels/affine.cl")
                       , build_options=interpolation_defines[interpolation] +
                                       mode_defines[mode])
 
     prog.run_kernel("affine3",
-                    data.shape[::-1], None,
+                    output_shape[::-1], None,
                     d_im, res_g.data, mat_inv_g.data)
 
-    return res_g.get()
+    if isinstance(data, OCLImage):
+        return res_g
+    else:
+        return res_g.get()
 
 
 def shift(data, shift=(0, 0, 0), mode="constant", interpolation="linear"):

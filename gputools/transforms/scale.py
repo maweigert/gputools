@@ -87,6 +87,8 @@ def scale(data, scale = (1.,1.,1.), interpolation = "linear"):
 
     return res_g.get()
 
+
+
 #
 # def scale_bicubic(data, scale=(1., 1., 1.)):
 #     """
