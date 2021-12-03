@@ -52,7 +52,7 @@ def test_geometric_transform(x):
 
 
     out1 = geometric_transform(x, mapping1, output_shape=x.shape, interpolation="linear")
-    out2 = ndimage.geometric_transform(x, mapping2, output_shape = x.shape, order=1, prefilter=False)
+    out2 = ndimage.geometric_transform(x, mapping2, output_shape = x.shape, order=0, prefilter=False)
 
     return out1, out2
 

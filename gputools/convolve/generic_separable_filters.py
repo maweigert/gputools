@@ -36,8 +36,8 @@ def _generic_filter_gpu_2d(FUNC = "fmax(res,val)", DEFAULT = "-INFINITY"):
 
         out_shape_x = _stride_shape(data_g.shape, (1,strides[1]))
         out_shape_y = _stride_shape(data_g.shape, (strides[0],strides[1]))
-
-        tmp_g = OCLArray.empty(out_shape_x, data_g.dtype)
+        
+        tmp_g = OCLArray.empty(out_shape_x, np.float32)
 
         if res_g is None:
             res_g = OCLArray.empty(out_shape_y, data_g.dtype)
@@ -47,8 +47,10 @@ def _generic_filter_gpu_2d(FUNC = "fmax(res,val)", DEFAULT = "-INFINITY"):
         Ny,Nx = data_g.shape 
         prog.run_kernel("filter_2_x", out_shape_x[::-1], None, data_g.data, tmp_g.data,
                         np.int32(Nx), np.int32(strides[1]))
+
         prog.run_kernel("filter_2_y", out_shape_y[::-1], None, tmp_g.data, res_g.data,
                         np.int32(Ny), np.int32(strides[0]))
+        
         return res_g
     return _filt
 
@@ -145,7 +147,7 @@ def make_filter(filter_gpu):
 
 
 
-def max_filter(data, size=7, res_g=None, strides=1, sub_blocks=(1, 1, 1)):
+def max_filter(data, size=7, res_g=None, strides=1, cval=None, sub_blocks=(1, 1, 1)):
     """
         maximum filter of given size
 
@@ -157,6 +159,8 @@ def max_filter(data, size=7, res_g=None, strides=1, sub_blocks=(1, 1, 1)):
         the size of the patch to consider
     res_g: OCLArray
         store result in buffer if given
+    cval: scalar or None
+        border values to use (if None, select minimal scalar value of data.dtype) 
     sub_blocks:
         perform over subblock tiling (only if data is ndarray)
 
@@ -164,15 +168,23 @@ def max_filter(data, size=7, res_g=None, strides=1, sub_blocks=(1, 1, 1)):
     -------
         filtered image or None (if OCLArray)
     """
+    if cval is None:
+        if np.issubdtype(data.dtype, np.integer):
+            cval = np.iinfo(data.dtype).min
+        else:
+            cval = "-INFINITY"
+    elif np.isinf(cval):
+        cval = "-INFINITY" if cval<0 else "INFINITY"
+
     if data.ndim == 2:
-        _filt = make_filter(_generic_filter_gpu_2d(FUNC = "(val>res?val:res)", DEFAULT = "-INFINITY"))
+        _filt = make_filter(_generic_filter_gpu_2d(FUNC = "(val>res?val:res)", DEFAULT = cval))
     elif data.ndim == 3:
-        _filt = make_filter(_generic_filter_gpu_3d(FUNC = "(val>res?val:res)", DEFAULT = "-INFINITY"))
+        _filt = make_filter(_generic_filter_gpu_3d(FUNC = "(val>res?val:res)", DEFAULT = cval))
 
     return _filt(data = data, size = size, res_g = res_g, strides=strides, sub_blocks=sub_blocks)
 
 
-def min_filter(data, size=7, res_g=None, strides=1, sub_blocks=(1, 1, 1)):
+def min_filter(data, size=7, res_g=None, strides=1, cval=None, sub_blocks=(1, 1, 1)):
     """
         minimum filter of given size
 
@@ -184,6 +196,8 @@ def min_filter(data, size=7, res_g=None, strides=1, sub_blocks=(1, 1, 1)):
         the size of the patch to consider
     res_g: OCLArray
         store result in buffer if given
+    cval: scalar or None
+        border values to use (if None, select maximal scalar value of data.dtype) 
     sub_blocks:
         perform over subblock tiling (only if data is ndarray)
 
@@ -191,17 +205,25 @@ def min_filter(data, size=7, res_g=None, strides=1, sub_blocks=(1, 1, 1)):
     -------
         filtered image or None (if OCLArray)
     """
+    if cval is None:
+        if np.issubdtype(data.dtype, np.integer):
+            cval = np.iinfo(data.dtype).max
+        else:
+            cval = "INFINITY"
+    elif np.isinf(cval):
+        cval = "-INFINITY" if cval<0 else "INFINITY"
+
     if data.ndim == 2:
-        _filt = make_filter(_generic_filter_gpu_2d(FUNC="(val<res?val:res)", DEFAULT="INFINITY"))
+        _filt = make_filter(_generic_filter_gpu_2d(FUNC="(val<res?val:res)", DEFAULT=cval))
     elif data.ndim == 3:
-        _filt = make_filter(_generic_filter_gpu_3d(FUNC="(val<res?val:res)", DEFAULT="INFINITY"))
+        _filt = make_filter(_generic_filter_gpu_3d(FUNC="(val<res?val:res)", DEFAULT=cval))
     else:
         raise ValueError("currently only 2 or 3 dimensional data is supported")
     return _filt(data=data, size=size, res_g=res_g, strides=strides, sub_blocks=sub_blocks)
 
 
 
-def uniform_filter(data, size=7, res_g=None, strides=1, sub_blocks=(1, 1, 1), normalized = True):
+def uniform_filter(data, size=7, res_g=None, strides=1, sub_blocks=(1, 1, 1), cval = 0, normalized = True):
     """
         mean filter of given size
 
@@ -215,6 +237,8 @@ def uniform_filter(data, size=7, res_g=None, strides=1, sub_blocks=(1, 1, 1), no
         store result in buffer if given
     sub_blocks:
         perform over subblock tiling (only if data is ndarray)
+    cval: scalar 
+        border values to use
     normalized: bool
         if True, the filter corresponds to mean
         if False, the filter corresponds to sum
@@ -229,14 +253,14 @@ def uniform_filter(data, size=7, res_g=None, strides=1, sub_blocks=(1, 1, 1), no
             norm = size
         else:
             norm = np.int32(np.prod(size))**(1./len(size))
-        FUNC = "res+val/%s"%norm
+        FUNC = "res+(float)(val)/%s"%norm
     else:
         FUNC = "res+val"
 
     if data.ndim == 2:
-        _filt = make_filter(_generic_filter_gpu_2d(FUNC=FUNC, DEFAULT="0"))
+        _filt = make_filter(_generic_filter_gpu_2d(FUNC=FUNC, DEFAULT=cval))
     elif data.ndim == 3:
-        _filt = make_filter(_generic_filter_gpu_3d(FUNC=FUNC, DEFAULT="0"))
+        _filt = make_filter(_generic_filter_gpu_3d(FUNC=FUNC, DEFAULT=cval))
 
     res =  _filt(data=data, size=size, res_g=res_g, strides=strides, sub_blocks=sub_blocks)
 
@@ -246,7 +270,7 @@ def uniform_filter(data, size=7, res_g=None, strides=1, sub_blocks=(1, 1, 1), no
 
 
 # FIXME: only to compare aganst gputools.gaussian_flter (which uses convolve_sep)
-def _gauss_filter(data, sigma=4, res_g=None, strides=1, sub_blocks=(1, 1, 1)):
+def _gauss_filter(data, sigma=4, res_g=None, strides=1, cval=0, sub_blocks=(1, 1, 1)):
     """
         gaussian filter of given size
 
@@ -258,6 +282,8 @@ def _gauss_filter(data, sigma=4, res_g=None, strides=1, sub_blocks=(1, 1, 1)):
         the size of the patch to consider
     res_g: OCLArray
         store result in buffer if given
+    cval: scalar
+        border values to use
     sub_blocks:
         perform over subblock tiling (only if data is ndarray)
 
@@ -265,6 +291,9 @@ def _gauss_filter(data, sigma=4, res_g=None, strides=1, sub_blocks=(1, 1, 1)):
     -------
         filtered image or None (if OCLArray)
     """
+    if np.isinf(cval):
+        cval = "-INFINITY" if cval<0 else "INFINITY"
+
     truncate = 4.
     radius = tuple(int(truncate*s +0.5) for s in sigma)
     size = tuple(2*r+1 for r in radius)
@@ -272,9 +301,9 @@ def _gauss_filter(data, sigma=4, res_g=None, strides=1, sub_blocks=(1, 1, 1)):
     s = sigma[0]
 
     if data.ndim == 2:
-        _filt = make_filter(_generic_filter_gpu_2d(FUNC="res+(val*native_exp((float)(-(ht-%s)*(ht-%s)/2/%s/%s)))"%(size[0]//2,size[0]//2,s,s), DEFAULT="0.f"))
+        _filt = make_filter(_generic_filter_gpu_2d(FUNC="res+(val*native_exp((float)(-(ht-%s)*(ht-%s)/2/%s/%s)))"%(size[0]//2,size[0]//2,s,s), DEFAULT=cval))
     elif data.ndim == 3:
-        _filt = make_filter(_generic_filter_gpu_3d(FUNC="res+(val*native_exp((float)(-(ht-%s)*(ht-%s)/2/%s/%s)))"%(size[0]//2,size[0]//2,s,s), DEFAULT="0.f"))
+        _filt = make_filter(_generic_filter_gpu_3d(FUNC="res+(val*native_exp((float)(-(ht-%s)*(ht-%s)/2/%s/%s)))"%(size[0]//2,size[0]//2,s,s), DEFAULT=cval))
 
     else:
         raise ValueError("currently only 2 or 3 dimensional data is supported")

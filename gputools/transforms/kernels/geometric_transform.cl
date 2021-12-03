@@ -45,8 +45,6 @@ __kernel void geometric_transform2(__read_only image2d_t input,
   
   DTYPE pix = READ_IMAGE(input,sampler, coord).x;
 
-  if ((i==10)&&(j==12))
-	printf("%d %d %.2f %.2f",i,j, coord.x, coord.y);
   
   output[i+Nx*j] = pix;
 }

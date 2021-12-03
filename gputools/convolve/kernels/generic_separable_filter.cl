@@ -11,7 +11,7 @@ __kernel void filter_2_x(__global ${DTYPE} * input,
   const int Nx = get_global_size(0);
 
 
-  ${DTYPE} res = ${DEFAULT};
+  float res = ${DEFAULT};
   int start = i*stride-${FSIZE_X}/2;
 
 
@@ -23,7 +23,7 @@ __kernel void filter_2_x(__global ${DTYPE} * input,
 	  res = ${FUNC};
 	  }
 
-  output[i+j*Nx] = res;
+  output[i+j*Nx] = (${DTYPE})(res);
 }
 
 __kernel void filter_2_y(__global ${DTYPE} * input,
@@ -34,7 +34,7 @@ __kernel void filter_2_y(__global ${DTYPE} * input,
   
   const int Nx = get_global_size(0);
 
-  ${DTYPE} res = ${DEFAULT};
+  float res = ${DEFAULT};
 
   int start = j*stride-${FSIZE_Y}/2;
 
@@ -46,7 +46,7 @@ __kernel void filter_2_y(__global ${DTYPE} * input,
 	res = ${FUNC};
 	}
 
-  output[i+j*Nx] = res;
+  output[i+j*Nx] = (${DTYPE})(res);
 }
 
 //3D
@@ -61,7 +61,7 @@ __kernel void filter_3_x(__global ${DTYPE} * input,
   const int Nx = get_global_size(0);
   const int Ny = get_global_size(1);
 
-  ${DTYPE} res = ${DEFAULT};
+  float res = ${DEFAULT};
 
   int start = i*stride-${FSIZE_X}/2;
 
@@ -73,7 +73,7 @@ __kernel void filter_3_x(__global ${DTYPE} * input,
     res = ${FUNC};
 	  }
 
-  output[i+j*Nx+k*Nx*Ny] = res;
+  output[i+j*Nx+k*Nx*Ny] = (${DTYPE})(res);
 }
 
 __kernel void filter_3_y(__global ${DTYPE} * input,
@@ -87,7 +87,7 @@ __kernel void filter_3_y(__global ${DTYPE} * input,
   const int Ny = get_global_size(1);
 
 
-  ${DTYPE} res = ${DEFAULT};
+  float res = ${DEFAULT};
 
   int start = j*stride-${FSIZE_Y}/2;
 
@@ -100,7 +100,7 @@ __kernel void filter_3_y(__global ${DTYPE} * input,
 	}
 
 
-  output[i+j*Nx+k*Nx*Ny] = res;
+  output[i+j*Nx+k*Nx*Ny] = (${DTYPE})(res);
 }
 
 __kernel void filter_3_z(__global ${DTYPE} * input,
@@ -113,7 +113,7 @@ __kernel void filter_3_z(__global ${DTYPE} * input,
   const int Nx = get_global_size(0);
   const int Ny = get_global_size(1);
 
-  ${DTYPE} res = ${DEFAULT};
+  float res = ${DEFAULT};
 
   int start = k*stride-${FSIZE_Z}/2;
 
@@ -126,5 +126,5 @@ __kernel void filter_3_z(__global ${DTYPE} * input,
 	}
 
 
-  output[i+j*Nx+k*Nx*Ny] = res;
+  output[i+j*Nx+k*Nx*Ny] = (${DTYPE})(res);
 }

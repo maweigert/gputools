@@ -63,8 +63,8 @@ def test_affine_reshape(x):
     np.random.seed(42)
     M[:3] += .1 * np.random.uniform(-1, 1, (3, 4))
     output_shape = (33,45,97)
-    out1 = affine(x, M, interpolation = "linear", output_shape = output_shape)
-    out2 = ndimage.affine_transform(x, M, order=1, prefilter=False, output_shape = output_shape)
+    out1 = affine(x, M, interpolation = "nearest", output_shape = output_shape)
+    out2 = ndimage.affine_transform(x, M, order=0, prefilter=False, output_shape = output_shape)
     return out1,out2
 
 
