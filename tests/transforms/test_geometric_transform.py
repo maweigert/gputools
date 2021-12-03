@@ -51,7 +51,7 @@ def test_geometric_transform(x):
     # mapping2 = lambda c:(c[0]-5,c[1]) if x.ndim ==2 else 0
 
 
-    out1 = geometric_transform(x, mapping1, output_shape=x.shape, interpolation="linear")
+    out1 = geometric_transform(x, mapping1, output_shape=x.shape, interpolation="nearest")
     out2 = ndimage.geometric_transform(x, mapping2, output_shape = x.shape, order=0, prefilter=False)
 
     return out1, out2
