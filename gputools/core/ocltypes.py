@@ -26,7 +26,7 @@ cl_image_datatype_dict = {cl.channel_type.FLOAT: np.float32,
 cl_image_datatype_dict.update({dtype: cltype for cltype, dtype in list(cl_image_datatype_dict.items())})
 
 cl_buffer_datatype_dict = {
-    np.bool: "bool",
+    np.bool_: "bool",
     np.uint8: "uchar",
     np.uint16: "ushort",
     np.uint32: "uint",

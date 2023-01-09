@@ -17,7 +17,7 @@ def create_shape(shape=(100, 110, 120)):
     for i in range(len(shape)):
         ss0 = list(slice(None) for _ in range(len(shape)))
         ss0[i] = (10. / min(shape) * np.arange(shape[i])) % 2 > 1
-        d[ss0] = 0
+        d[tuple(ss0)] = 0
     return d
 
 

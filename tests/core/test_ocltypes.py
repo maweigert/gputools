@@ -28,16 +28,22 @@ def buffer_create_write(data):
 def test_all():
     ndims = [2,3]
     Ns = [10,100,200]
+    types = [np.float32,np.uint8,np.uint16,np.uint32,np.uint64,np.int8,np.int16,np.int32,np.int64]
 
     for N in Ns:
         for ndim in ndims:
             shape = [N+n for n in ndims[:ndim]]
-            print("testing creation and writing %s"%(shape))
-            data = np.linspace(0,1,np.prod(shape)).reshape(shape).astype(np.float32)
-            image_create_write(data)
-            image_from_array(data)
-            buffer_create_write(data)
-            buffer_from_array(data)
+            data0 = np.linspace(0,1,np.prod(shape)).reshape(shape)
+            for t in types:
+                print("testing creation and writing %s with dtype %s"%(shape, t))
+                data = data0.astype(t)                    
+                buffer_create_write(data)
+                buffer_from_array(data)
+                if data.dtype.type is np.float32:
+                    image_create_write(data)
+                    image_from_array(data)
+
+
 
     
 if __name__ == '__main__':
