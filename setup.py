@@ -30,10 +30,10 @@ setup(name='gputools',
       install_requires=[
           "six",
           "scipy",
-          "numpy<1.24.0", # bc reikna np.bool issue
+          "numpy<2.0",
           "pyopencl>=2016.1",
           "configparser",
-          "reikna>=0.6.7"],
+          "reikna>=0.8.0"],
 
       extras_require={
           ':python_version<"3.0"': ["scikit-tensor",
