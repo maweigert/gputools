@@ -30,7 +30,7 @@ setup(name='gputools',
       install_requires=[
           "six",
           "scipy",
-          "numpy<2.0",
+          "numpy",
           "pyopencl>=2016.1",
           "configparser",
           "reikna>=0.8.0"],
