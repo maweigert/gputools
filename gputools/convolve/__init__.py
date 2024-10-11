@@ -12,3 +12,4 @@ from .convolve_spatial3 import convolve_spatial3
 #from .minmax_filter import max_filter, min_filter
 from .generic_separable_filters import max_filter, min_filter, uniform_filter
 from .median_filter import median_filter
+from .rank_downscale import rank_downscale
