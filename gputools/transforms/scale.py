@@ -17,7 +17,7 @@ from ._abspath import abspath
 def _scale_shape(dshape, scale = (1,1,1)):
     """returns the shape after scaling (should be the same as ndimage.zoom"""
     nshape = np.round(np.array(dshape) * np.array(scale))
-    return tuple(nshape.astype(np.int))
+    return tuple(nshape.astype(int))
 
 
 def scale(data, scale = (1.,1.,1.), interpolation = "linear"):
