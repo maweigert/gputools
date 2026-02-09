@@ -2,7 +2,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import numpy as np
 import numpy.testing as npt
 from itertools import product, combinations_with_replacement
-import scipy.ndimage.filters as spf
+import scipy.ndimage as spf
 import gputools
 
 from gputools.convolve import  max_filter, min_filter, uniform_filter

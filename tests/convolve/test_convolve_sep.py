@@ -2,7 +2,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import numpy as np
 import numpy.testing as npt
 import gputools
-import scipy.ndimage.filters as sp_filter
+import scipy.ndimage as sp_filter
 
 
 def test_conv_gpu():

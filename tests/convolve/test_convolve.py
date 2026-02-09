@@ -2,7 +2,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import numpy as np
 import numpy.testing as npt
 from time import time
-import scipy.ndimage.filters as sp_filter
+import scipy.ndimage as sp_filter
 import gputools
 
 

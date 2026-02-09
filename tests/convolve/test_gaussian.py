@@ -1,7 +1,7 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import numpy as np
 import numpy.testing as npt
-import scipy.ndimage.filters as spf
+import scipy.ndimage as spf
 from itertools import combinations_with_replacement, combinations
 from gputools.convolve import gaussian_filter
 from gputools.convolve.generic_separable_filters import _gauss_filter

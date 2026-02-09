@@ -1,5 +1,5 @@
 import numpy as np
-import scipy.ndimage.filters as spf
+import scipy.ndimage as spf
 from scipy import ndimage
 from skimage.restoration import denoise_nl_means
 from skimage.transform import integral_image as sk_integral_image
