@@ -5,9 +5,8 @@ import numpy as np
 
 
 def test_2d(fac = .3):
-    from scipy.misc import ascent
-
-    d = ascent().astype(np.float32)
+    rng = np.random.RandomState(0)
+    d = rng.randint(0, 256, (512, 512)).astype(np.float32)
 
     d = d[:,:-10]
     sig = .2*np.amax(d)

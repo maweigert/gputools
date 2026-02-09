@@ -204,10 +204,10 @@ def test_single_z():
 
 
 def test_identity2():
-    from scipy.misc import ascent
-    from scipy.ndimage.interpolation import zoom
+    from scipy.ndimage import zoom
 
-    im = zoom(ascent().astype(np.float32),(2,2))
+    rng = np.random.RandomState(0)
+    im = zoom(rng.randint(0, 256, (512, 512)).astype(np.float32), (2, 2))
 
     Ng = 32
     Ny,Nx = im.shape
