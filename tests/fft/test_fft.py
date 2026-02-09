@@ -2,14 +2,9 @@
 import numpy as np
 import numpy.testing as npt
 from itertools import product
-from termcolor import colored
-
 from gputools import fft, fft_convolve, fft_plan, init_device
 
 #init_device(id_platform = 0, id_device = 1)
-
-def report_str(success):
-    return colored("\t[OK]", "blue") if success else colored("\t[FAIL]", "red")
 
 def _compare_fft_np(d):
     res1 = np.fft.fftn(d)

@@ -2,8 +2,6 @@
 import numpy as np
 import numpy.testing as npt
 from itertools import product, combinations
-from termcolor import colored
-
 from gputools import fft,  fft_plan
 
 
