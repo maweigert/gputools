@@ -25,20 +25,20 @@ FFT (pow2) | (128, 1024, 1024) complex64 | 13831 ms | 615 ms | 69 ms
 	[2] NVidia Titan X using gputools
 	[3] as [2] but without CPU->GPU->CPU transfer
 	
-### Requirements 
+### Requirements
 
-- python 2.7 / 3.5+
-- a working OpenCL environment (check with clinfo).
+- Python 3.9+
+- a working OpenCL environment (check with `clinfo`).
 
 ### Installation
 
 ```
 pip install gputools
 ```
-Or the developmental version:
+Or the development version:
 
 ```
-pip install git+https://github.com/maweigert/gputools@develop
+pip install git+https://github.com/maweigert/gputools
 ```
 
 Check if basic stuff is working:
@@ -47,12 +47,13 @@ Check if basic stuff is working:
 python -m gputools
 ```
 
-#### Troubleshooting 
+#### Troubleshooting
 
-If you experience installation issues in Windows, this might be due to `pyopencl` not  
-being properly installed. 
-1. Download the correct [pyopencl wheel](https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyopencl) for your platform
-2. Install it via `pip install pyopencl‑2020.2.2+cl21‑cp38‑cp38‑win_amd64.whl` 
+If you experience installation issues, this might be due to `pyopencl` not
+being properly installed. The easiest way to get a working pyopencl is via conda:
+```
+conda install -c conda-forge pyopencl
+```
 
 ### Usage
 
