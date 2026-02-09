@@ -20,6 +20,15 @@ import pyopencl
 __all__ = ["OCLDevice"]
 
 
+def _iter_devices(platform, device_type):
+    try:
+        return platform.get_devices(device_type)
+    except pyopencl.LogicError:
+        # Some platforms (notably on CI) raise INVALID_VALUE when a
+        # device type is not present instead of returning [].
+        return []
+
+
 class OCLDevice:
     """ a wrapper class representing a CPU/GPU device"""
 
@@ -62,10 +71,12 @@ class OCLDevice:
         device_types = [pyopencl.device_type.GPU, pyopencl.device_type.CPU]
 
         # get all platforms and devices
-        all_platforms_devs = dict([((_ip, _id, t), d)
-                                   for _ip, p in enumerate(platforms)
-                                   for _it, t in enumerate(device_types)
-                                   for _id, d in enumerate(p.get_devices(t))])
+        all_platforms_devs = dict(
+            [((_ip, _id, t), d)
+             for _ip, p in enumerate(platforms)
+             for _it, t in enumerate(device_types)
+             for _id, d in enumerate(_iter_devices(p, t))]
+        )
 
         if len(all_platforms_devs)==0:
             raise Exception("Failed to find any OpenCL platform or device.")
@@ -115,7 +126,7 @@ class OCLDevice:
             for name, identifier in printNames:
                 s += "device type: \t%s\n"%name
                 try:
-                    for d in p.get_devices(identifier):
+                    for d in _iter_devices(p, identifier):
                         s += "\t%s \n"%d.name
                 except:
                     s += "nothing found: \t%s\n"%name
