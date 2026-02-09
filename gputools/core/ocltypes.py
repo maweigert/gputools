@@ -4,7 +4,6 @@
 A basic wrapper class around pyopencl.cl__array
 
 """
-from __future__ import absolute_import, print_function
 import numpy as np
 import pyopencl.array as cl_array
 import pyopencl as cl

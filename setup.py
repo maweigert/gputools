@@ -18,31 +18,20 @@ setup(name='gputools',
           'Topic :: Scientific/Engineering',
           'License :: OSI Approved :: BSD License',
 
-          'Programming Language :: Python :: 2.7',
-          'Programming Language :: Python :: 3.5',
-          'Programming Language :: Python :: 3.6',
-          'Programming Language :: Python :: 3.8',
           'Programming Language :: Python :: 3.9',
           'Programming Language :: Python :: 3.10',
+          'Programming Language :: Python :: 3.11',
+          'Programming Language :: Python :: 3.12',
+          'Programming Language :: Python :: 3.13',
       ],
-      keywords='science image-processing ',
+      keywords='science image-processing',
+      python_requires='>=3.9',
 
       install_requires=[
-          "six",
           "scipy",
           "numpy",
           "pyopencl>=2016.1",
-          "configparser",
           "reikna>=0.8.0"],
-
-      extras_require={
-          ':python_version<"3.0"': ["scikit-tensor",
-                                    "ConfigParser",
-                                    ],
-          ':python_version>="3.0"': ["configparser",
-                                    # "scikit-tensor-py3",
-                                     ],
-      },
 
       package_data={"gputools":
                         ['core/kernels/*.cl',

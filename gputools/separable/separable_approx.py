@@ -1,8 +1,5 @@
-from __future__ import print_function, unicode_literals, absolute_import, division
 import numpy as np
 from scipy import linalg
-from six.moves import range
-from six.moves import zip
 try:
     from sktensor import dtensor, cp_als
 except ImportError:

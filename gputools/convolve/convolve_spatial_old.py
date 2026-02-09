@@ -6,7 +6,6 @@ mweigert@mpi-cbg.de
 
 """
 
-from __future__ import print_function, unicode_literals, absolute_import, division
 import numpy as np
 from gputools import fft_plan, OCLArray, OCLImage, fft, get_device, OCLProgram, pad_to_shape
 from gputools.utils.utils import _is_power2, next_power_of_2

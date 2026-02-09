@@ -1,4 +1,3 @@
-from __future__ import print_function, unicode_literals, absolute_import, division
 import numpy as np
 import numpy.testing as npt
 import scipy.ndimage as spf
