@@ -32,11 +32,13 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install OpenCL
-        run: |
-          brew install pocl
-          sudo mkdir -p /Library/OpenCL/Vendors
-          sudo ln -s /opt/homebrew/etc/OpenCL/vendors/*.icd /Library/OpenCL/Vendors/
+        run: brew install pocl
       - name: Install package
-        run: pip install . && pip install -r tests/requirements.txt
+        env:
+          CL_INC_DIR: /opt/homebrew/include
+          CL_LIB_DIR: /opt/homebrew/lib
+        run: |
+          pip install --no-binary pyopencl pyopencl
+          pip install . && pip install -r tests/requirements.txt
       - name: Run tests
         run: pytest -v tests/
