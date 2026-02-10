@@ -1,5 +1,7 @@
 # gputools - OpenCL accelerated volume processing in Python
 
+[![CI](https://github.com/maweigert/gputools/actions/workflows/ci.yml/badge.svg)](https://github.com/maweigert/gputools/actions/workflows/ci.yml)
+
 This package aims to provide GPU accelerated implementations of common volume processing algorithms to the python ecosystem, such as  
 
 * convolutions 
@@ -93,7 +95,7 @@ bilateral filter, non local means
 
 ```python
 ...
-d = np.zeros((128,128,128, np.float32))
+d = np.zeros((128,128,128), np.float32)
 d[50:78,50:78,50:78:2] = 4.
 d = d+np.random.normal(0,1,d.shape)
 res_nlm = gputools.denoise.nlm3(d,2.,2,3)
@@ -145,40 +147,6 @@ gputools.config.defaults
 for available keys and their defaults.
 
 Alternatively, the used OpenCL Device can be set via the environment variables `gputools_id_device`,  `gputools_id_platform`, and `gputools_use_gpu` (variables present in the config file will take precendence, however).
-
-
-### Troubleshooting
-
-#### pyopencl: _cffi.so ImportError
-If you see a
-```
-ImportError: _cffi.so: undefined symbol: clSVMFree
-```
-after importing gputools, this is most likely a problem of pyopencl being installed with an incorrent OpenCL version. 
-Check the OpenCL version for your GPU with clinfo (e.g. 1.2):
-
-```
-clinfo | grep Version
-```
-
-and install pyopencl manually while enforcing your opencl version:
-
-```
-# uninstall pyopencl
-pip uninstall pyopencl cffi
-  
-# get pyopencl source
-git clone https://github.com/pyopencl/pyopencl.git
-cd pyopencl
-python configure.py
-	
-# add in siteconf.py the line
-# CL_PRETEND_VERSION = "1.2"
-echo 'CL_PRETEND_VERSION = "1.2"' >> siteconf.py
-
-pip install .
-```
-where e.g. "1.2" is your version of OpenCL.
 
 
 
