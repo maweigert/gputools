@@ -1,8 +1,12 @@
 
+import os
 import numpy as np
 import numpy.testing as npt
+import pytest
 from itertools import product
 from gputools import fft, fft_convolve, fft_plan, init_device
+
+_IS_MACOS_CI = os.environ.get("CI") and os.sys.platform == "darwin"
 
 #init_device(id_platform = 0, id_device = 1)
 
@@ -11,6 +15,7 @@ def _compare_fft_np(d):
     res2 = fft(d, fast_math=True)
     return res1, res2
 
+@pytest.mark.skipif(_IS_MACOS_CI, reason="reikna FFT incorrect on pocl CPU device")
 def test_compare():
     for ndim in [1, 2, 3]:
         for dshape in product([32, 64, 128], repeat=ndim):

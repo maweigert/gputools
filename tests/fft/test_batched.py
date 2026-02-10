@@ -1,8 +1,12 @@
 
+import os
 import numpy as np
 import numpy.testing as npt
+import pytest
 from itertools import product, combinations
 from gputools import fft,  fft_plan
+
+_IS_MACOS_CI = os.environ.get("CI") and os.sys.platform == "darwin"
 
 
 def _single_batched(d, axes):
@@ -11,6 +15,7 @@ def _single_batched(d, axes):
     return res1, res2
 
 
+@pytest.mark.skipif(_IS_MACOS_CI, reason="reikna FFT incorrect on pocl CPU device")
 def test_batched():
     for ndim in [1, 2, 3]:
         dshape = 1024//(2**np.arange(ndim, 2*ndim))
