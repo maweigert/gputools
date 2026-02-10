@@ -1,8 +1,12 @@
+import os
 import numpy as np
 import numpy.testing as npt
+import pytest
 import scipy.ndimage as spf
 from itertools import combinations, combinations_with_replacement
 from gputools.convolve import  median_filter
+
+_IS_MACOS_CI = os.environ.get("CI") and os.sys.platform == "darwin"
 
 
 def _test_single(dshape, size , cval = 0., dtype = np.float32, skip_assert = False):
@@ -17,6 +21,7 @@ def _test_single(dshape, size , cval = 0., dtype = np.float32, skip_assert = Fal
     return out1, out2
 
 
+@pytest.mark.skipif(_IS_MACOS_CI, reason="pocl bus error on macOS CI")
 def test_all():
     for ndim in [2,3]:
         for dshape in combinations([19,31,43],ndim):
