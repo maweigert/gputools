@@ -2,30 +2,29 @@
 
 [![CI](https://github.com/maweigert/gputools/actions/workflows/ci.yml/badge.svg)](https://github.com/maweigert/gputools/actions/workflows/ci.yml)
 
-This package aims to provide GPU accelerated implementations of common volume processing algorithms to the python ecosystem, such as  
+GPU accelerated 2D/3D image processing, e.g. for microscopy, via OpenCL (i.e. works on both NVIDIA and non-NVIDIA devices).
 
-* convolutions 
+* convolutions
 * denoising
 * synthetic noise
 * ffts (simple wrapper around [reikna](https://github.com/fjarri/reikna))
 * affine transforms
 
-via OpenCL and the excellent [pyopencl](https://documen.tician.de/pyopencl/) bindings.
+Built on the excellent [pyopencl](https://documen.tician.de/pyopencl/) bindings.
 
 Some examples of processing tasks and their respective runtime (`tests/benchmark/benchmark.py`):
 
-Task | Image Size/type | CPU[1] | GPU[2] | GPU (w/o transfer)[3]
+Task | Image Size/type | CPU[1] | GPU[2] | GPU (w/o transfer)
 ----|----| ----| ---- | ----
-Mean filter 7x7x7| (128, 1024, 1024) uint8 | 2627 ms | 99 ms | 24 ms
-Median filter 3x3x3| (128, 1024, 1024) uint8 | 59750 ms | 346 ms | 252 ms
-Gaussian filter 5x5x5| (128, 1024, 1024) float32 | 9594 ms | 416 ms | 101 ms
-Zoom/Scale 2x2x2| (128, 1024, 1024) uint8 | 61829 ms | 466 ms | -
-NLM denoising| (64, 256, 256) float32 | 52736 ms | 742 ms | -
-FFT (pow2) | (128, 1024, 1024) complex64 | 13831 ms | 615 ms | 69 ms
+Mean filter 7x7x7| (128, 1024, 1024) uint8 | 1708 ms | 22 ms | 5 ms
+Median filter 3x3x3| (128, 1024, 1024) uint8 | 37591 ms | 49 ms | 31 ms
+Gaussian filter 5x5x5| (128, 1024, 1024) float32 | 4536 ms | 86 ms | 19 ms
+Zoom/Scale 2x2x2| (128, 1024, 1024) uint8 | 18433 ms | 133 ms | -
+NLM denoising| (64, 256, 256) float32 | 21109 ms | 105 ms | -
+FFT (pow2)| (128, 1024, 1024) complex64 | 3418 ms | 156 ms | 21 ms
 
-	[1] Xeon(R) CPU E5-2630 v4 using numpy/scipy functions
-	[2] NVidia Titan X using gputools
-	[3] as [2] but without CPU->GPU->CPU transfer
+	[1] AMD Ryzen Threadripper PRO 9965WX 
+	[2] NVIDIA GeForce RTX 5090 
 	
 ### Requirements
 
