@@ -42,9 +42,11 @@ jobs:
           pip install . && pip install -r tests/requirements.txt
       - name: Verify OpenCL
         run: |
+          otool -L $(python -c "import pyopencl._cl as m; print(m.__file__)")
+          ls /opt/homebrew/etc/OpenCL/vendors/ || true
+          ls /opt/homebrew/lib/libOpenCL* || true
           python -c "
           import pyopencl as cl
-          print('pyopencl linked to:', cl._cl.__file__)
           platforms = cl.get_platforms()
           print('Platforms:', platforms)
           for p in platforms:
