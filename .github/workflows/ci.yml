@@ -37,7 +37,8 @@ jobs:
       - name: Install package
         run: |
           ICD_PREFIX=$(brew --prefix opencl-icd-loader)
-          CMAKE_PREFIX_PATH="$ICD_PREFIX" pip install --no-binary pyopencl pyopencl
+          CMAKE_ARGS="-DOpenCL_LIBRARY=$ICD_PREFIX/lib/libOpenCL.dylib -DOpenCL_INCLUDE_DIR=$ICD_PREFIX/include" \
+            pip install --no-binary pyopencl pyopencl
           pip install . && pip install -r tests/requirements.txt
       - name: Verify OpenCL
         run: |
