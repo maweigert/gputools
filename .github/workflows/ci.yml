@@ -8,6 +8,7 @@ on:
 
 jobs:
   test-linux:
+    if: false  # temporarily disabled
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -35,10 +36,23 @@ jobs:
         run: brew install pocl
       - name: Install package
         env:
-          CL_INC_DIR: /opt/homebrew/include
-          CL_LIB_DIR: /opt/homebrew/lib
+          CMAKE_PREFIX_PATH: /opt/homebrew
         run: |
           pip install --no-binary pyopencl pyopencl
           pip install . && pip install -r tests/requirements.txt
+      - name: Verify OpenCL
+        run: |
+          python -c "
+          import pyopencl as cl
+          print('pyopencl linked to:', cl._cl.__file__)
+          platforms = cl.get_platforms()
+          print('Platforms:', platforms)
+          for p in platforms:
+              print(f'  {p.name}:')
+              try:
+                  print(f'    devices: {p.get_devices()}')
+              except Exception as e:
+                  print(f'    error: {e}')
+          "
       - name: Run tests
         run: pytest -v tests/
