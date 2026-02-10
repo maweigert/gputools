@@ -38,9 +38,14 @@ cl_buffer_datatype_dict = {
     np.complex64: "cfloat_t"
 }
 
-#if "cl_khr_fp64" in get_device().get_extensions():
-if has_double_support(get_device().device):
-    cl_buffer_datatype_dict[np.float64] = "double"
+try:
+    #if "cl_khr_fp64" in get_device().get_extensions():
+    if has_double_support(get_device().device):
+        cl_buffer_datatype_dict[np.float64] = "double"
+except Exception:
+    # No OpenCL device available at import time (e.g., CI). Fall back to
+    # not advertising float64 support until a device is present.
+    pass
 
 
 def abspath(myPath):

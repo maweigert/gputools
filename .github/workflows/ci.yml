@@ -34,6 +34,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Install OpenCL
+        run: brew install pocl
       - name: Install package
         run: pip install . && pip install -r tests/requirements.txt
       - name: Run tests

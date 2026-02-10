@@ -31,9 +31,19 @@ __USE_GPU__ = _get_param("use_gpu", int)
 
 
 class _ocl_globals(object):
-    device = OCLDevice(id_platform=__ID_PLATFORM__,
-                       id_device=__ID_DEVICE__,
-                       use_gpu=__USE_GPU__)
+    device = None
+    init_error = None
+
+
+def _init_default_device():
+    try:
+        _ocl_globals.device = OCLDevice(id_platform=__ID_PLATFORM__,
+                                        id_device=__ID_DEVICE__,
+                                        use_gpu=__USE_GPU__)
+        _ocl_globals.init_error = None
+    except Exception as e:
+        _ocl_globals.device = None
+        _ocl_globals.init_error = e
 
 
 def init_device(**kwargs):
@@ -46,11 +56,16 @@ def init_device(**kwargs):
     new_device = OCLDevice(**kwargs)
 
     # just change globals if new_device is different from old
-    if _ocl_globals.device.device != new_device.device:
+    if _ocl_globals.device is None or _ocl_globals.device.device != new_device.device:
         _ocl_globals.device = new_device
+        _ocl_globals.init_error = None
 
 
 def get_device():
+    if _ocl_globals.device is None and _ocl_globals.init_error is None:
+        _init_default_device()
+    if _ocl_globals.device is None:
+        raise RuntimeError("No OpenCL device available") from _ocl_globals.init_error
     return _ocl_globals.device
 
 

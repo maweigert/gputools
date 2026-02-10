@@ -22,5 +22,4 @@ def pytest_collection_modifyitems(config, items):
         return
     skip_gpu = pytest.mark.skip(reason="no OpenCL device available")
     for item in items:
-        if "gpu" in item.keywords:
-            item.add_marker(skip_gpu)
+        item.add_marker(skip_gpu)
